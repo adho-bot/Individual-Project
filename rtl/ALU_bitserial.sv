@@ -4,8 +4,8 @@ module ALU_bitserial(
     input  logic i_operandA,
     input  logic i_operandB,
     input  logic [1:0] i_opcode,   // Only 4 ops now
-    output logic o_result,
-    output logic o_carry_out
+    output logic o_result
+    //output logic o_carry_out
 );
     // Opcode definitions
     localparam ADD = 2'b00,
@@ -38,6 +38,6 @@ module ALU_bitserial(
             r_carry <= l_carry;     //only consider carry when ADD
     end
 
-    assign o_carry_out = r_carry;
+    //assign o_carry_out = r_carry;
 endmodule
 
