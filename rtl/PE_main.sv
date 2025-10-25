@@ -47,6 +47,7 @@ module PE_Main#(
     logic operandA;
     logic operandB;
     logic result;
+    logic [WIDTH - 1 : 0] newsTemp;
     
     // Register File instantiation
     Register_File #(
@@ -95,9 +96,9 @@ module PE_Main#(
         if(!i_rstn)
             o_news <= 1'b0;
         else if (i_data_valid) 
-            o_news <= result;
+            o_news <= newsTemp[31 - i_counter];
         else
-            o_news <= o_news;
+            newsTemp <= {newsTemp[30:0], result}; //lsb first, 
     end
     
     // ALU result writeback mux

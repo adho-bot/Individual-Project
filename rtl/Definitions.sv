@@ -21,25 +21,22 @@
 /*------------------------------------------------------------------------------------------*/
 /*                                Instruction Opcodes                                      */
 /*------------------------------------------------------------------------------------------*/
-
-`define OP_R_TYPE       7'b0110011 // R
-`define OP_I_TYPE       7'b0010011 // I
-`define OP_JAL          7'b1101111 // JAL
-`define OP_B_TYPE     	7'b1100011 // B
-`define OP_LOAD         7'b0000011 // LOAD
-`define OP_STORE        7'b0100011 // STORE
-
+//temp, will change once i decide on the instruction encodings
+`define OP_R_TYPE       7'b1111111 // R
+`define OP_MV_TYPE      7'b1111110 // I
+`define OP_LOAD         7'b1111101 // LOAD
+`define OP_STORE        7'b1111100 // STORE
 
 /*------------------------------------------------------------------------------------------*/
 /*                                      FSM STATES                                          */
 /*------------------------------------------------------------------------------------------*/
 
-`define IDLE       7'b0110011 // R
-`define DECODE       7'b0010011 // I
-`define DATA_LOAD          7'b1101111 // JAL
-`define R_EXECUTE     	7'b1100011 // B
-`define MV_EXEC         7'b0000011 // LOAD
-`define STORE_DATA        7'b0100011 // STORE
+`define IDLE       3'b001 // R
+`define DECODE     3'b010 // I
+`define DATA_LOAD  3'b011 // JAL
+`define R_EXECUTE  3'b100 // B
+`define MV_EXECUTE 3'b101 // LOAD
+`define STORE_DATA 3'b110 // STORE
 
 
 

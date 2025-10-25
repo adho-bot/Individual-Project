@@ -112,7 +112,7 @@ module Array_Main #(
     
     assign o_data_bus = (i_array_access) ? dataTemp : 0;
     
-    //Memory Write  PISO
+    //Memory Write  PISO prolly need a data write singal
     always_ff@(posedge i_clk) begin
         if(i_rstn) begin
             array_dataIn[Row][Col] <= 1'b0;
