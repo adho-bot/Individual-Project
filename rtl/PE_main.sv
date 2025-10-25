@@ -1,6 +1,6 @@
 module PE_Main#(
     parameter WIDTH = 32,
-    parameter DEPTH = 4
+    parameter DEPTH = 16
 )(
     // Global signals
     input  logic i_clk,
@@ -9,6 +9,7 @@ module PE_Main#(
     
     // Data input
     input  logic i_data,
+    output logic o_data,
     
     // Neighbour inputs
     input  logic i_north,
@@ -27,8 +28,9 @@ module PE_Main#(
     input  logic i_rs2_sel,
     input  logic [1:0] i_news_sel,
     input  logic i_wb_sel,
-    input  logic [1:0] i_opcode,
-    input  logic i_data_valid
+    input  logic [9:0] i_opcode,
+    input  logic i_data_valid,
+    input  logic i_dataout_en
 );
     // Parameters
     localparam [1:0] NORTH = 2'b00, EAST = 2'b01, WEST = 2'b10, SOUTH = 2'b11;
@@ -101,4 +103,6 @@ module PE_Main#(
     // ALU result writeback mux
     assign datain = (i_wb_sel) ? i_data : result;
     
+    //Data output to data bus
+    assign o_data = (i_dataout_en) ? rd1 : 0; 
 endmodule

@@ -1,17 +1,14 @@
+`include "Definitions.sv"
+
 module ALU_bitserial(
     input  logic i_clk,
     input  logic i_rstn,
     input  logic i_operandA,
     input  logic i_operandB,
-    input  logic [1:0] i_opcode,   // Only 4 ops now
+    input  logic [9:0] i_opcode,   // Only 5 ops for now
     output logic o_result
     //output logic o_carry_out
 );
-    // Opcode definitions
-    localparam ADD = 2'b00,
-               XOR = 2'b01,
-               AND = 2'b10,
-               OR  = 2'b11;
 
     logic r_carry, l_carry;
 
@@ -20,13 +17,15 @@ module ALU_bitserial(
         l_carry = 1'b0;
         o_result = 1'b0;
         case (i_opcode)
-            ADD: begin 
+            `ADD: begin 
                 o_result = i_operandA ^ i_operandB ^ r_carry;
                 l_carry = (i_operandA & i_operandB) | (r_carry & (i_operandA ^ i_operandB));
             end
-            XOR: o_result = i_operandA ^ i_operandB;
-            AND: o_result = i_operandA & i_operandB;
-            OR:  o_result = i_operandA | i_operandB;
+            `XORR: o_result = i_operandA ^ i_operandB;
+            `ANDD: o_result = i_operandA & i_operandB;
+            `ORR:  o_result = i_operandA | i_operandB;
+            `SUB:  o_result = i_operandA + ~(i_operandB) + 1;
+            default: o_result = 0;
         endcase
     end
     
