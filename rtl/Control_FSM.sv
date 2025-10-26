@@ -4,6 +4,7 @@ module Control_FSM(
     input  logic        i_clk,
     input  logic        i_rstn,
     input  logic [31:0] i_instruction,  // instruction word (opcode + operands)
+    input  logic [4:0] i_counter,
 
     output logic [2:0]  o_state
     
@@ -42,6 +43,7 @@ module Control_FSM(
                     `OP_R_TYPE:  next_state = `R_EXECUTE;
                     `OP_MV_TYPE: next_state = `MV_EXECUTE;
                     `OP_STORE: next_state = `STORE_DATA;
+                    `OP_NEWS_TYPE: next_state = `NEWS_EXECUTE;
                     default:   next_state = `IDLE;
                 endcase
             end
@@ -51,6 +53,10 @@ module Control_FSM(
             end
 
             `R_EXECUTE: begin
+                next_state = `IDLE;
+            end
+            
+            `NEWS_EXECUTE: begin
                 next_state = `IDLE;
             end
 

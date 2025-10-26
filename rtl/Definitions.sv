@@ -23,9 +23,10 @@
 /*------------------------------------------------------------------------------------------*/
 //temp, will change once i decide on the instruction encodings
 `define OP_R_TYPE       7'b1111111 // R
-`define OP_MV_TYPE      7'b1111110 // I
+`define OP_MV_TYPE      7'b1111110 // MOVE
 `define OP_LOAD         7'b1111101 // LOAD
 `define OP_STORE        7'b1111100 // STORE
+`define OP_NEWS_TYPE    7'b1111011 // Another R type implementation
 
 /*------------------------------------------------------------------------------------------*/
 /*                                      FSM STATES                                          */
@@ -34,9 +35,10 @@
 `define IDLE       3'b001 // R
 `define DECODE     3'b010 // I
 `define DATA_LOAD  3'b011 // JAL
-`define R_EXECUTE  3'b100 // B
-`define MV_EXECUTE 3'b101 // LOAD
-`define STORE_DATA 3'b110 // STORE
+`define R_EXECUTE  3'b100 // implement as R type
+`define NEWS_EXECUTE 3'b101 //implement as  I type
+`define MV_EXECUTE 3'b110 // LOAD
+`define STORE_DATA 3'b111 // STORE
 
 
 
