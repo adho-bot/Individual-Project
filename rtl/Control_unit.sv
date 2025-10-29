@@ -9,18 +9,20 @@ module Control_Unit(
 	
 
 	//Control logic
-    output  logic [4:0]  	i_rd1_addr,
-    output  logic [4:0]  	i_rd2_addr,
-    output  logic [4:0]  	i_wr_addr,
-    output  logic        	i_wr_en,
-    output  logic        	i_rs2_sel,
-    output  logic [1:0]     i_news_sel,
-    output  logic        	i_wb_sel,
-    output  logic [9:0]  	i_opcode,
-    output  logic        	i_data_valid,
-    output  logic [4:0]     i_counter,
-    output  logic           i_dataout_en
+    output  logic [4:0]  	o_rd1_addr,
+    output  logic [4:0]  	o_rd2_addr,
+    output  logic [4:0]  	o_wr_addr,
+    output  logic        	o_wr_en,
+    output  logic        	o_rs2_sel,
+    output  logic [1:0]     o_news_sel,
+    output  logic        	o_wb_sel,
+    output  logic [9:0]  	o_opcode,
+    output  logic        	o_data_valid,
+    output  logic [4:0]     o_counter,
+    output  logic           o_dataout_en,
 
+    output logic            o_data_wr,
+    output logic            o_data_rd
 
 );
 
@@ -48,7 +50,10 @@ module Control_Unit(
         .o_wb_sel(i_wb_sel),
         .o_opcode(i_opcode),
         .o_data_valid(i_data_valid),
-        .o_dataout_en(i_dataout_en)
+        .o_dataout_en(i_dataout_en),
+        
+        .o_data_wr(o_data_wr),
+        .o_data_rd(o_data_rd)
     );
 
 endmodule

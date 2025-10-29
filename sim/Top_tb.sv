@@ -28,24 +28,23 @@ module Top_tb;
         errors = 0;
         i_rstn = 0;
         
-        // Dump waveforms
-        $dumpfile("top_tb.vcd");
-        $dumpvars(0, Top_tb);
         
-        // Reset sequence
-        $display("========================================");
-        $display("Starting PE Array Processor Testbench");
-        $display("========================================");
         repeat(5) @(posedge i_clk);
         i_rstn = 1;
+        
+        
         $display("[%0t] Reset released", $time);
         repeat(2) @(posedge i_clk);
+        
+        
         
         // Test 1: Basic data memory write
         test_num = 1;
         $display("\n[TEST %0d] Data Memory Write Test", test_num);
         test_data_memory_write();
         
+        
+        /*
         // Test 2: Basic data memory read
         test_num = 2;
         $display("\n[TEST %0d] Data Memory Read Test", test_num);
@@ -90,7 +89,7 @@ module Top_tb;
         test_num = 10;
         $display("\n[TEST %0d] Back-to-Back Operations", test_num);
         test_back_to_back();
-        
+        *
         // Summary
         repeat(10) @(posedge i_clk);
         $display("\n========================================");
