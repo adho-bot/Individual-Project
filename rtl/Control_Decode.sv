@@ -1,4 +1,4 @@
-`include "Definitions"
+`include "Definitions.sv"
 
 module Control_Decode(
     // FSM / instruction inputs

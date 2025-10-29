@@ -17,15 +17,8 @@ module Array_Main #(
     input  logic [9:0]  i_opcode,
     input  logic        i_data_valid,
     input  logic [$clog2(DATA_WIDTH) - 1:0]  i_counter,
-    input  logic        i_dataout_en,
+    input  logic        i_dataout_en
 
-    // Global data bus
-    input  logic [DATA_WIDTH-1:0] i_data_bus,
-    output logic [DATA_WIDTH-1:0] o_data_bus,
-    
-    //Memory Access signals
-    input logic i_array_access,
-    input logic [31:0] i_array_address
 );
 
     // Internal wiring for inter-PE connections
@@ -91,33 +84,4 @@ module Array_Main #(
     endgenerate
     
     
-    //Memory interfacing
-    
-    //Address -> row/col converter
-    logic [15:0] Row, Col;
-    always_comb begin
-        Row = i_array_address >> $clog2(ROWS);    
-        Col = i_array_address % ROWS;
-    end
-    
-    
-    //Memory Read   SIPO
-    always_ff@(posedge i_clk) begin
-        if(i_rstn) begin
-            dataTemp <= 32'd0;
-        end else begin
-            dataTemp <= {dataTemp[31:1],array_dataOut[Row][Col]};
-        end
-    end
-    
-    assign o_data_bus = (i_array_access) ? dataTemp : 0;
-    
-    //Memory Write  PISO prolly need a data write singal
-    always_ff@(posedge i_clk) begin
-        if(i_rstn) begin
-            array_dataIn[Row][Col] <= 1'b0;
-        end else begin
-            array_dataIn[Row][Col] <= i_data_bus[i_counter]; //lsb first
-        end
-    end
 endmodule

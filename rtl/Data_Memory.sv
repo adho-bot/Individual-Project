@@ -11,24 +11,12 @@ module Data_Memory #(
     output logic [31:0] o_data,
     
     // Array memory-mapped I/O interface
-    output logic        o_array_access,
-    output logic [31:0] o_array_address,
-    output logic [31:0] o_array_wdata,
-    output logic        o_array_wr,
-    output logic        o_array_rd,
-    input  logic [31:0] i_array_rdata
+    output logic        o_array_access
+
 );
 
     logic [7:0] data_memory [0:MEM_SIZE-1];
 
-    // Detect if access is to array-mapped address space
-    always_comb begin
-        o_array_access  = (i_address >= ARRAY_BASE_ADDR);
-        o_array_address = i_address;
-        o_array_wdata   = i_data;
-        o_array_wr      = i_data_wr && o_array_access;
-        o_array_rd      = i_data_rd && o_array_access;
-    end
 
     // Normal memory read (only when not array-mapped)
     always_ff @(negedge i_clk) begin
@@ -37,8 +25,6 @@ module Data_Memory #(
                        data_memory[i_address[9:0]+2],
                        data_memory[i_address[9:0]+1],
                        data_memory[i_address[9:0]]};
-        end else if (o_array_rd) begin
-            o_data <= i_array_rdata; // read data from PE array
         end
     end
 

@@ -4,15 +4,11 @@ module Top (
     input  logic i_instruction,
     
     // Data Memory Signals
-    logic [31:0] address,
-    logic [31:0] dataIn,
-    logic [31:0] dataOut,
-    logic        data_wr,
-    logic        data_rd,
+    input  logic [31:0] address,
+    output logic        data_wr,
+    output logic        data_rd
     
-    // Array Memory Signals
-    logic [31:0] array_address,
-    logic        array_access
+
 );
 
     
@@ -49,15 +45,8 @@ module Top (
         .i_opcode(opcode),
         .i_data_valid(data_valid),
         .i_counter(counter),
-        .i_dataout_en(dataout_en),
+        .i_dataout_en(dataout_en)
 
-        // Global data bus
-        .i_data_bus(dataOut),
-        .o_data_bus(dataIn),
-
-        // Memory access
-        .i_array_access(array_access),
-        .i_array_address(array_address)
     );
     
     Control_Unit ctrl_inst (
@@ -78,7 +67,7 @@ module Top (
         .o_dataout_en(dataout_en),
         
          .o_data_wr(data_wr),
-        .o_data_rd(data_rdd)
+        .o_data_rd(data_rd)
     );
     
 

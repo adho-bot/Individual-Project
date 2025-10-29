@@ -28,14 +28,9 @@ module System_Top(
 
         // Data Memory interface
         .address(cpu_address),
-        .dataIn(cpu_rdata),
-        .dataOut(cpu_wdata),
         .data_wr(cpu_wr),
-        .data_rd(cpu_rd),
+        .data_rd(cpu_rd)
 
-        // Array Memory interface
-        .array_address(array_addr),
-        .array_access(array_access)
     );
 
     // Instantiate Data_Memory module
@@ -47,12 +42,8 @@ module System_Top(
         .i_data_rd(cpu_rd),
         .o_data(cpu_rdata),
         
-        .o_array_access(array_access),
-        .o_array_address(array_addr),
-        .o_array_wdata(array_wdata),
-        .o_array_wr(array_wr),
-        .o_array_rd(array_rd),
-        .i_array_rdata(array_rdata)
+        .o_array_access(array_access)
+
     );
 
 endmodule

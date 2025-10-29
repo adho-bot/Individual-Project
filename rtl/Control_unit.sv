@@ -1,4 +1,4 @@
-`include "Definitions"
+`include "Definitions.sv"
 
 module Control_Unit(
 	input logic 				   i_clk,
