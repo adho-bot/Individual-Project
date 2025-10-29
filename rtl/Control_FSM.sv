@@ -4,7 +4,7 @@ module Control_FSM(
     input  logic        i_clk,
     input  logic        i_rstn,
     input  logic [31:0] i_instruction,  // instruction word (opcode + operands)
-    input  logic [4:0] i_counter,
+    output  logic [4:0] o_counter,      //sync counter
 
     output logic [2:0]  o_state
     
@@ -15,6 +15,13 @@ module Control_FSM(
     // State encoding
     // ───────────────────────────────────────────────
     logic [2:0] next_state;
+
+
+    // ───────────────────────────────────────────────
+    // Counter Logic
+    // ───────────────────────────────────────────────
+    logic [4:0] counter;
+    assign o_counter = counter;    
 
     // ───────────────────────────────────────────────
     // Sequential block - state register
@@ -49,23 +56,43 @@ module Control_FSM(
             end
 
             `DATA_LOAD: begin
-             next_state = `IDLE; // fallback
+                if(counter < 5'd31) begin
+                    next_state = `DATA_LOAD; // fallback
+                end else begin
+                    next_state = `IDLE;
+                end
             end
 
             `R_EXECUTE: begin
-                next_state = `IDLE;
+                if(counter < 5'd31) begin
+                    next_state = `R_EXECUTE; // fallback
+                end else begin
+                    next_state = `IDLE;
+                end
             end
             
-            `NEWS_EXECUTE: begin
-                next_state = `IDLE;
+            `NEWS_EXECUTE: begin    //
+                if(counter < 5'd31) begin
+                    next_state = `NEWS_EXECUTE; // fallback
+                end else begin
+                    next_state = `IDLE;
+                end
             end
 
             `MV_EXECUTE: begin
-                next_state = `IDLE;
+                if(counter < 5'd31) begin
+                    next_state = `MV_EXECUTE; // fallback
+                end else begin
+                    next_state = `IDLE;
+                end
             end
 
             `STORE_DATA: begin
-                next_state = `IDLE;
+                if(counter < 5'd31) begin
+                    next_state = `STORE_DATA; // fallback
+                end else begin
+                    next_state = `IDLE;
+                end
             end
             default: begin
                 next_state = `IDLE;
@@ -73,5 +100,14 @@ module Control_FSM(
 
         endcase
     end
+
+always_ff@(posedge i_clk or negedge i_rstn) begin
+	if(!i_rstn) begin
+		counter <= 5'b0;
+	end else if(next_state == `DATA_LOAD ||next_state == `R_EXECUTE ||
+	            next_state == `NEWS_EXECUTE ||next_state == `MV_EXECUTE ||next_state == `STORE_DATA) begin
+	               counter <= counter + 1;
+	end
+end
 
 endmodule

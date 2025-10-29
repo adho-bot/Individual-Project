@@ -63,10 +63,10 @@ always_comb begin
             o_wr_en = 1'b1;
         end
         
-        `NEWS_EXECUTE: begin
+        `NEWS_EXECUTE: begin        //this is operation between rs1 and NEWS
             o_opcode = {i_instruction[31:25],i_instruction[14:12]};
             o_rs2_sel = 1'b1;
-            o_news_sel = i_instruction[1:0]; //<-------NEED TO CHANGE VALUES BASED ON INSTRUCTIONS THAT I MAKE
+            o_news_sel = i_instruction[21:20]; //<-------NEED TO CHANGE VALUES BASED ON INSTRUCTIONS THAT I MAKE
             
             //Register writeback
             o_wb_sel = 1'b0; //write back to reg file

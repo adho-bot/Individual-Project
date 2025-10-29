@@ -29,11 +29,13 @@ module Control_Unit(
     //state logic
     logic [2:0] state;
     
+    logic [4:0] o_counter;
+    
     Control_FSM control_inst(
         .i_clk(i_clk),
         .i_rstn(i_rstn),
         .i_instruction(i_instruction),  // instruction word (opcode + operands)
-        .i_counter(i_counter),
+        .o_counter(o_counter),
         .o_state(state)
     );
 

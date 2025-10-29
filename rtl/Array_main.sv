@@ -1,7 +1,8 @@
 module Array_Main #(
     parameter ROWS = 1,
     parameter COLS = 1,
-    parameter DATA_WIDTH = 32
+    parameter DATA_WIDTH = 32,
+    parameter ARRAY_BASE_ADDR = 32'h0001_0000
 )(
     input  logic i_clk,
     input  logic i_rstn,
@@ -17,7 +18,10 @@ module Array_Main #(
     input  logic [9:0]  i_opcode,
     input  logic        i_data_valid,
     input  logic [$clog2(DATA_WIDTH) - 1:0]  i_counter,
-    input  logic        i_dataout_en
+    input  logic        i_dataout_en,
+    
+    //Memory mapped address
+    input logic [31:0]  i_address
 
 );
 

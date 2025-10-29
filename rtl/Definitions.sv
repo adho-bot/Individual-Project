@@ -22,7 +22,7 @@
 /*                                Instruction Opcodes                                      */
 /*------------------------------------------------------------------------------------------*/
 //temp, will change once i decide on the instruction encodings
-`define OP_R_TYPE       7'b1111111 // R
+`define OP_R_TYPE       7'b1010111 // R
 `define OP_MV_TYPE      7'b1111110 // MOVE
 `define OP_LOAD         7'b1111101 // LOAD
 `define OP_STORE        7'b1111100 // STORE

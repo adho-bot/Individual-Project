@@ -4,9 +4,9 @@ module Top (
     input  logic i_instruction,
     
     // Data Memory Signals
-    input  logic [31:0] address,
-    output logic        data_wr,
-    output logic        data_rd
+    input  logic [31:0] i_address,
+    output logic        o_wr_en,
+    output logic        o_rd_en
     
 
 );
@@ -29,7 +29,8 @@ module Top (
     Array_Main #(
         .ROWS(1),         // example: 4x4 array
         .COLS(1),
-        .DATA_WIDTH(32)
+        .DATA_WIDTH(32),
+        .ARRAY_BASE_ADDR(32'h0001_0000)
     ) array_inst (
         .i_clk(i_clk),
         .i_rstn(i_rstn),
@@ -45,7 +46,9 @@ module Top (
         .i_opcode(opcode),
         .i_data_valid(data_valid),
         .i_counter(counter),
-        .i_dataout_en(dataout_en)
+        .i_dataout_en(dataout_en),
+        
+        .i_address(i_address)
 
     );
     
@@ -66,8 +69,8 @@ module Top (
         .o_counter(counter),
         .o_dataout_en(dataout_en),
         
-         .o_data_wr(data_wr),
-        .o_data_rd(data_rd)
+         .o_data_wr(o_wr_en),
+        .o_data_rd(o_rd_en)
     );
     
 
