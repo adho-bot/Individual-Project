@@ -5,7 +5,7 @@ module PE_Main#(
     // Global signals
     input  logic i_clk,
     input  logic i_rstn,
-    input  logic [$clog2(WIDTH)-1:0] i_counter,
+    input  logic [$clog2(WIDTH):0] i_counter,
     
     // Data input
     input  logic i_data,

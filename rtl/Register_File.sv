@@ -15,7 +15,7 @@ module Register_File#(
 
     // control
     input  logic        i_wr_en,
-    input  logic        i_counter, //global counter shared by all PEs
+    input  logic        [5:0] i_counter, //global counter shared by all PEs
 
     // serial data outputs
     output logic        o_rd1,

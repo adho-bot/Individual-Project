@@ -22,9 +22,9 @@ module Top (
     logic [1:0]  wb_sel;        // Assuming 2-bit select for writeback
     logic [6:0]  opcode;        // Standard RISC-V opcode width
     logic        data_valid;
-    logic [4:0]  counter;       // Assuming 32-bit counter
+    logic [5:0]  counter;       // Assuming 32-bit counter
     logic        dataout_en;
-    
+    logic       o_Control_ready;
     
     Array_Main #(
         .ROWS(1),         // example: 4x4 array
@@ -70,7 +70,9 @@ module Top (
         .o_dataout_en(dataout_en),
         
          .o_data_wr(o_wr_en),
-        .o_data_rd(o_rd_en)
+        .o_data_rd(o_rd_en),
+        
+        .o_Control_ready(o_Control_ready)
     );
     
 

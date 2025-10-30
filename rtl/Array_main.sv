@@ -17,7 +17,7 @@ module Array_Main #(
     input  logic        i_wb_sel,
     input  logic [9:0]  i_opcode,
     input  logic        i_data_valid,
-    input  logic [$clog2(DATA_WIDTH) - 1:0]  i_counter,
+    input  logic [$clog2(DATA_WIDTH):0]  i_counter,
     input  logic        i_dataout_en,
     
     //Memory mapped address

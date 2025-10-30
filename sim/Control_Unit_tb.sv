@@ -1,6 +1,5 @@
 `timescale 1ns/1ps
-`include "Definitions.sv"
-`include "Control_Unit.sv"
+`include "/home/gary/Individual_Project/rtl/Definitions.sv"
 
 module Control_Unit_tb;
 
@@ -18,7 +17,7 @@ module Control_Unit_tb;
     logic [9:0]  opcode;
     logic [4:0]  counter;
     logic        data_wr, data_rd;
-
+    logic           o_Control_ready;
     // ───────────────────────────────────────────────
     // Instantiate DUT
     // ───────────────────────────────────────────────
@@ -39,7 +38,8 @@ module Control_Unit_tb;
         .o_counter(counter),
         .o_dataout_en(dataout_en),
         .o_data_wr(data_wr),
-        .o_data_rd(data_rd)
+        .o_data_rd(data_rd),
+        .o_Control_ready(o_Control_ready)
     );
 
     // ───────────────────────────────────────────────
@@ -54,7 +54,7 @@ module Control_Unit_tb;
     initial begin
         rstn = 0;
         instruction = 32'b0;
-        #20;
+        #100;
         rstn = 1;
     end
 
@@ -72,7 +72,7 @@ module Control_Unit_tb;
         send_instr(STORE_inst(),          "STORE");
         send_instr(NEWS_TYPE_inst(),      "NEWS_TYPE");
 
-        #50;
+        #200;
         $display("\nSimulation complete.");
         $stop;
     end
@@ -85,19 +85,19 @@ module Control_Unit_tb;
     endfunction
 
     function [31:0] LOAD_inst();
-        LOAD_inst = {7'b0000010, 5'd0, 5'd0, 3'b000, 5'd4, `OP_LOAD};
+        LOAD_inst = {20'dX, 5'd4, `OP_LOAD};
     endfunction
 
     function [31:0] MV_TYPE_inst();
-        MV_TYPE_inst = {1'b0, 6'b000000, 5'd1, 5'd2, 3'b000, 5'd5, `OP_MV_TYPE};
+        MV_TYPE_inst = {25'dX, `OP_MV_TYPE};
     endfunction
 
     function [31:0] STORE_inst();
-        STORE_inst = {7'b0000011, 5'd3, 5'd2, 3'b000, 5'd0, `OP_STORE};
+        STORE_inst = {25'dX, `OP_STORE};
     endfunction
 
     function [31:0] NEWS_TYPE_inst();
-        NEWS_TYPE_inst = {7'b0101010, 2'b01, 5'd1, 3'b001, 5'd6, `OP_NEWS_TYPE};
+        NEWS_TYPE_inst = {7'b0000000, 2'b01, 5'd1, 3'b001, 5'd6, `OP_NEWS_TYPE};
     endfunction
 
     // ───────────────────────────────────────────────
@@ -107,9 +107,13 @@ module Control_Unit_tb;
         begin
             instruction = instr;
             $display("\n[TB] Applying %s instruction: %b", name, instr);
-            repeat(40) @(posedge clk);
-            instruction = 32'b0;
-            repeat(5) @(posedge clk);
+    
+            // Wait until DUT asserts o_Control_ready
+            do begin
+                @(posedge clk);
+            end while (!o_Control_ready);
+    
+            $display("[TB] %s instruction accepted at time %t", name, $time);
         end
     endtask
 endmodule

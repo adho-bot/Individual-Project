@@ -4,9 +4,11 @@ module Control_FSM(
     input  logic        i_clk,
     input  logic        i_rstn,
     input  logic [31:0] i_instruction,  // instruction word (opcode + operands)
-    output  logic [4:0] o_counter,      //sync counter
+    output  logic [5:0] o_counter,      //sync counter
 
-    output logic [2:0]  o_state
+    output logic [2:0]  o_state,
+    
+    output logic        o_FSM_ready     //ready signal for next instruction to be sent
     
     
 );
@@ -20,7 +22,7 @@ module Control_FSM(
     // ───────────────────────────────────────────────
     // Counter Logic
     // ───────────────────────────────────────────────
-    logic [4:0] counter;
+    logic [5:0] counter;
     assign o_counter = counter;    
 
     // ───────────────────────────────────────────────
@@ -56,7 +58,7 @@ module Control_FSM(
             end
 
             `DATA_LOAD: begin
-                if(counter < 5'd31) begin
+                if(counter < 6'd31) begin
                     next_state = `DATA_LOAD; // fallback
                 end else begin
                     next_state = `IDLE;
@@ -64,7 +66,7 @@ module Control_FSM(
             end
 
             `R_EXECUTE: begin
-                if(counter < 5'd31) begin
+                if(counter < 6'd31) begin
                     next_state = `R_EXECUTE; // fallback
                 end else begin
                     next_state = `IDLE;
@@ -80,7 +82,7 @@ module Control_FSM(
             end
 
             `MV_EXECUTE: begin
-                if(counter < 5'd31) begin
+                if(counter < 6'd31) begin
                     next_state = `MV_EXECUTE; // fallback
                 end else begin
                     next_state = `IDLE;
@@ -88,7 +90,7 @@ module Control_FSM(
             end
 
             `STORE_DATA: begin
-                if(counter < 5'd31) begin
+                if(counter < 6'd31) begin
                     next_state = `STORE_DATA; // fallback
                 end else begin
                     next_state = `IDLE;
@@ -103,11 +105,15 @@ module Control_FSM(
 
 always_ff@(posedge i_clk or negedge i_rstn) begin
 	if(!i_rstn) begin
-		counter <= 5'b0;
-	end else if(next_state == `DATA_LOAD ||next_state == `R_EXECUTE ||
-	            next_state == `NEWS_EXECUTE ||next_state == `MV_EXECUTE ||next_state == `STORE_DATA) begin
+		counter <= 6'b0;
+	end else if(o_state == `DATA_LOAD ||o_state == `R_EXECUTE ||
+	            o_state == `NEWS_EXECUTE ||o_state == `MV_EXECUTE ||o_state == `STORE_DATA) begin
 	               counter <= counter + 1;
+	end else begin
+	   counter <= 6'b0;
 	end
 end
+
+assign o_FSM_ready = (o_state == `IDLE) ? 1 : 0;
 
 endmodule

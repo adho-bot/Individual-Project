@@ -21,7 +21,7 @@ module Array_Main_tb;
     logic        i_wb_sel;
     logic [9:0]  i_opcode;
     logic        i_data_valid;
-    logic [$clog2(DATA_WIDTH)-1:0] i_counter;
+    logic [$clog2(DATA_WIDTH):0] i_counter;
     logic        i_dataout_en;
     logic [31:0] i_address;
     
