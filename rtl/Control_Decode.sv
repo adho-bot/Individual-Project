@@ -9,7 +9,7 @@ module Control_Decode(
     output logic [4:0]  o_rd1_addr,
     output logic [4:0]  o_rd2_addr,
     output logic [4:0]  o_wr_addr,
-    output logic        o_wr_en,
+    output logic        o_wr_reg_en,
     output logic        o_rs2_sel,
     output logic [1:0]  o_news_sel,
     output logic        o_wb_sel,
@@ -30,7 +30,7 @@ always_comb begin
             o_rd1_addr   = i_instruction[19:15];
             o_rd2_addr   = i_instruction[24:20];
             o_wr_addr    = 5'dX;
-            o_wr_en      = 1'b0;
+            o_wr_reg_en      = 1'b0;
             o_rs2_sel    = 1'bX;
             o_news_sel   = 2'bXX;
             o_wb_sel     = 1'bX;
@@ -42,12 +42,8 @@ always_comb begin
                
         end
         
-        `DECODE: begin
-            o_wb_sel = 1'b1;
-        end
-        
         `DATA_LOAD: begin
-            o_wr_en = 1'b1;
+            o_wr_reg_en = 1'b1;
             o_wb_sel = 1'b1;
             o_wr_addr = i_instruction[11:7];
             o_data_rd = 1'b1;
@@ -60,7 +56,7 @@ always_comb begin
             //Register writeback
             o_wb_sel = 1'b0; //write back to reg file
             o_wr_addr = i_instruction[11:7];
-            o_wr_en = 1'b1;
+            o_wr_reg_en = 1'b1;
         end
         
         `NEWS_EXECUTE: begin        //this is operation between rs1 and NEWS
@@ -71,7 +67,7 @@ always_comb begin
             //Register writeback
             o_wb_sel = 1'b0; //write back to reg file
             o_wr_addr = i_instruction[11:7];
-            o_wr_en = 1'b1;
+            o_wr_reg_en = 1'b1;
             
         end
         

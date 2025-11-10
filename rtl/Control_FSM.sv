@@ -43,10 +43,6 @@ module Control_FSM(
         case (o_state)
 
             `IDLE: begin
-                next_state = `DECODE;
-            end
-
-            `DECODE: begin
                 case(i_instruction[6:0])
                     `OP_LOAD:   next_state = `DATA_LOAD;
                     `OP_R_TYPE:  next_state = `R_EXECUTE;

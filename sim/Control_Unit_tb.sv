@@ -17,7 +17,8 @@ module Control_Unit_tb;
     logic [9:0]  opcode;
     logic [4:0]  counter;
     logic        data_wr, data_rd;
-    logic           o_Control_ready;
+    logic        o_Control_ready;
+
     // ───────────────────────────────────────────────
     // Instantiate DUT
     // ───────────────────────────────────────────────
@@ -49,72 +50,49 @@ module Control_Unit_tb;
     always #5 clk = ~clk;
 
     // ───────────────────────────────────────────────
-    // Reset
+    // Stimulus
     // ───────────────────────────────────────────────
-    initial begin
-        rstn = 0;
-        instruction = 32'b0;
-        #100;
-        rstn = 1;
-    end
+initial begin
+    rstn = 0;
+    instruction = 32'b0;
+    #100;
+    rstn = 1;
+    #10;
 
-    // ───────────────────────────────────────────────
-    // Main stimulus
-    // ───────────────────────────────────────────────
-    initial begin
-        @(posedge rstn);
-        #10;
+    // VECTOR_R_TYPE
+    wait(o_Control_ready);       // wait until DUT is ready
+    instruction = {7'b0000001, 5'd2, 5'd1, 3'b000, 5'd3, `OP_R_TYPE};
+    $display("\n[TB] Applying VECTOR_R_TYPE instruction: %b", instruction);
+    @(negedge o_Control_ready);  // wait until DUT starts processing
 
-        // Run through all custom instruction types
-        send_instr(VECTOR_R_TYPE_inst(), "VECTOR_R_TYPE");
-        send_instr(LOAD_inst(),           "LOAD");
-        send_instr(MV_TYPE_inst(),        "MV_TYPE");
-        send_instr(STORE_inst(),          "STORE");
-        send_instr(NEWS_TYPE_inst(),      "NEWS_TYPE");
+    // LOAD
+    wait(o_Control_ready);
+    instruction = {20'd0, 5'd4, `OP_LOAD};
+    $display("\n[TB] Applying LOAD instruction: %b", instruction);
+    @(negedge o_Control_ready);
 
-        #200;
-        $display("\nSimulation complete.");
-        $stop;
-    end
+    // MV_TYPE
+    wait(o_Control_ready);
+    instruction = {25'd0, `OP_MV_TYPE};
+    $display("\n[TB] Applying MV_TYPE instruction: %b", instruction);
+    @(negedge o_Control_ready);
 
-    // ───────────────────────────────────────────────
-    // Helper instruction functions
-    // ───────────────────────────────────────────────
-    function [31:0] VECTOR_R_TYPE_inst();
-        VECTOR_R_TYPE_inst = {7'b0000001, 5'd2, 5'd1, 3'b000, 5'd3, `OP_R_TYPE};
-    endfunction
+    // STORE
+    wait(o_Control_ready);
+    instruction = {25'd0, `OP_STORE};
+    $display("\n[TB] Applying STORE instruction: %b", instruction);
+    @(negedge o_Control_ready);
 
-    function [31:0] LOAD_inst();
-        LOAD_inst = {20'dX, 5'd4, `OP_LOAD};
-    endfunction
+    // NEWS_TYPE
+    wait(o_Control_ready);
+    instruction = {7'b0000000, 2'b01, 5'd1, 3'b001, 5'd6, `OP_NEWS_TYPE};
+    $display("\n[TB] Applying NEWS_TYPE instruction: %b", instruction);
+    @(negedge o_Control_ready);
 
-    function [31:0] MV_TYPE_inst();
-        MV_TYPE_inst = {25'dX, `OP_MV_TYPE};
-    endfunction
+    instruction = 0;
+    #400;
+    $display("\nSimulation complete at time %t", $time);
+    $stop;
+end
 
-    function [31:0] STORE_inst();
-        STORE_inst = {25'dX, `OP_STORE};
-    endfunction
-
-    function [31:0] NEWS_TYPE_inst();
-        NEWS_TYPE_inst = {7'b0000000, 2'b01, 5'd1, 3'b001, 5'd6, `OP_NEWS_TYPE};
-    endfunction
-
-    // ───────────────────────────────────────────────
-    // Task to send instructions
-    // ───────────────────────────────────────────────
-    task send_instr(input [31:0] instr, input string name);
-        begin
-            instruction = instr;
-            $display("\n[TB] Applying %s instruction: %b", name, instr);
-    
-            // Wait until DUT asserts o_Control_ready
-            do begin
-                @(posedge clk);
-            end while (!o_Control_ready);
-    
-            $display("[TB] %s instruction accepted at time %t", name, $time);
-        end
-    endtask
 endmodule
-

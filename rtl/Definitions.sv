@@ -33,12 +33,11 @@
 /*------------------------------------------------------------------------------------------*/
 
 `define IDLE       3'b001 // R
-`define DECODE     3'b010 // I
-`define DATA_LOAD  3'b011 // JAL
-`define R_EXECUTE  3'b100 // implement as R type
-`define NEWS_EXECUTE 3'b101 //implement as  I type
-`define MV_EXECUTE 3'b110 // LOAD
-`define STORE_DATA 3'b111 // STORE
+`define DATA_LOAD  3'b010 // JAL
+`define R_EXECUTE  3'b011 // implement as R type
+`define NEWS_EXECUTE 3'b100 //implement as  I type
+`define MV_EXECUTE 3'b101 // LOAD
+`define STORE_DATA 3'b110 // STORE
 
 
 

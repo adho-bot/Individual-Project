@@ -16,7 +16,7 @@ module Top (
     logic [4:0]  rd1_addr;
     logic [4:0]  rd2_addr;
     logic [4:0]  wr_addr;
-    logic        wr_en;
+    logic        wr_reg_en;
     logic        rs2_sel;
     logic [1:0]  news_sel;      // Assuming 2-bit select for NEWS
     logic [1:0]  wb_sel;        // Assuming 2-bit select for writeback
@@ -25,6 +25,8 @@ module Top (
     logic [5:0]  counter;       // Assuming 32-bit counter
     logic        dataout_en;
     logic       o_Control_ready;
+    
+    //Memory map write and read
     
     Array_Main #(
         .ROWS(1),         // example: 4x4 array
@@ -39,7 +41,7 @@ module Top (
         .i_rd1_addr(rd1_addr),
         .i_rd2_addr(rd2_addr),
         .i_wr_addr(wr_addr),
-        .i_wr_en(wr_en),
+        .i_wr_en(wr_reg_en),
         .i_rs2_sel(rs2_sel),
         .i_news_sel(news_sel),
         .i_wb_sel(wb_sel),
@@ -60,19 +62,19 @@ module Top (
         .o_rd1_addr(rd1_addr),
         .o_rd2_addr(rd2_addr),
         .o_wr_addr(wr_addr),
-        .o_wr_en(wr_en),
-        .o_rs2_sel(rs2_sel),
-        .o_news_sel(news_sel),
-        .o_wb_sel(wb_sel),
-        .o_opcode(opcode),
-        .o_data_valid(data_valid),
-        .o_counter(counter),
-        .o_dataout_en(dataout_en),
+        .o_wr_reg_en(wr_reg_en),            //register write enable signal
+        .o_rs2_sel(rs2_sel),                // ALU's rs2 input select   
+        .o_news_sel(news_sel),              // Select between N,E,W,S
+        .o_wb_sel(wb_sel),                  // Selects between writing back to reg file from alu or external
+        .o_opcode(opcode),                  //
+        .o_data_valid(data_valid),          //News enable register
+        .o_counter(counter),                //Control sync counter
+        .o_dataout_en(dataout_en),          //Data out enable           --need to look into whether this is needed
         
-         .o_data_wr(o_wr_en),
-        .o_data_rd(o_rd_en),
+        .o_data_wr(o_wr_en),                //data memory write enable
+        .o_data_rd(o_rd_en),                //data memory read enable
         
-        .o_Control_ready(o_Control_ready)
+        .o_Control_ready(o_Control_ready)   //High during IDLE, low otherwise
     );
     
 
