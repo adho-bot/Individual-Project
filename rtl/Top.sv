@@ -1,7 +1,11 @@
 module Top (
-    input  logic i_clk,
-    input  logic i_rstn,
-    input  logic i_instruction,
+    input  logic    i_clk,
+    input  logic    i_rstn,
+    input  logic    i_instruction,
+    
+    //Data input/output
+    input logic     i_array_data,
+    output logic    o_array_data,
     
     // Data Memory Signals
     input  logic [31:0] i_address,
@@ -28,9 +32,15 @@ module Top (
     
     //Memory map write and read
     
+    //PISO SIPO control
+    logic sipo_shift;
+    logic piso_shift, piso_load;
+    
+    
+    
     Array_Main #(
-        .ROWS(1),         // example: 4x4 array
-        .COLS(1),
+        .ROWS(2),         // example: 4x4 array
+        .COLS(2),
         .DATA_WIDTH(32),
         .ARRAY_BASE_ADDR(32'h0001_0000)
     ) array_inst (
@@ -50,8 +60,16 @@ module Top (
         .i_counter(counter),
         .i_dataout_en(dataout_en),
         
-        .i_address(i_address)
-
+        .i_address(i_address),
+        
+        //data into and out of array
+        o_array_data(o_array_data),               //32 bits
+        i_array_data(i_array_data),               //32bits        still need to connect
+        
+        //PISO SIPO control
+        .i_piso_load(piso_load), 
+        .i_piso_shift(piso_shift),
+        .i_sipo_shift(sipo_shift)         
     );
     
     Control_Unit ctrl_inst (
@@ -74,7 +92,13 @@ module Top (
         .o_data_wr(o_wr_en),                //data memory write enable
         .o_data_rd(o_rd_en),                //data memory read enable
         
-        .o_Control_ready(o_Control_ready)   //High during IDLE, low otherwise
+        .o_Control_ready(o_Control_ready),   //High during IDLE, low otherwise
+        
+        //PISO SIPO control signals
+        .o_piso_load(piso_load), 
+        .o_piso_shift(piso_shift),
+        .o_sipo_shift(sipo_shift)        
+        
     );
     
 

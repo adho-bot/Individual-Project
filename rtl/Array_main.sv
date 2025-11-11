@@ -25,20 +25,22 @@ module Array_Main #(
     
     //data into and out of array
     output logic [31:0]  o_array_data, 
-    input  logic [31:0]  i_array_data
+    input  logic [31:0]  i_array_data,
     
+    //PISO SIPO control
+    input logic i_piso_load, 
+    input logic i_piso_shift,
+    input logic i_sipo_shift 
 
 );
 
 
     //PISO
     logic [DATA_WIDTH-1:0] piso_reg;
-    logic piso_load, piso_shift;
     logic arrayIn; //intermediate data between PISO and array
         
     //SIPO
     logic [DATA_WIDTH-1:0] parallel_out;
-    logic sipo_load, sipo_shift;
     logic arrayOut;             //intermediate data between array and SIPO
 
 
@@ -118,22 +120,22 @@ module Array_Main #(
         
     //Writing to array
     always_comb begin
-        if(i_address < 32'h1000_0000) begin
+        if(!(i_address > 32'h0001_0000 ||i_address < 32'h0001_FFFF)) begin
             array_input_sel = 32'd0;
-        end else begin
-            wr_row_inter = (i_address[31:16] - 8)/4;
-            wr_col_inter = i_address [15:0] / 4;
+        end else begin 
+            wr_row_inter = i_address[15:8] / 4;     //00 - 04 - 08 - 0C     
+            wr_col_inter = i_address [7:0] / 4;     //00 - 04 - 08 - 0C
             array_input_sel = {wr_row_inter, wr_col_inter}; 
         end
     end
     
     //Reading from array
     always_comb begin
-        if(i_address < 32'h1000_1000) begin
+        if(!(i_address > 32'h0010_0000 ||i_address < 32'h0010_FFFF)) begin
             array_output_sel = 32'd0;
         end else begin
-            rd_row_inter = (i_address[31:16] - 8) / 4;
-            rd_col_inter = (i_address [15:0] - 8) / 4;
+            rd_row_inter = i_address[15:8] / 4;            //row options
+            rd_col_inter = i_address [7:0] / 4;
             array_output_sel = {rd_row_inter, rd_col_inter}; 
         end
     end    
@@ -173,9 +175,9 @@ module Array_Main #(
     always_ff @(posedge i_clk) begin                //LSB in first
         if (!i_rstn) begin
             piso_reg <= {DATA_WIDTH{1'b0}};
-        end else if (piso_load) begin
+        end else if (i_piso_load) begin
             piso_reg <= i_array_data;
-        end else if (piso_shift) begin
+        end else if (i_piso_shift) begin
             piso_reg <= {1'b0, piso_reg[DATA_WIDTH-1:1]};
         end
     end
@@ -184,13 +186,12 @@ module Array_Main #(
     always_ff @(posedge i_clk) begin            //LSB out first
         if (!i_rstn) begin
             parallel_out <= {DATA_WIDTH{1'b0}};
-        end else if (sipo_load) begin
-            o_array_data <= parallel_out;
-        end else if (sipo_shift) begin
+        end else if (i_sipo_shift) begin
             parallel_out <= {parallel_out[DATA_WIDTH-2:0], arrayOut};
         end
     end
   
+    assign o_array_data = parallel_out;
     
     
 endmodule

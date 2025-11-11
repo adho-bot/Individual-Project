@@ -24,12 +24,16 @@ module Control_Unit(
     output logic            o_data_wr,
     output logic            o_data_rd,
     
-    output logic            o_Control_ready //next instruction can be sent (for sync purposes)
-
+    output logic            o_Control_ready, //next instruction can be sent (for sync purposes)
+    
+    //PISO SIPO control
+    output logic o_piso_load, 
+    output logic o_piso_shift,
+    output logic o_sipo_shift 
 );
 
     //state logic
-    logic [2:0] state;
+    logic [3:0] state;
 
     
     Control_FSM control_inst(
@@ -57,7 +61,12 @@ module Control_Unit(
         .o_dataout_en(o_dataout_en),
         
         .o_data_wr(o_data_wr),
-        .o_data_rd(o_data_rd)
+        .o_data_rd(o_data_rd),
+        
+        //PISO SIPO control signals
+        .o_piso_load(o_piso_load), 
+        .o_piso_shift(o_piso_shift),
+        .o_sipo_shift(o_sipo_shift) 
     );
 
 endmodule

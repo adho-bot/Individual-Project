@@ -12,6 +12,9 @@ module System_Top(
     logic        wr_en;
     logic        rd_en;
 
+    //Data bus between Top and Data memory
+    logic array_data_in;
+    logic array_data_out;
 
     // Instantiate Array + Array control top module
     Top top_inst (
@@ -19,11 +22,12 @@ module System_Top(
         .i_rstn(i_rstn),
         .i_instruction(i_instruction),
 
+        //Data input/output
+        .i_array_data(),
+        .o_array_data(),
+
         // Data Memory interface
         .i_address(i_cpu_address),
-        
-        
-        
         .o_wr_en(wr_en),//from array read enable
         .o_rd_en(rd_en) //from array write enable
 

@@ -6,7 +6,7 @@ module Control_FSM(
     input  logic [31:0] i_instruction,  // instruction word (opcode + operands)
     output  logic [5:0] o_counter,      //sync counter
 
-    output logic [2:0]  o_state,
+    output logic [3:0]  o_state,
     
     output logic        o_FSM_ready     //ready signal for next instruction to be sent
     
@@ -16,7 +16,7 @@ module Control_FSM(
     // ───────────────────────────────────────────────
     // State encoding
     // ───────────────────────────────────────────────
-    logic [2:0] next_state;
+    logic [3:0] next_state;
 
 
     // ───────────────────────────────────────────────
@@ -44,7 +44,7 @@ module Control_FSM(
 
             `IDLE: begin
                 case(i_instruction[6:0])
-                    `OP_LOAD:   next_state = `DATA_LOAD;
+                    `OP_LOAD:   next_state = `MEM_TO_DATA;
                     `OP_R_TYPE:  next_state = `R_EXECUTE;
                     `OP_MV_TYPE: next_state = `MV_EXECUTE;
                     `OP_STORE: next_state = `STORE_DATA;
@@ -87,11 +87,20 @@ module Control_FSM(
 
             `STORE_DATA: begin
                 if(counter < 6'd31) begin
-                    next_state = `STORE_DATA; // fallback
+                    next_state = `STORE_DATA; 
                 end else begin
-                    next_state = `IDLE;
+                    next_state = `DATA_TO_MEM;
                 end
             end
+            
+            `DATA_TO_MEM: begin         //sends accumulated 32bit data from SIPO to memory
+                next_state = `IDLE;
+            end
+            
+            `MEM_TO_DATA: begin
+                next_state = `DATA_LOAD;
+            end
+            
             default: begin
                 next_state = `IDLE;
             end

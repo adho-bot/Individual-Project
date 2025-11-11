@@ -22,27 +22,31 @@ module Control_Unit_tb;
     // ───────────────────────────────────────────────
     // Instantiate DUT
     // ───────────────────────────────────────────────
-    Control_Unit dut (
-        .i_clk(clk),
-        .i_rstn(rstn),
-        .i_instruction(instruction),
+Control_Unit dut (
+    .i_clk(clk),
+    .i_rstn(rstn),
+    .i_instruction(instruction),
 
-        .o_rd1_addr(rd1_addr),
-        .o_rd2_addr(rd2_addr),
-        .o_wr_addr(wr_addr),
-        .o_wr_en(wr_en),
-        .o_rs2_sel(rs2_sel),
-        .o_news_sel(news_sel),
-        .o_wb_sel(wb_sel),
-        .o_opcode(opcode),
-        .o_data_valid(data_valid),
-        .o_counter(counter),
-        .o_dataout_en(dataout_en),
-        .o_data_wr(data_wr),
-        .o_data_rd(data_rd),
-        .o_Control_ready(o_Control_ready)
-    );
+    .o_rd1_addr(rd1_addr),
+    .o_rd2_addr(rd2_addr),
+    .o_wr_addr(wr_addr),
+    .o_wr_reg_en(wr_reg_en),
+    .o_rs2_sel(rs2_sel),
+    .o_news_sel(news_sel),
+    .o_wb_sel(wb_sel),
+    .o_opcode(opcode),
+    .o_data_valid(data_valid),
+    .o_counter(counter),
+    .o_dataout_en(dataout_en),
+    .o_data_wr(data_wr),
+    .o_data_rd(data_rd),
+    .o_Control_ready(o_Control_ready),
 
+    // PISO / SIPO control
+    .o_piso_load(piso_load),
+    .o_piso_shift(piso_shift),
+    .o_sipo_shift(sipo_shift)
+);
     // ───────────────────────────────────────────────
     // Clock generation
     // ───────────────────────────────────────────────
@@ -60,10 +64,10 @@ initial begin
     #10;
 
     // VECTOR_R_TYPE
-    wait(o_Control_ready);       // wait until DUT is ready
+    wait(o_Control_ready);
     instruction = {7'b0000001, 5'd2, 5'd1, 3'b000, 5'd3, `OP_R_TYPE};
     $display("\n[TB] Applying VECTOR_R_TYPE instruction: %b", instruction);
-    @(negedge o_Control_ready);  // wait until DUT starts processing
+    @(negedge o_Control_ready);
 
     // LOAD
     wait(o_Control_ready);
@@ -89,8 +93,8 @@ initial begin
     $display("\n[TB] Applying NEWS_TYPE instruction: %b", instruction);
     @(negedge o_Control_ready);
 
-    instruction = 0;
     #400;
+    instruction = 0;
     $display("\nSimulation complete at time %t", $time);
     $stop;
 end
