@@ -4,15 +4,15 @@ module Array_Main #(
     parameter int ROWS = 2,
     parameter int COLS = 2,
     parameter int DATA_WIDTH = 32,
-    parameter logic [31:0] ARRAY_BASE_ADDR = 32'h0001_0000  // base for array element mapping
+    parameter logic [31:0] ARRAY_BASE_ADDR = 32'h0000_0000  // base for array element mapping (SIM MODE RN)
 )(
     input  logic                      i_clk,
     input  logic                      i_rstn,
 
     // control (kept for compatibility; unused in stub PE)
-    input  logic [3:0]                i_rd1_addr,
-    input  logic [3:0]                i_rd2_addr,
-    input  logic [3:0]                i_wr_addr,
+    input  logic [4:0]                i_rd1_addr,
+    input  logic [4:0]                i_rd2_addr,
+    input  logic [4:0]                i_wr_addr,
     input  logic                      i_wr_en,
     input  logic                      i_rs2_sel,
     input  logic                      i_news_sel,
@@ -23,7 +23,7 @@ module Array_Main #(
     input  logic                      i_dataout_en,
 
     // memory mapped signals
-    input  logic [31:0]               i_address,
+    input  logic [31:0]               i_array_address,
 
     // data in/out (word-wide interface)
     output logic [DATA_WIDTH-1:0]     o_array_data,   // changed to DATA_WIDTH to match register
@@ -32,7 +32,7 @@ module Array_Main #(
     // PISO / SIPO control
     input  logic                      i_piso_load,
     input  logic                      i_piso_shift,
-    input  logic                      i_sipo_shift
+    input  logic                      i_sipo_shift 
 );
 
     // --- Derived widths ---
@@ -122,9 +122,9 @@ module Array_Main #(
         rd_addr_valid = 1'b0;
 
         //Write Decode
-        if (i_address >= ARRAY_BASE_ADDR) begin
+        if (i_array_address >= ARRAY_BASE_ADDR) begin
             logic [31:0] byte_offset;
-            byte_offset = i_address - ARRAY_BASE_ADDR;
+            byte_offset = i_array_address - ARRAY_BASE_ADDR;
             if (byte_offset < NUM_ELEMENTS * ADDR_BYTES_PER_ELEMENT) begin
                 logic [31:0] elem_index;    //word address
                 elem_index = byte_offset >> 2; // convert from byte to word (/4)
@@ -135,9 +135,9 @@ module Array_Main #(
         end
 
         //Read Decode
-        if (i_address >= ARRAY_BASE_ADDR) begin
+        if (i_array_address >= ARRAY_BASE_ADDR) begin
             logic [31:0] byte_offset_r;
-            byte_offset_r = i_address - ARRAY_BASE_ADDR;
+            byte_offset_r = i_array_address - ARRAY_BASE_ADDR;
             if (byte_offset_r < NUM_ELEMENTS * ADDR_BYTES_PER_ELEMENT) begin
                 logic [31:0] elem_index_r;
                 elem_index_r = byte_offset_r >> 2;

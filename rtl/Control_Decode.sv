@@ -24,7 +24,10 @@ module Control_Decode(
     //PISO SIPO control
     output logic o_piso_load, 
     output logic o_piso_shift,
-    output logic o_sipo_shift   
+    output logic o_sipo_shift,  
+    
+    //addrss generation
+    output logic [31:0] o_array_address 
 );
 
 
@@ -48,14 +51,18 @@ always_comb begin
             o_piso_shift = 1'b0;
             o_sipo_shift = 1'b0;
 
+            o_array_address = 32'd0;
     case(i_state)
-        `IDLE: begin
-        //using default values
+        
+        `DATA_FETCH: begin
+            o_data_rd = 1'b1;
+            o_array_address = {12'd0,i_instruction[31:12]};
         end
         
+        
         `MEM_TO_DATA: begin
-            o_data_rd = 1'b1;
             o_piso_load  = 1'b1;
+            o_array_address = {12'd0,i_instruction[31:12]};
         end
         
         `DATA_LOAD: begin
@@ -63,6 +70,7 @@ always_comb begin
             o_wb_sel = 1'b1;
             o_wr_addr = i_instruction[11:7];
             o_piso_shift = 1'b1;
+            o_array_address = {12'd0,i_instruction[31:12]};
         end
         
         `R_EXECUTE: begin
@@ -102,6 +110,7 @@ always_comb begin
         
         `DATA_TO_MEM: begin
             o_data_wr = 1'b1;
+            o_array_address = {12'd0,i_instruction[31:20],i_instruction[14:7]};
         end
     endcase
 end

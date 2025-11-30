@@ -29,7 +29,10 @@ module Control_Unit(
     //PISO SIPO control
     output logic o_piso_load, 
     output logic o_piso_shift,
-    output logic o_sipo_shift 
+    output logic o_sipo_shift,
+    
+    //Address generation
+    output logic [31:0] o_array_address 
 );
 
     //state logic
@@ -66,7 +69,10 @@ module Control_Unit(
         //PISO SIPO control signals
         .o_piso_load(o_piso_load), 
         .o_piso_shift(o_piso_shift),
-        .o_sipo_shift(o_sipo_shift) 
+        .o_sipo_shift(o_sipo_shift), 
+        
+        //Address generation
+        .o_array_address(o_array_address)
     );
 
 endmodule

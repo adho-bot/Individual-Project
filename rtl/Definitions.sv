@@ -33,13 +33,14 @@
 /*------------------------------------------------------------------------------------------*/
 
 `define IDLE       4'b0001 // R
-`define DATA_LOAD  4'b0010 // JAL
+`define DATA_LOAD  4'b0010 // load data into array
 `define R_EXECUTE  4'b0011 // implement as R type
 `define NEWS_EXECUTE 4'b0100 //implement as  I type
 `define MV_EXECUTE 4'b0101 // LOAD
 `define STORE_DATA 4'b0110 // STORE
 `define DATA_TO_MEM 4'b0111 //send data to sipo
 `define MEM_TO_DATA 4'b1000 //send data from memory to piso
+`define DATA_FETCH  4'b1001 //1 cycle to fetch the data
 
 
 

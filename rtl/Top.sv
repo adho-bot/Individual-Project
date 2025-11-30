@@ -1,21 +1,20 @@
 module Top (
     input  logic    i_clk,
     input  logic    i_rstn,
-    input  logic    i_instruction,
+    input  logic    [31:0] i_instruction,
     
     //Data input/output
-    input logic     i_array_data,
-    output logic    o_array_data,
+    input logic     [31:0] i_array_data,
+    output logic    [31:0] o_array_data,
     
     // Data Memory Signals
-    input  logic [31:0] i_address,
+    output logic [31:0] o_array_address,
     output logic        o_wr_en,
     output logic        o_rd_en
     
 
 );
 
-    
     // Control signals from Control_Unit to Array_Main
     logic [4:0]  rd1_addr;
     logic [4:0]  rd2_addr;
@@ -28,9 +27,10 @@ module Top (
     logic        data_valid;
     logic [5:0]  counter;       // Assuming 32-bit counter
     logic        dataout_en;
-    logic       o_Control_ready;
+    logic        o_Control_ready;
     
     //Memory map write and read
+    logic [31:0] array_address;
     
     //PISO SIPO control
     logic sipo_shift;
@@ -42,7 +42,7 @@ module Top (
         .ROWS(2),         // example: 4x4 array
         .COLS(2),
         .DATA_WIDTH(32),
-        .ARRAY_BASE_ADDR(32'h0001_0000)
+        .ARRAY_BASE_ADDR(32'h0000_0000)
     ) array_inst (
         .i_clk(i_clk),
         .i_rstn(i_rstn),
@@ -60,7 +60,7 @@ module Top (
         .i_counter(counter),
         .i_dataout_en(dataout_en),
         
-        .i_address(i_address),
+        .i_array_address(array_address),
         
         //data into and out of array
         .o_array_data(o_array_data),               //32 bits
@@ -97,9 +97,13 @@ module Top (
         //PISO SIPO control signals
         .o_piso_load(piso_load), 
         .o_piso_shift(piso_shift),
-        .o_sipo_shift(sipo_shift)        
+        .o_sipo_shift(sipo_shift),   
+        
+        //Address generation
+        .o_array_address(array_address)     
         
     );
     
+    assign o_array_address = array_address;
 
 endmodule

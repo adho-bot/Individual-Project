@@ -1,272 +1,123 @@
 `timescale 1ns/1ps
+`include "/home/gary/Individual_Project/rtl/Definitions.sv"
 
 module Top_tb;
-    // Clock and reset
-    logic i_clk;
-    logic i_rstn;
+
+    // -----------------------------------------
+    // DUT I/O declarations
+    // -----------------------------------------
+    logic clk;
+    logic rstn;
+
+    logic [31:0] instruction;     // Assuming 32-bit instruction width
+    logic [31:0] array_data_in;   // Data going INTO Top
+    logic [31:0] array_data_out;  // Data coming OUT of Top
+
+    logic [31:0] address;         // Memory address from Top
+    logic        wr_en;           // Write enable from Top
+    logic        rd_en;           // Read enable from Top
+
+    localparam INSTR_WIDTH = 32;
+
+    //Instruction class
+    class Instructions;    
+        //Store
+        function logic [INSTR_WIDTH-1:0] store(logic [19:0] address, logic [4:0] rs1);
+            store = {address[19:8], rs1, address[7:0], `OP_STORE}; // Example RISC-V store encoding
+        endfunction
     
-    // Testbench signals
-    integer test_num;
-    integer errors;
+        //Load
+        function logic [INSTR_WIDTH-1:0] load(logic [19:0] address,logic [4:0] rd);
+            load = {address, rd, `OP_LOAD}; // Example RISC-V load encoding
+        endfunction
     
+        //Vector R-type
+        function logic [INSTR_WIDTH-1:0] vector_R_type(logic [4:0] rd, logic [4:0] rs1, logic [4:0] rs2, logic [6:0] funct7, logic [2:0] funct3);
+            vector_R_type = {funct7, rs2, rs1, funct3, rd, `OP_R_TYPE}; // Example vector opcode
+        endfunction
+    
+        //NEWS Type
+        function logic [INSTR_WIDTH-1:0] my_type(logic [4:0] rd, logic [4:0] rs1, logic [1:0] news_sel, logic [9:0] funct10, logic [2:0] funct3);
+            my_type = {funct10, news_sel, rs1, funct3, rd, `OP_NEWS_TYPE}; // placeholder encoding
+        endfunction 
+    endclass
+
+    // -----------------------------------------
     // Instantiate DUT
-    Top dut (
-        .i_clk(i_clk),
-        .i_rstn(i_rstn)
+    // -----------------------------------------
+    Top top_inst (
+        .i_clk        (clk),
+        .i_rstn       (rstn),
+        .i_instruction(instruction),
+
+        .i_array_data (array_data_in),
+        .o_array_data (array_data_out),
+
+        .o_array_address    (address),
+        .o_wr_en      (wr_en),
+        .o_rd_en      (rd_en)
     );
-    
-    // Clock generation - 10ns period (100MHz)
-    initial begin
-        i_clk = 0;
-        forever #5 i_clk = ~i_clk;
+
+    // -----------------------------------------
+    // Simulation Data Memory
+    // -----------------------------------------
+    logic [31:0] data_mem [0:255];     // 256-word memory
+
+    // Memory read
+    always_ff @(posedge clk) begin
+        if (rd_en) begin
+            array_data_in <= data_mem[address];
+        end
     end
-    
-    // Test stimulus
+
+    // Memory write
+    always_ff @(posedge clk) begin
+        if (wr_en) begin
+            data_mem[address] <= array_data_out;
+        end
+    end
+
+    // -----------------------------------------
+    // Clock generation
+    // -----------------------------------------
+    always #5 clk = ~clk;
+
+    // -----------------------------------------
+    // Test Stimulus
+    // -----------------------------------------
+   
+    //Object init
+    Instructions instr = new;
+   
     initial begin
-        // Initialize
-        test_num = 0;
-        errors = 0;
-        i_rstn = 0;
+        clk = 0;
+        rstn = 0;
+        instruction = 32'h0;
+        array_data_in = 0;
+
+        // Initialize memory with some values
+        data_mem[0] = 32'hAAAA0001;
+        data_mem[4] = 32'hBBBB0002;
+        data_mem[8] = 32'hCCCC0003;
+        data_mem[12] = 32'hDDDD004;
+        #20;
+        rstn = 1;
+
+        // -------------------------------------
+        // Example Instruction 1
+        // -------------------------------------
+        $display("TEST: Read data from memory address 1");
+        instruction = instr.load(20'd4,5'd1);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        #100;
+
         
-        
-        repeat(5) @(posedge i_clk);
-        i_rstn = 1;
-        
-        
-        $display("[%0t] Reset released", $time);
-        repeat(2) @(posedge i_clk);
-        
-        
-        
-        // Test 1: Basic data memory write
-        test_num = 1;
-        $display("\n[TEST %0d] Data Memory Write Test", test_num);
-        test_data_memory_write();
-        
-        
-        /*
-        // Test 2: Basic data memory read
-        test_num = 2;
-        $display("\n[TEST %0d] Data Memory Read Test", test_num);
-        test_data_memory_read();
-        
-        // Test 3: Array access through memory-mapped interface
-        test_num = 3;
-        $display("\n[TEST %0d] Array Memory-Mapped Access", test_num);
-        test_array_access();
-        
-        // Test 4: R-type instruction execution
-        test_num = 4;
-        $display("\n[TEST %0d] R-Type Instruction Test", test_num);
-        test_r_type_instruction();
-        
-        // Test 5: MOVE instruction
-        test_num = 5;
-        $display("\n[TEST %0d] MOVE Instruction Test", test_num);
-        test_move_instruction();
-        
-        // Test 6: LOAD instruction
-        test_num = 6;
-        $display("\n[TEST %0d] LOAD Instruction Test", test_num);
-        test_load_instruction();
-        
-        // Test 7: STORE instruction
-        test_num = 7;
-        $display("\n[TEST %0d] STORE Instruction Test", test_num);
-        test_store_instruction();
-        
-        // Test 8: NEWS-type instruction
-        test_num = 8;
-        $display("\n[TEST %0d] NEWS-Type Instruction Test", test_num);
-        test_news_instruction();
-        
-        // Test 9: Reset during operation
-        test_num = 9;
-        $display("\n[TEST %0d] Reset During Operation", test_num);
-        test_reset_during_op();
-        
-        // Test 10: Back-to-back operations
-        test_num = 10;
-        $display("\n[TEST %0d] Back-to-Back Operations", test_num);
-        test_back_to_back();
-        *
-        // Summary
-        repeat(10) @(posedge i_clk);
-        $display("\n========================================");
-        $display("Test Summary:");
-        $display("Total Tests: %0d", test_num);
-        $display("Errors: %0d", errors);
-        if (errors == 0)
-            $display("STATUS: ALL TESTS PASSED!");
-        else
-            $display("STATUS: TESTS FAILED");
-        $display("========================================\n");
-        
+
+        // -------------------------------------
+        // Finish
+        // -------------------------------------
+        #100;
+        $display("Simulation completed.");
         $finish;
     end
-    
-    // Task: Test data memory write
-    task test_data_memory_write();
-        begin
-            // Set up write operation
-            dut.address = 32'h0000_0100;
-            dut.dataIn = 32'hDEAD_BEEF;
-            dut.data_wr = 1'b1;
-            dut.data_rd = 1'b0;
-            @(posedge i_clk);
-            dut.data_wr = 1'b0;
-            @(posedge i_clk);
-            $display("  Written 0x%h to address 0x%h", 32'hDEAD_BEEF, 32'h0000_0100);
-        end
-    endtask
-    
-    // Task: Test data memory read
-    task test_data_memory_read();
-        begin
-            // Set up read operation
-            dut.address = 32'h0000_0100;
-            dut.data_wr = 1'b0;
-            dut.data_rd = 1'b1;
-            @(posedge i_clk);
-            @(posedge i_clk);
-            $display("  Read 0x%h from address 0x%h", dut.dataOut, 32'h0000_0100);
-            dut.data_rd = 1'b0;
-        end
-    endtask
-    
-    // Task: Test array memory-mapped access
-    task test_array_access();
-        begin
-            // Access array through memory-mapped interface
-            dut.address = 32'hA000_0000; // Assuming array is mapped at 0xA0000000
-            dut.dataIn = 32'h1234_5678;
-            dut.data_wr = 1'b1;
-            @(posedge i_clk);
-            dut.data_wr = 1'b0;
-            @(posedge i_clk);
-            
-            if (dut.array_access) begin
-                $display("  Array access detected: address=0x%h", dut.array_address);
-            end else begin
-                $display("  WARNING: Array access not detected");
-                errors++;
-            end
-        end
-    endtask
-    
-    // Task: Test R-type instruction
-    task test_r_type_instruction();
-        begin
-            // Simulate R-type ADD instruction
-            // Instruction format: funct7[6:0] + rs2[4:0] + rs1[4:0] + funct3[2:0] + rd[4:0] + opcode[6:0]
-            logic [31:0] instruction;
-            instruction = {7'b0000000, 5'd2, 5'd1, 3'b000, 5'd3, `OP_R_TYPE};
-            
-            // Send instruction to control unit (you may need to add this interface)
-            @(posedge i_clk);
-            repeat(5) @(posedge i_clk); // Allow time for execution
-            $display("  R-type instruction executed: ADD");
-        end
-    endtask
-    
-    // Task: Test MOVE instruction
-    task test_move_instruction();
-        begin
-            logic [31:0] instruction;
-            instruction = {7'b0000000, 5'd1, 5'd0, 3'b000, 5'd2, `OP_MV_TYPE};
-            
-            @(posedge i_clk);
-            repeat(3) @(posedge i_clk);
-            $display("  MOVE instruction executed");
-        end
-    endtask
-    
-    // Task: Test LOAD instruction
-    task test_load_instruction();
-        begin
-            logic [31:0] instruction;
-            instruction = {12'h100, 5'd1, 3'b000, 5'd2, `OP_LOAD};
-            
-            @(posedge i_clk);
-            repeat(4) @(posedge i_clk);
-            $display("  LOAD instruction executed");
-        end
-    endtask
-    
-    // Task: Test STORE instruction
-    task test_store_instruction();
-        begin
-            logic [31:0] instruction;
-            instruction = {7'b0000000, 5'd2, 5'd1, 3'b000, 5'h10, `OP_STORE};
-            
-            @(posedge i_clk);
-            repeat(4) @(posedge i_clk);
-            $display("  STORE instruction executed");
-        end
-    endtask
-    
-    // Task: Test NEWS-type instruction
-    task test_news_instruction();
-        begin
-            logic [31:0] instruction;
-            instruction = {7'b0000000, 5'd1, 5'd2, 3'b000, 5'd3, `OP_NEWS_TYPE};
-            
-            @(posedge i_clk);
-            repeat(5) @(posedge i_clk);
-            $display("  NEWS-type instruction executed");
-        end
-    endtask
-    
-    // Task: Test reset during operation
-    task test_reset_during_op();
-        begin
-            // Start an operation
-            dut.address = 32'h0000_0200;
-            dut.dataIn = 32'hCAFE_BABE;
-            dut.data_wr = 1'b1;
-            @(posedge i_clk);
-            
-            // Assert reset in the middle
-            i_rstn = 0;
-            repeat(3) @(posedge i_clk);
-            i_rstn = 1;
-            @(posedge i_clk);
-            
-            dut.data_wr = 1'b0;
-            $display("  Reset during operation test completed");
-        end
-    endtask
-    
-    // Task: Test back-to-back operations
-    task test_back_to_back();
-        begin
-            // Write operation 1
-            dut.address = 32'h0000_0300;
-            dut.dataIn = 32'h1111_1111;
-            dut.data_wr = 1'b1;
-            @(posedge i_clk);
-            
-            // Write operation 2 (back-to-back)
-            dut.address = 32'h0000_0304;
-            dut.dataIn = 32'h2222_2222;
-            @(posedge i_clk);
-            
-            // Write operation 3
-            dut.address = 32'h0000_0308;
-            dut.dataIn = 32'h3333_3333;
-            @(posedge i_clk);
-            
-            dut.data_wr = 1'b0;
-            @(posedge i_clk);
-            $display("  Back-to-back operations completed");
-        end
-    endtask
-    
-    // Watchdog timer
-    initial begin
-        #100000; // 100us timeout
-        $display("\nERROR: Simulation timeout!");
-        $finish;
-    end
-    
+
 endmodule

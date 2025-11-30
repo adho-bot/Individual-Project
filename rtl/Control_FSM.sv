@@ -44,13 +44,17 @@ module Control_FSM(
 
             `IDLE: begin
                 case(i_instruction[6:0])
-                    `OP_LOAD:   next_state = `MEM_TO_DATA;
+                    `OP_LOAD:   next_state = `DATA_FETCH;
                     `OP_R_TYPE:  next_state = `R_EXECUTE;
                     `OP_MV_TYPE: next_state = `MV_EXECUTE;
                     `OP_STORE: next_state = `STORE_DATA;
                     `OP_NEWS_TYPE: next_state = `NEWS_EXECUTE;
                     default:   next_state = `IDLE;
                 endcase
+            end
+            
+            `DATA_FETCH: begin
+                next_state = `MEM_TO_DATA;
             end
 
             `DATA_LOAD: begin
