@@ -26,8 +26,7 @@ module Register_File#(
    logic [WIDTH-1:0] rf_mem [0:DEPTH-1];
    
    //Temp shifting variable
-    logic [WIDTH-1:0] tempShift1, tempShift2;
-    logic [$clog2(WIDTH)-1:0] counter;
+    logic [WIDTH:0] tempShift1, tempShift2;
     
     assign tempShift1 = rf_mem[i_rd1_addr];
     assign tempShift2 = rf_mem[i_rd2_addr];
@@ -48,11 +47,13 @@ module Register_File#(
     end
 
 /*================================================================*/
-/*				READ				  */
+/*				             READ				                  */
 /*================================================================*/
+    logic [4:0] safe_index;
+    assign safe_index = (i_counter >= WIDTH) ? WIDTH-1 : i_counter;
     
 // Serial read: output LSB of selected registers each cycle
-    assign o_rd1 = tempShift1[i_counter];
+    assign o_rd1 = tempShift1[i_counter];   //this counter goes from 0 to 32 and produces X value for the 0 to 31 bit temp variable
     assign o_rd2 = tempShift2[i_counter];
 
 endmodule

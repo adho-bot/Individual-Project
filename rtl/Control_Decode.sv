@@ -27,7 +27,10 @@ module Control_Decode(
     output logic o_sipo_shift,  
     
     //addrss generation
-    output logic [31:0] o_array_address 
+    output logic [31:0] o_array_address,
+    
+    //PE gating
+    output logic        o_PE_enable 
 );
 
 
@@ -36,9 +39,9 @@ always_comb begin
 
             o_rd1_addr   = i_instruction[19:15];
             o_rd2_addr   = i_instruction[24:20];
-            o_wr_addr    = 5'dX;
+            o_wr_addr    = i_instruction[11:7];
             o_wr_reg_en  = 1'b0;
-            o_rs2_sel    = 1'bX;
+            o_rs2_sel    = 1'b0;
             o_news_sel   = 2'bXX;
             o_wb_sel     = 1'bX;
             o_opcode     = 10'd0;
@@ -52,6 +55,8 @@ always_comb begin
             o_sipo_shift = 1'b0;
 
             o_array_address = 32'd0;
+            
+            o_PE_enable = 1'b0;
     case(i_state)
         
         `DATA_FETCH: begin
@@ -81,6 +86,9 @@ always_comb begin
             o_wb_sel = 1'b0; //write back to reg file
             o_wr_addr = i_instruction[11:7];
             o_wr_reg_en = 1'b1;
+            
+            //enable all PEs
+            o_PE_enable = 1'b1;
         end
         
         `NEWS_EXECUTE: begin        //this is operation between rs1 and NEWS
@@ -93,6 +101,9 @@ always_comb begin
             o_wr_addr = i_instruction[11:7];
             o_wr_reg_en = 1'b1;
             
+            //enable all PEs
+            o_PE_enable = 1'b1;
+            
         end
         
         `MV_EXECUTE: begin //
@@ -100,7 +111,10 @@ always_comb begin
             o_rs2_sel = 1'b0;
             
             //Register writeback
-            o_data_valid = 1'b1;       
+            o_data_valid = 1'b1;     
+            
+            //enable all PEs
+            o_PE_enable = 1'b1;  
         end
         
         `STORE_DATA: begin

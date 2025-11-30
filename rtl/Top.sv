@@ -10,9 +10,9 @@ module Top (
     // Data Memory Signals
     output logic [31:0] o_array_address,
     output logic        o_wr_en,
-    output logic        o_rd_en
+    output logic        o_rd_en,
     
-
+    output logic        o_Control_ready //signals when the array has finished processing
 );
 
     // Control signals from Control_Unit to Array_Main
@@ -23,11 +23,10 @@ module Top (
     logic        rs2_sel;
     logic [1:0]  news_sel;      // Assuming 2-bit select for NEWS
     logic [1:0]  wb_sel;        // Assuming 2-bit select for writeback
-    logic [6:0]  opcode;        // Standard RISC-V opcode width
+    logic [9:0]  opcode;        // Standard RISC-V opcode width
     logic        data_valid;
     logic [5:0]  counter;       // Assuming 32-bit counter
     logic        dataout_en;
-    logic        o_Control_ready;
     
     //Memory map write and read
     logic [31:0] array_address;
@@ -36,7 +35,8 @@ module Top (
     logic sipo_shift;
     logic piso_shift, piso_load;
     
-    
+    //PE gating
+    logic PE_enable;
     
     Array_Main #(
         .ROWS(2),         // example: 4x4 array
@@ -69,7 +69,10 @@ module Top (
         //PISO SIPO control
         .i_piso_load(piso_load), 
         .i_piso_shift(piso_shift),
-        .i_sipo_shift(sipo_shift)         
+        .i_sipo_shift(sipo_shift), 
+        
+        //PE gating
+        .i_PE_enable(PE_enable)        
     );
     
     Control_Unit ctrl_inst (
@@ -100,7 +103,10 @@ module Top (
         .o_sipo_shift(sipo_shift),   
         
         //Address generation
-        .o_array_address(array_address)     
+        .o_array_address(array_address), 
+        
+        //PE gating
+        .o_PE_enable(PE_enable)    
         
     );
     

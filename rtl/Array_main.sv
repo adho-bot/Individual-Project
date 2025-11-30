@@ -32,7 +32,10 @@ module Array_Main #(
     // PISO / SIPO control
     input  logic                      i_piso_load,
     input  logic                      i_piso_shift,
-    input  logic                      i_sipo_shift 
+    input  logic                      i_sipo_shift, 
+    
+    //PE gating signal
+    input  logic                      i_PE_enable
 );
 
     // --- Derived widths ---
@@ -57,6 +60,9 @@ module Array_Main #(
     // 1-bit data in/out per PE (bit-serial)
     logic array_dataOut [0:ROWS-1][0:COLS-1];
     logic array_dataIn  [0:ROWS-1][0:COLS-1];
+
+    //PE gating
+    logic PE_enable     [0:ROWS-1][0:COLS-1];
 
     // Decoded indices and valid flags
     logic [ROW_W-1:0] wr_row_sel;
@@ -102,7 +108,9 @@ module Array_Main #(
                     .i_wb_sel     (i_wb_sel),
                     .i_opcode     (i_opcode),
                     .i_data_valid (i_data_valid),
-                    .i_dataout_en (i_dataout_en)
+                    .i_dataout_en (i_dataout_en),
+                    
+                    .i_PE_enable (PE_enable[r][c])
                 );
             end
         end
@@ -178,6 +186,36 @@ module Array_Main #(
             arrayOut = 1'b0;
         end
     end
+
+/*===============================================*/
+/*               PE gate                         */
+/*===============================================*/
+
+    always_comb begin
+        integer rr, cc;
+
+        if(!i_PE_enable) begin      //i_PE_enable selects between memory instr(0) and other instructions
+            for (rr = 0; rr < ROWS; rr = rr + 1) begin
+                for (cc = 0; cc < COLS; cc = cc + 1) begin
+                    PE_enable[rr][cc] = 1'b0;
+                end
+            end
+    
+            // route serial bit to selected PE when write is valid and PISO is shifting (strobe)
+            if (wr_addr_valid && i_piso_shift) begin
+                if (wr_row_sel < ROWS && wr_col_sel < COLS) begin
+                    PE_enable[wr_row_sel][wr_col_sel] = 1;  //PE enable signal
+                end
+            end
+        end else begin
+            for (rr = 0; rr < ROWS; rr = rr + 1) begin
+                for (cc = 0; cc < COLS; cc = cc + 1) begin
+                    PE_enable[rr][cc] = 1'b1;
+                end
+            end        
+        end
+    end
+
 
 /*===============================================*/
 /*              Data Shift Registers             */

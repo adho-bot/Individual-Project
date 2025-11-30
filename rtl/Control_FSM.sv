@@ -74,7 +74,7 @@ module Control_FSM(
             end
             
             `NEWS_EXECUTE: begin    //
-                if(counter < 5'd31) begin
+                if(counter < 6'd31) begin
                     next_state = `NEWS_EXECUTE; // fallback
                 end else begin
                     next_state = `IDLE;

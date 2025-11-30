@@ -17,6 +17,8 @@ module Top_tb;
     logic        wr_en;           // Write enable from Top
     logic        rd_en;           // Read enable from Top
 
+    logic       Control_ready;
+
     localparam INSTR_WIDTH = 32;
 
     //Instruction class
@@ -55,7 +57,8 @@ module Top_tb;
 
         .o_array_address    (address),
         .o_wr_en      (wr_en),
-        .o_rd_en      (rd_en)
+        .o_rd_en      (rd_en),
+        .o_Control_ready(Control_ready)
     );
 
     // -----------------------------------------
@@ -106,12 +109,54 @@ module Top_tb;
         // -------------------------------------
         // Example Instruction 1
         // -------------------------------------
-        $display("TEST: Read data from memory address 1");
-        instruction = instr.load(20'd4,5'd1);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
-        #100;
-
+        $display("====================================");
+        $display("              LOAD TYPES            ");
+        $display("====================================");
         
+        $display("LOAD (0,0) | Reg 1");
+        instruction = instr.load(20'd0,5'd1);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        @(posedge Control_ready);
 
+        $display("LOAD (0,0) | Reg 2");
+        instruction = instr.load(20'd0,5'd2);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        @(posedge Control_ready);
+
+        $display("LOAD (0,1) | Reg 1");
+        instruction = instr.load(20'd4,5'd1);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        @(posedge Control_ready);
+
+        $display("LOAD (0,1) | Reg 2");
+        instruction = instr.load(20'd4,5'd2);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        @(posedge Control_ready);
+        
+        $display("LOAD (1,0)");
+        instruction = instr.load(20'd8,5'd1);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        @(posedge Control_ready);
+
+        $display("LOAD (1,0)");
+        instruction = instr.load(20'd8,5'd2);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        @(posedge Control_ready);
+        
+        $display("LOAD (1,1)");
+        instruction = instr.load(20'd12,5'd1);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        @(posedge Control_ready);     
+        
+        $display("LOAD (1,1)");
+        instruction = instr.load(20'd12,5'd2);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        @(posedge Control_ready);
+       
+                                   
+        $display("====================================");
+        $display("              R TYPES               ");
+        $display("====================================");
+        
+        $display("Vector ADD | Add rs3 <- rs1 + rs2");
+        instruction = instr.vector_R_type(5'd3, 5'd1, 5'd2, 7'b0000000, 3'b000);
+        @(posedge Control_ready);       
+                 
+        
+        instruction = 32'd0;
+        
         // -------------------------------------
         // Finish
         // -------------------------------------

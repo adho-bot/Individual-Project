@@ -30,7 +30,10 @@ module PE_Main#(
     input  logic i_wb_sel,
     input  logic [9:0] i_opcode,
     input  logic i_data_valid,
-    input  logic i_dataout_en
+    input  logic i_dataout_en,
+    
+    //PE gate
+    input  logic i_PE_enable
 );
     // Parameters
     localparam [1:0] NORTH = 2'b00, EAST = 2'b01, WEST = 2'b10, SOUTH = 2'b11;
@@ -49,6 +52,12 @@ module PE_Main#(
     logic result;
     logic [WIDTH - 1 : 0] newsTemp;
     
+    //PE gating signals
+    logic wr_en;
+    
+    //PE Gating
+    assign wr_en = i_wr_en & i_PE_enable;
+    
     // Register File instantiation
     Register_File #(
         .WIDTH(WIDTH),
@@ -60,7 +69,7 @@ module PE_Main#(
         .i_rd1_addr (i_rd1_addr),
         .i_rd2_addr (i_rd2_addr),
         .i_wr_addr  (i_wr_addr),
-        .i_wr_en    (i_wr_en),
+        .i_wr_en    (wr_en),
         .i_counter  (i_counter),
         .o_rd1      (rd1),
         .o_rd2      (rd2)

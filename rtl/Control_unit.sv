@@ -32,7 +32,10 @@ module Control_Unit(
     output logic o_sipo_shift,
     
     //Address generation
-    output logic [31:0] o_array_address 
+    output logic [31:0] o_array_address, 
+    
+    //PE gating
+    output logic        o_PE_enable
 );
 
     //state logic
@@ -72,7 +75,10 @@ module Control_Unit(
         .o_sipo_shift(o_sipo_shift), 
         
         //Address generation
-        .o_array_address(o_array_address)
+        .o_array_address(o_array_address),
+        
+        //PE gating
+        .o_PE_enable(o_PE_enable)
     );
 
 endmodule
