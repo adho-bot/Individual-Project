@@ -1,96 +1,98 @@
+// Array_Main.sv
+`timescale 1ns/1ps
 module Array_Main #(
-    parameter ROWS = 2,
-    parameter COLS = 2,
-    parameter DATA_WIDTH = 32,
-    parameter ARRAY_BASE_ADDR = 32'h0001_0000       //32'h rowSel_colSel
+    parameter int ROWS = 2,
+    parameter int COLS = 2,
+    parameter int DATA_WIDTH = 32,
+    parameter logic [31:0] ARRAY_BASE_ADDR = 32'h0001_0000  // base for array element mapping
 )(
-    input  logic i_clk,
-    input  logic i_rstn,
+    input  logic                      i_clk,
+    input  logic                      i_rstn,
 
-    // Control signals
-    input  logic [3:0]  i_rd1_addr,
-    input  logic [3:0]  i_rd2_addr,
-    input  logic [3:0]  i_wr_addr,
-    input  logic        i_wr_en,
-    input  logic        i_rs2_sel,
-    input  logic        i_news_sel,
-    input  logic        i_wb_sel,
-    input  logic [9:0]  i_opcode,
-    input  logic        i_data_valid,
-    input  logic [$clog2(DATA_WIDTH):0]  i_counter, //From Control unit
-    input  logic        i_dataout_en,
-    
-    //Memory mapped signals
-    input  logic [31:0]  i_address,   //address from cpu
-    
-    //data into and out of array
-    output logic [31:0]  o_array_data, 
-    input  logic [31:0]  i_array_data,
-    
-    //PISO SIPO control
-    input logic i_piso_load, 
-    input logic i_piso_shift,
-    input logic i_sipo_shift 
+    // control (kept for compatibility; unused in stub PE)
+    input  logic [3:0]                i_rd1_addr,
+    input  logic [3:0]                i_rd2_addr,
+    input  logic [3:0]                i_wr_addr,
+    input  logic                      i_wr_en,
+    input  logic                      i_rs2_sel,
+    input  logic                      i_news_sel,
+    input  logic                      i_wb_sel,
+    input  logic [9:0]                i_opcode,
+    input  logic                      i_data_valid,
+    input  logic [$clog2(DATA_WIDTH):0] i_counter,
+    input  logic                      i_dataout_en,
 
+    // memory mapped signals
+    input  logic [31:0]               i_address,
+
+    // data in/out (word-wide interface)
+    output logic [DATA_WIDTH-1:0]     o_array_data,   // changed to DATA_WIDTH to match register
+    input  logic [DATA_WIDTH-1:0]     i_array_data,
+
+    // PISO / SIPO control
+    input  logic                      i_piso_load,
+    input  logic                      i_piso_shift,
+    input  logic                      i_sipo_shift
 );
 
+    // --- Derived widths ---
+    localparam int ROW_W = (ROWS > 1) ? $clog2(ROWS) : 1;
+    localparam int COL_W = (COLS > 1) ? $clog2(COLS) : 1;
+    localparam int NUM_ELEMENTS = ROWS * COLS;
+    localparam int ADDR_BYTES_PER_ELEMENT = 4; // mapping granularity
 
-    //PISO
+    // --- Internal registers ---
     logic [DATA_WIDTH-1:0] piso_reg;
-    logic arrayIn; //intermediate data between PISO and array
-        
-    //SIPO
+    logic arrayIn; // serial bit out of PISO
     logic [DATA_WIDTH-1:0] parallel_out;
-    logic arrayOut;             //intermediate data between array and SIPO
+    logic arrayOut; // serial bit from selected PE into SIPO
 
-
-    // Internal wiring for inter-PE connections
-    
-    //Directions
+    // Neighbor wires (kept sized to DATA_WIDTH for compatibility)
     logic [DATA_WIDTH-1:0] north [0:ROWS-1][0:COLS-1];
     logic [DATA_WIDTH-1:0] south [0:ROWS-1][0:COLS-1];
     logic [DATA_WIDTH-1:0] east  [0:ROWS-1][0:COLS-1];
     logic [DATA_WIDTH-1:0] west  [0:ROWS-1][0:COLS-1];
     logic [DATA_WIDTH-1:0] news  [0:ROWS-1][0:COLS-1];
-    
-    //Data
+
+    // 1-bit data in/out per PE (bit-serial)
     logic array_dataOut [0:ROWS-1][0:COLS-1];
-    logic array_dataIn [0:ROWS-1][0:COLS-1];
+    logic array_dataIn  [0:ROWS-1][0:COLS-1];
 
-    logic [31:0] dataTemp;  //Temporary Data storage
-    
-    // Generate PE array
+    // Decoded indices and valid flags
+    logic [ROW_W-1:0] wr_row_sel;
+    logic [COL_W-1:0] wr_col_sel;
+    logic             wr_addr_valid;
+
+    logic [ROW_W-1:0] rd_row_sel;
+    logic [COL_W-1:0] rd_col_sel;
+    logic             rd_addr_valid;
+
+    // -------------------------------------------------------------------------
+    // Instantiate PE array (PE_Main stub must exist or be replaced with real PE)
+    // -------------------------------------------------------------------------
+    genvar r, c;
     generate
-        genvar row, col;
-        for (row = 0; row < ROWS; row++) begin : row_gen
-            for (col = 0; col < COLS; col++) begin : col_gen
+        for (r = 0; r < ROWS; r++) begin : gen_row
+            for (c = 0; c < COLS; c++) begin : gen_col
+                // boundary wiring (neighbors) - using news for simplicity
+                assign north[r][c] = (r == 0)        ? '0 : news[r-1][c];
+                assign south[r][c] = (r == ROWS-1)  ? '0 : news[r+1][c];
+                assign west[r][c]  = (c == 0)        ? '0 : news[r][c-1];
+                assign east[r][c]  = (c == COLS-1)   ? '0 : news[r][c+1];
 
-                // Handle boundary connections
-                assign north[row][col] = (row == 0) ? '0 : news[row-1][col];
-                assign south[row][col] = (row == ROWS-1) ? '0 : news[row+1][col];
-                assign west[row][col]  = (col == 0) ? '0 : news[row][col-1];
-                assign east[row][col]  = (col == COLS-1) ? '0 : news[row][col+1];
-
-                PE_Main #(
-                    .WIDTH (DATA_WIDTH),
-                    .DEPTH (16)
-                ) pe_inst (
+                // PE instance - replace with real PE_Main if available.
+                // This stub simply forwards i_data -> o_data on every clock for demo.
+                PE_Main #(.WIDTH(DATA_WIDTH), .DEPTH(16)) pe_i (
                     .i_clk        (i_clk),
                     .i_rstn       (i_rstn),
                     .i_counter    (i_counter),
-
-                    // Data bus interface
-                    .i_data       (array_dataIn[row][col]),     //1 bit
-                    .o_data       (array_dataOut[row][col]),    //1 bit
-
-                    // Neighbour connections
-                    .i_north      (north[row][col]),
-                    .i_east       (east[row][col]),
-                    .i_south      (south[row][col]),
-                    .i_west       (west[row][col]),
-                    .o_news       (news[row][col]),
-
-                    // Control signals
+                    .i_data       (array_dataIn[r][c]),
+                    .o_data       (array_dataOut[r][c]),
+                    .i_north      (north[r][c]),
+                    .i_east       (east[r][c]),
+                    .i_south      (south[r][c]),
+                    .i_west       (west[r][c]),
+                    .o_news       (news[r][c]),
                     .i_rd1_addr   (i_rd1_addr),
                     .i_rd2_addr   (i_rd2_addr),
                     .i_wr_addr    (i_wr_addr),
@@ -105,117 +107,110 @@ module Array_Main #(
             end
         end
     endgenerate
-    
-    
-/*===================================================================*/    
-/*                          Array Decode Unit                        */
-/*===================================================================*/ 
-    logic [ROWS - 1: 0 ]            array_input_sel;
-    logic [ROWS - 1: 0 ]            array_output_sel;
-    
-    logic [DATA_WIDTH / 2 - 1: 0]   rd_row_inter;           //row intermediate signal
-    logic [DATA_WIDTH / 2 - 1: 0]   rd_col_inter;           //col intermediate signal
-    logic [DATA_WIDTH / 2 - 1: 0]   wr_row_inter;           //row intermediate signal
-    logic [DATA_WIDTH / 2 - 1: 0]   wr_col_inter;           //col intermediate signal
-        
-    //Writing to array
-    always_comb begin
-        if(!(i_address > 32'h0001_0000 ||i_address < 32'h0001_FFFF)) begin
-            array_input_sel = 32'd0;
-        end else begin 
-            wr_row_inter = i_address[15:8] / 4;     //00 - 04 - 08 - 0C     
-            wr_col_inter = i_address [7:0] / 4;     //00 - 04 - 08 - 0C
-            array_input_sel = {wr_row_inter, wr_col_inter}; 
-        end
-    end
-    
-    //Reading from array
-    always_comb begin
-        if(!(i_address > 32'h0010_0000 ||i_address < 32'h0010_FFFF)) begin
-            array_output_sel = 32'd0;
-        end else begin
-            rd_row_inter = i_address[15:8] / 4;            //row options
-            rd_col_inter = i_address [7:0] / 4;
-            array_output_sel = {rd_row_inter, rd_col_inter}; 
-        end
-    end    
-    
-/*===================================================================*/    
-/*                          MUX to/from array                        */
-/*===================================================================*/ 
-    //PISO MUX
-    always_comb begin
-        case(array_input_sel)
-            00: array_dataIn[0][0] = arrayIn;           //2x2 for now. need to ask piotr how to expand this
-            01: array_dataIn[0][1] = arrayIn;
-            10: array_dataIn[1][0] = arrayIn;
-            11: array_dataIn[1][1] = arrayIn;
-        endcase 
-    end
-    
-    //SIPO MUX
-    always_comb begin
-        case(array_output_sel)
-            00: arrayOut = array_dataOut[0][0];
-            01: arrayOut = array_dataOut[0][1];
-            10: arrayOut = array_dataOut[1][0];
-            11: arrayOut = array_dataOut[1][1];
-        endcase
-    end    
-    
-/*===================================================================*/ 
-/*                          Shift Registers                          */ 
-/*===================================================================*/    
 
-        
-        
-    // serial out is always current LSB
+/*===============================================*/
+/*              Address Decoder                  */
+/*===============================================*/
+    always_comb begin
+        // default
+        wr_row_sel = '0;
+        wr_col_sel = '0;
+        wr_addr_valid = 1'b0;
+
+        rd_row_sel = '0;
+        rd_col_sel = '0;
+        rd_addr_valid = 1'b0;
+
+        //Write Decode
+        if (i_address >= ARRAY_BASE_ADDR) begin
+            logic [31:0] byte_offset;
+            byte_offset = i_address - ARRAY_BASE_ADDR;
+            if (byte_offset < NUM_ELEMENTS * ADDR_BYTES_PER_ELEMENT) begin
+                logic [31:0] elem_index;    //word address
+                elem_index = byte_offset >> 2; // convert from byte to word (/4)
+                wr_row_sel = elem_index / COLS;
+                wr_col_sel = elem_index % COLS;
+                wr_addr_valid = 1'b1;
+            end
+        end
+
+        //Read Decode
+        if (i_address >= ARRAY_BASE_ADDR) begin
+            logic [31:0] byte_offset_r;
+            byte_offset_r = i_address - ARRAY_BASE_ADDR;
+            if (byte_offset_r < NUM_ELEMENTS * ADDR_BYTES_PER_ELEMENT) begin
+                logic [31:0] elem_index_r;
+                elem_index_r = byte_offset_r >> 2;
+                rd_row_sel = elem_index_r / COLS;
+                rd_col_sel = elem_index_r % COLS;
+                rd_addr_valid = 1'b1;
+            end
+        end
+    end
+
+/*===============================================*/
+/*              Input Decoder                    */
+/*===============================================*/
+    always_comb begin
+        integer rr, cc;
+        // default 0 to avoid latches
+        for (rr = 0; rr < ROWS; rr = rr + 1) begin
+            for (cc = 0; cc < COLS; cc = cc + 1) begin
+                array_dataIn[rr][cc] = 1'b0;
+            end
+        end
+
+        // route serial bit to selected PE when write is valid and PISO is shifting (strobe)
+        if (wr_addr_valid && i_piso_shift) begin
+            if (wr_row_sel < ROWS && wr_col_sel < COLS) begin
+                array_dataIn[wr_row_sel][wr_col_sel] = arrayIn;
+            end
+        end
+    end
+
+/*===============================================*/
+/*              Output Mux                       */
+/*===============================================*/
+    always_comb begin
+        if (rd_addr_valid && rd_row_sel < ROWS && rd_col_sel < COLS) begin
+            arrayOut = array_dataOut[rd_row_sel][rd_col_sel];
+        end else begin
+            arrayOut = 1'b0;
+        end
+    end
+
+/*===============================================*/
+/*              Data Shift Registers             */
+/*===============================================*/
+    // Serial out (from PISO) is current LSB
     assign arrayIn = piso_reg[0];
 
-    always_ff @(posedge i_clk) begin                //LSB in first
+    // PISO: load full word, shift right on strobe
+    always_ff @(posedge i_clk or negedge i_rstn) begin
         if (!i_rstn) begin
-            piso_reg <= {DATA_WIDTH{1'b0}};
-        end else if (i_piso_load) begin
-            piso_reg <= i_array_data;
-        end else if (i_piso_shift) begin
-            piso_reg <= {1'b0, piso_reg[DATA_WIDTH-1:1]};
+            piso_reg <= '0;
+        end else begin
+            if (i_piso_load) begin
+                piso_reg <= i_array_data;
+            end else if (i_piso_shift) begin
+                // shift right: drop LSB, insert zero at MSB (serial LSB-first)
+                piso_reg <= {1'b0, piso_reg[DATA_WIDTH-1:1]};
+            end
         end
     end
-    
-    
-    always_ff @(posedge i_clk) begin            //LSB out first
+
+    // SIPO parallel collector: shift left in new bit at LSB side (LSB-first)
+    always_ff @(posedge i_clk or negedge i_rstn) begin
         if (!i_rstn) begin
-            parallel_out <= {DATA_WIDTH{1'b0}};
-        end else if (i_sipo_shift) begin
-            parallel_out <= {parallel_out[DATA_WIDTH-2:0], arrayOut};
+            parallel_out <= '0;
+        end else begin
+            if (i_sipo_shift) begin
+                // shift left so LSB is newest bit (this is consistent with arrayOut being serial LSB-first)
+                parallel_out <= {parallel_out[DATA_WIDTH-2:0], arrayOut};
+            end
         end
     end
-  
+
     assign o_array_data = parallel_out;
-    
-    
+
 endmodule
-
-
-/*
-Addressing method: (written here incase i forget it)
-
-1. Address sent in from CPU
-2. Address is fed into data memory and PE array
-3. If (address > threshold) 
-        data selected from Array 
-   else 
-        data selected from memory
-4. Data from array selected from i_address
-5. Two multiplexers for input sel and Two multiplexers for output sel
-6. PISO and SIPO into the PEs happens in the array_main layer.
-   - All data inside PE is bit serial
-7. Data load and store states are initiated by a read/write to the data memory <-- IMPORTANT
-    - ARRAY LOADS AND STORES ARE NOT DONE BY A MICROINSTRUCTION. DONE BY INTERFACING WITH MEMORY
-    - NEED TO BRING THE STATUS FLAG OUT FOR CPU TO SEE when instruction done writing( the o_Control_ready flag) 
-
-
-*/
-
-
-

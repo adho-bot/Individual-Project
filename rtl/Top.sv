@@ -63,8 +63,8 @@ module Top (
         .i_address(i_address),
         
         //data into and out of array
-        o_array_data(o_array_data),               //32 bits
-        i_array_data(i_array_data),               //32bits        still need to connect
+        .o_array_data(o_array_data),               //32 bits
+        .i_array_data(i_array_data),               //32bits        still need to connect
         
         //PISO SIPO control
         .i_piso_load(piso_load), 
