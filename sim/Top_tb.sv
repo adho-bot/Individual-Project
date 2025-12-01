@@ -116,7 +116,7 @@ module Top_tb;
         $display("LOAD (0,0) | Reg 1");
         instruction = instr.load(20'd0,5'd1);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
         @(posedge Control_ready);
-
+/*
         $display("LOAD (0,0) | Reg 2");
         instruction = instr.load(20'd0,5'd2);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
         @(posedge Control_ready);
@@ -124,6 +124,7 @@ module Top_tb;
         $display("LOAD (0,1) | Reg 1");
         instruction = instr.load(20'd4,5'd1);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
         @(posedge Control_ready);
+*/
 /*
         $display("LOAD (0,1) | Reg 2");
         instruction = instr.load(20'd4,5'd2);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
@@ -153,7 +154,8 @@ module Top_tb;
         $display("Vector ADD | Add rs3 <- rs1 + rs2");
         instruction = instr.vector_R_type(5'd3, 5'd1, 5'd2, 7'd0, 3'd0);
         @(posedge Control_ready);       
-        */         
+        */  
+        /*       
         $display("====================================");
         $display("              NEWS TYPES            ");
         $display("====================================");
@@ -161,18 +163,27 @@ module Top_tb;
         $display("Vector NEWS | Move rs2 data east. Add with rs1 of east PE and store in rs3");
         instruction = instr.news_type(5'd3, 5'd1, 2'b01, 7'd0, 3'd0, 3'd2);
         @(posedge Control_ready);         
+        */
         
-        /*
         $display("====================================");
         $display("              STORE TYPES               ");
         $display("====================================");
-        */
         
-        instruction = 32'd0;
+        $display("STORE (0,0) | Reg 1");
+        instruction = instr.store(20'd5, 1'd1);
+        @(posedge Control_ready);        
+        
+        
+        
+        
+        
+        
+        
         
         // -------------------------------------
         // Finish
         // -------------------------------------
+        instruction = 32'd0;
         #100;
         $display("Simulation completed.");
         $finish;

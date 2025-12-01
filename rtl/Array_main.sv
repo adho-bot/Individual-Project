@@ -239,7 +239,7 @@ module Array_Main #(
         end else begin
             if (i_sipo_shift) begin
                 // shift left so LSB is newest bit (this is consistent with arrayOut being serial LSB-first)
-                parallel_out <= {parallel_out[DATA_WIDTH-2:0], arrayOut};
+                parallel_out <= {arrayOut, parallel_out[DATA_WIDTH-1:1]};   //Array data out is LSB first
             end
         end
     end
