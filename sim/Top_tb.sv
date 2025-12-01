@@ -39,8 +39,8 @@ module Top_tb;
         endfunction
     
         //NEWS Type
-        function logic [INSTR_WIDTH-1:0] my_type(logic [4:0] rd, logic [4:0] rs1, logic [1:0] news_sel, logic [9:0] funct10, logic [2:0] funct3);
-            my_type = {funct10, news_sel, rs1, funct3, rd, `OP_NEWS_TYPE}; // placeholder encoding
+        function logic [INSTR_WIDTH-1:0] news_type(logic [4:0] rd, logic [4:0] rs1, logic [1:0] news_sel, logic [6:0] funct7, logic [2:0] funct3, logic [2:0] rs2);
+            news_type = {funct7, news_sel, rs2, rs1, funct3, rd, `OP_NEWS_TYPE}; // placeholder encoding
         endfunction 
     endclass
 
@@ -99,9 +99,9 @@ module Top_tb;
         array_data_in = 0;
 
         // Initialize memory with some values
-        data_mem[0] = 32'hAAAA0001;
-        data_mem[4] = 32'hBBBB0002;
-        data_mem[8] = 32'hCCCC0003;
+        data_mem[0]  = 32'hAAAA0001;
+        data_mem[4]  = 32'hBBBB0002;
+        data_mem[8]  = 32'hCCCC0003;
         data_mem[12] = 32'hDDDD004;
         #20;
         rstn = 1;
@@ -124,7 +124,7 @@ module Top_tb;
         $display("LOAD (0,1) | Reg 1");
         instruction = instr.load(20'd4,5'd1);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
         @(posedge Control_ready);
-
+/*
         $display("LOAD (0,1) | Reg 2");
         instruction = instr.load(20'd4,5'd2);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
         @(posedge Control_ready);
@@ -144,16 +144,29 @@ module Top_tb;
         $display("LOAD (1,1)");
         instruction = instr.load(20'd12,5'd2);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
         @(posedge Control_ready);
-       
-                                   
+*/       
+        /*                           
         $display("====================================");
         $display("              R TYPES               ");
         $display("====================================");
         
         $display("Vector ADD | Add rs3 <- rs1 + rs2");
-        instruction = instr.vector_R_type(5'd3, 5'd1, 5'd2, 7'b0000000, 3'b000);
+        instruction = instr.vector_R_type(5'd3, 5'd1, 5'd2, 7'd0, 3'd0);
         @(posedge Control_ready);       
-                 
+        */         
+        $display("====================================");
+        $display("              NEWS TYPES            ");
+        $display("====================================");
+        
+        $display("Vector NEWS | Move rs2 data east. Add with rs1 of east PE and store in rs3");
+        instruction = instr.news_type(5'd3, 5'd1, 2'b01, 7'd0, 3'd0, 3'd2);
+        @(posedge Control_ready);         
+        
+        /*
+        $display("====================================");
+        $display("              STORE TYPES               ");
+        $display("====================================");
+        */
         
         instruction = 32'd0;
         

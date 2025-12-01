@@ -29,7 +29,6 @@ module PE_Main#(
     input  logic [1:0] i_news_sel,
     input  logic i_wb_sel,
     input  logic [9:0] i_opcode,
-    input  logic i_data_valid,
     input  logic i_dataout_en,
     
     //PE gate
@@ -50,7 +49,6 @@ module PE_Main#(
     logic operandA;
     logic operandB;
     logic result;
-    logic [WIDTH - 1 : 0] newsTemp;
     
     //PE gating signals
     logic wr_en;
@@ -89,6 +87,9 @@ module PE_Main#(
     assign operandA = rd1;
     assign operandB = (i_rs2_sel) ? news : rd2;
     
+    //Rs2 to NEWS
+    assign o_news = rd2;
+    
     // NEWS input mux
     always_comb begin
         case(i_news_sel)
@@ -98,16 +99,6 @@ module PE_Main#(
             SOUTH:   news = i_south;
             default: news = 1'b0;
         endcase
-    end
-    
-    // NEWS output register
-    always_ff @(posedge i_clk or negedge i_rstn) begin
-        if(!i_rstn)
-            o_news <= 1'b0;
-        else if (i_data_valid) 
-            o_news <= newsTemp[31 - i_counter];
-        else
-            newsTemp <= {newsTemp[30:0], result}; //lsb first, 
     end
     
     // ALU result writeback mux

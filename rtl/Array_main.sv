@@ -15,10 +15,9 @@ module Array_Main #(
     input  logic [4:0]                i_wr_addr,
     input  logic                      i_wr_en,
     input  logic                      i_rs2_sel,
-    input  logic                      i_news_sel,
+    input  logic [1:0]                i_news_sel,
     input  logic                      i_wb_sel,
     input  logic [9:0]                i_opcode,
-    input  logic                      i_data_valid,
     input  logic [$clog2(DATA_WIDTH):0] i_counter,
     input  logic                      i_dataout_en,
 
@@ -51,11 +50,11 @@ module Array_Main #(
     logic arrayOut; // serial bit from selected PE into SIPO
 
     // Neighbor wires (kept sized to DATA_WIDTH for compatibility)
-    logic [DATA_WIDTH-1:0] north [0:ROWS-1][0:COLS-1];
-    logic [DATA_WIDTH-1:0] south [0:ROWS-1][0:COLS-1];
-    logic [DATA_WIDTH-1:0] east  [0:ROWS-1][0:COLS-1];
-    logic [DATA_WIDTH-1:0] west  [0:ROWS-1][0:COLS-1];
-    logic [DATA_WIDTH-1:0] news  [0:ROWS-1][0:COLS-1];
+    logic north [0:ROWS-1][0:COLS-1];
+    logic south [0:ROWS-1][0:COLS-1];
+    logic east  [0:ROWS-1][0:COLS-1];
+    logic west  [0:ROWS-1][0:COLS-1];
+    logic news  [0:ROWS-1][0:COLS-1];
 
     // 1-bit data in/out per PE (bit-serial)
     logic array_dataOut [0:ROWS-1][0:COLS-1];
@@ -73,21 +72,18 @@ module Array_Main #(
     logic [COL_W-1:0] rd_col_sel;
     logic             rd_addr_valid;
 
-    // -------------------------------------------------------------------------
-    // Instantiate PE array (PE_Main stub must exist or be replaced with real PE)
-    // -------------------------------------------------------------------------
+/*===============================================*/
+/*              PE Array                         */
+/*===============================================*/
     genvar r, c;
     generate
         for (r = 0; r < ROWS; r++) begin : gen_row
             for (c = 0; c < COLS; c++) begin : gen_col
-                // boundary wiring (neighbors) - using news for simplicity
-                assign north[r][c] = (r == 0)        ? '0 : news[r-1][c];
-                assign south[r][c] = (r == ROWS-1)  ? '0 : news[r+1][c];
-                assign west[r][c]  = (c == 0)        ? '0 : news[r][c-1];
-                assign east[r][c]  = (c == COLS-1)   ? '0 : news[r][c+1];
+                assign north[r][c] = (r == ROWS-1)        ? '0 : news[r+1][c];
+                assign south[r][c] = (r == 0)   ? '0 : news[r-1][c];
+                assign west[r][c]  = (c == COLS-1)        ? '0 : news[r][c+1];
+                assign east[r][c]  = (c == 0)   ? '0 : news[r][c-1];
 
-                // PE instance - replace with real PE_Main if available.
-                // This stub simply forwards i_data -> o_data on every clock for demo.
                 PE_Main #(.WIDTH(DATA_WIDTH), .DEPTH(16)) pe_i (
                     .i_clk        (i_clk),
                     .i_rstn       (i_rstn),
@@ -107,7 +103,6 @@ module Array_Main #(
                     .i_news_sel   (i_news_sel),
                     .i_wb_sel     (i_wb_sel),
                     .i_opcode     (i_opcode),
-                    .i_data_valid (i_data_valid),
                     .i_dataout_en (i_dataout_en),
                     
                     .i_PE_enable (PE_enable[r][c])

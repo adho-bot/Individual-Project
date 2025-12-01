@@ -46,7 +46,6 @@ module Control_FSM(
                 case(i_instruction[6:0])
                     `OP_LOAD:   next_state = `DATA_FETCH;
                     `OP_R_TYPE:  next_state = `R_EXECUTE;
-                    `OP_MV_TYPE: next_state = `MV_EXECUTE;
                     `OP_STORE: next_state = `STORE_DATA;
                     `OP_NEWS_TYPE: next_state = `NEWS_EXECUTE;
                     default:   next_state = `IDLE;
@@ -81,14 +80,6 @@ module Control_FSM(
                 end
             end
 
-            `MV_EXECUTE: begin
-                if(counter < 6'd31) begin
-                    next_state = `MV_EXECUTE; // fallback
-                end else begin
-                    next_state = `IDLE;
-                end
-            end
-
             `STORE_DATA: begin
                 if(counter < 6'd31) begin
                     next_state = `STORE_DATA; 
@@ -116,7 +107,7 @@ always_ff@(posedge i_clk or negedge i_rstn) begin
 	if(!i_rstn) begin
 		counter <= 6'b0;
 	end else if(o_state == `DATA_LOAD ||o_state == `R_EXECUTE ||
-	            o_state == `NEWS_EXECUTE ||o_state == `MV_EXECUTE ||o_state == `STORE_DATA) begin
+	            o_state == `NEWS_EXECUTE ||o_state == `STORE_DATA) begin
 	               counter <= counter + 1;
 	end else begin
 	   counter <= 6'b0;

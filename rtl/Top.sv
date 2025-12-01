@@ -24,7 +24,6 @@ module Top (
     logic [1:0]  news_sel;      // Assuming 2-bit select for NEWS
     logic [1:0]  wb_sel;        // Assuming 2-bit select for writeback
     logic [9:0]  opcode;        // Standard RISC-V opcode width
-    logic        data_valid;
     logic [5:0]  counter;       // Assuming 32-bit counter
     logic        dataout_en;
     
@@ -56,7 +55,6 @@ module Top (
         .i_news_sel(news_sel),
         .i_wb_sel(wb_sel),
         .i_opcode(opcode),
-        .i_data_valid(data_valid),
         .i_counter(counter),
         .i_dataout_en(dataout_en),
         
@@ -88,7 +86,6 @@ module Top (
         .o_news_sel(news_sel),              // Select between N,E,W,S
         .o_wb_sel(wb_sel),                  // Selects between writing back to reg file from alu or external
         .o_opcode(opcode),                  //
-        .o_data_valid(data_valid),          //News enable register
         .o_counter(counter),                //Control sync counter
         .o_dataout_en(dataout_en),          //Data out enable           --need to look into whether this is needed
         

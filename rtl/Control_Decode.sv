@@ -14,7 +14,6 @@ module Control_Decode(
     output logic [1:0]  o_news_sel,
     output logic        o_wb_sel,
     output logic [9:0]  o_opcode,
-    output logic        o_data_valid,
     output logic        o_dataout_en,
     
     //Memory control
@@ -45,7 +44,6 @@ always_comb begin
             o_news_sel   = 2'bXX;
             o_wb_sel     = 1'bX;
             o_opcode     = 10'd0;
-            o_data_valid = 1'b0;
             o_dataout_en = 1'b0; 
             o_data_wr    = 1'b0;
             o_data_rd    = 1'b0;
@@ -94,24 +92,24 @@ always_comb begin
         `NEWS_EXECUTE: begin        //this is operation between rs1 and NEWS
             o_opcode = {i_instruction[31:25],i_instruction[14:12]};
             o_rs2_sel = 1'b1;
-            o_news_sel = i_instruction[21:20]; //<-------NEED TO CHANGE VALUES BASED ON INSTRUCTIONS THAT I MAKE
+            o_news_sel = i_instruction[24:23];
             
             //Register writeback
-            o_wb_sel = 1'b0; //write back to reg file
+            o_wb_sel = 1'b0; //write back to reg file from ALU
             o_wr_addr = i_instruction[11:7];
             o_wr_reg_en = 1'b1;
             
             //enable all PEs
             o_PE_enable = 1'b1;
             
+            //Choose register rst from 3 bits
+            o_rd2_addr = {2'b00, i_instruction[22:20]};      //override the 5 bit rs2
+            
         end
         
-        `MV_EXECUTE: begin //
+        `MV_EXECUTE: begin //MOVE DATA TO NEWS REG
             o_opcode = {7'd0, 3'd0};        //add rs1 with 0
-            o_rs2_sel = 1'b0;
-            
-            //Register writeback
-            o_data_valid = 1'b1;     
+            o_rs2_sel = 1'b0;     
             
             //enable all PEs
             o_PE_enable = 1'b1;  

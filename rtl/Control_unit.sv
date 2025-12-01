@@ -17,7 +17,6 @@ module Control_Unit(
     output  logic [1:0]     o_news_sel,
     output  logic        	o_wb_sel,
     output  logic [9:0]  	o_opcode,
-    output  logic        	o_data_valid,
     output  logic [5:0]     o_counter,
     output  logic           o_dataout_en,
 
@@ -63,7 +62,6 @@ module Control_Unit(
         .o_news_sel(o_news_sel),
         .o_wb_sel(o_wb_sel),
         .o_opcode(o_opcode),
-        .o_data_valid(o_data_valid),
         .o_dataout_en(o_dataout_en),
         
         .o_data_wr(o_data_wr),
