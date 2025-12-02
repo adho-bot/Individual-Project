@@ -1,8 +1,8 @@
 // Array_Main.sv
 `timescale 1ns/1ps
 module Array_Main #(
-    parameter int ROWS = 2,
-    parameter int COLS = 2,
+    parameter int ROWS = 4,
+    parameter int COLS = 4,
     parameter int DATA_WIDTH = 32,
     parameter logic [31:0] ARRAY_BASE_ADDR = 32'h0000_0000  // base for array element mapping (SIM MODE RN)
 )(

@@ -118,6 +118,7 @@ always_comb begin
         `STORE_DATA: begin
             o_dataout_en = 1'b1;
             o_sipo_shift = 1'b1;
+            o_array_address = {12'd0,i_instruction[31:20],i_instruction[14:7]};
         end
         
         `DATA_TO_MEM: begin

@@ -9,13 +9,13 @@ module Top_tb;
     logic clk;
     logic rstn;
 
-    logic [31:0] instruction;     // Assuming 32-bit instruction width
-    logic [31:0] array_data_in;   // Data going INTO Top
-    logic [31:0] array_data_out;  // Data coming OUT of Top
+    logic [31:0] instruction;    
+    logic [31:0] array_data_in;
+    logic [31:0] array_data_out;
 
-    logic [31:0] address;         // Memory address from Top
-    logic        wr_en;           // Write enable from Top
-    logic        rd_en;           // Read enable from Top
+    logic [31:0] address;
+    logic        wr_en;
+    logic        rd_en;
 
     logic       Control_ready;
 
@@ -23,24 +23,20 @@ module Top_tb;
 
     //Instruction class
     class Instructions;    
-        //Store
         function logic [INSTR_WIDTH-1:0] store(logic [19:0] address, logic [4:0] rs1);
-            store = {address[19:8], rs1, address[7:0], `OP_STORE}; // Example RISC-V store encoding
+            store = {address[19:8], rs1, address[7:0], `OP_STORE};
         endfunction
     
-        //Load
         function logic [INSTR_WIDTH-1:0] load(logic [19:0] address,logic [4:0] rd);
-            load = {address, rd, `OP_LOAD}; // Example RISC-V load encoding
+            load = {address, rd, `OP_LOAD};
         endfunction
     
-        //Vector R-type
         function logic [INSTR_WIDTH-1:0] vector_R_type(logic [4:0] rd, logic [4:0] rs1, logic [4:0] rs2, logic [6:0] funct7, logic [2:0] funct3);
-            vector_R_type = {funct7, rs2, rs1, funct3, rd, `OP_R_TYPE}; // Example vector opcode
+            return {funct7, rs2, rs1, funct3, rd, `OP_R_TYPE};
         endfunction
     
-        //NEWS Type
         function logic [INSTR_WIDTH-1:0] news_type(logic [4:0] rd, logic [4:0] rs1, logic [1:0] news_sel, logic [6:0] funct7, logic [2:0] funct3, logic [2:0] rs2);
-            news_type = {funct7, news_sel, rs2, rs1, funct3, rd, `OP_NEWS_TYPE}; // placeholder encoding
+            return {funct7, news_sel, rs2, rs1, funct3, rd, `OP_NEWS_TYPE};
         endfunction 
     endclass
 
@@ -55,7 +51,7 @@ module Top_tb;
         .i_array_data (array_data_in),
         .o_array_data (array_data_out),
 
-        .o_array_address    (address),
+        .o_array_address(address),
         .o_wr_en      (wr_en),
         .o_rd_en      (rd_en),
         .o_Control_ready(Control_ready)
@@ -64,19 +60,25 @@ module Top_tb;
     // -----------------------------------------
     // Simulation Data Memory
     // -----------------------------------------
-    logic [31:0] data_mem [0:255];     // 256-word memory
-
+    logic [31:0] data_mem [0:255];
+    logic [7:0] pix[0:3];
+    
     // Memory read
     always_ff @(posedge clk) begin
-        if (rd_en) begin
+        if (rd_en)
             array_data_in <= data_mem[address];
-        end
     end
 
-    // Memory write
+    // Memory write + record to file
+    integer outfile;
     always_ff @(posedge clk) begin
         if (wr_en) begin
             data_mem[address] <= array_data_out;
+
+            if (address == 0 || address == 4 || address == 8 || address == 12) begin
+                $fwrite(outfile, "%02x\n", array_data_out[7:0]);
+                $display("[TB] OUTPUT PIXEL: addr=%0d  val=%02x", address, array_data_out[7:0]);
+            end
         end
     end
 
@@ -88,8 +90,6 @@ module Top_tb;
     // -----------------------------------------
     // Test Stimulus
     // -----------------------------------------
-   
-    //Object init
     Instructions instr = new;
    
     initial begin
@@ -98,55 +98,70 @@ module Top_tb;
         instruction = 32'h0;
         array_data_in = 0;
 
-        // Initialize memory with some values
-        data_mem[0]  = 32'hAAAA0001;
-        data_mem[4]  = 32'hBBBB0002;
-        data_mem[8]  = 32'hCCCC0003;
-        data_mem[12] = 32'hDDDD004;
+        // -------------------------------------
+        // Load IMAGE DATA from hex file
+        // -------------------------------------
+
+
+        $display("[TB] Loading image from /home/gary/Individual_Project/img/2x2_input.hex");
+        $readmemh("/home/gary/Individual_Project/img/2x2_input.hex", pix);
+
+        data_mem[0]  = {24'h0, pix[0]}; // (0,0)
+        data_mem[4]  = {24'h0, pix[1]}; // (0,1)
+        data_mem[8]  = {24'h0, pix[2]}; // (1,0)
+        data_mem[12] = {24'h0, pix[3]}; // (1,1)
+
+        // -------------------------------------
+        // Open OUTPUT HEX FILE
+        // -------------------------------------
+        outfile = $fopen("/home/gary/Individual_Project/img/2x2_output.hex", "w");
+        if (!outfile) begin
+            $display("[TB] ERROR: could not open output hex file!");
+            $finish;
+        end
+
         #20;
         rstn = 1;
 
         // -------------------------------------
-        // Example Instruction 1
+        // Your original instruction sequence
         // -------------------------------------
         $display("====================================");
         $display("              LOAD TYPES            ");
         $display("====================================");
         
         $display("LOAD (0,0) | Reg 1");
-        instruction = instr.load(20'd0,5'd1);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        instruction = instr.load(20'd0,5'd1);
         @(posedge Control_ready);
-/*
+
         $display("LOAD (0,0) | Reg 2");
-        instruction = instr.load(20'd0,5'd2);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        instruction = instr.load(20'd0,5'd2);
         @(posedge Control_ready);
 
         $display("LOAD (0,1) | Reg 1");
-        instruction = instr.load(20'd4,5'd1);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        instruction = instr.load(20'd4,5'd1);
         @(posedge Control_ready);
-*/
-/*
+
         $display("LOAD (0,1) | Reg 2");
-        instruction = instr.load(20'd4,5'd2);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        instruction = instr.load(20'd4,5'd2);
         @(posedge Control_ready);
         
         $display("LOAD (1,0)");
-        instruction = instr.load(20'd8,5'd1);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        instruction = instr.load(20'd8,5'd1);
         @(posedge Control_ready);
 
         $display("LOAD (1,0)");
-        instruction = instr.load(20'd8,5'd2);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        instruction = instr.load(20'd8,5'd2);
         @(posedge Control_ready);
         
         $display("LOAD (1,1)");
-        instruction = instr.load(20'd12,5'd1);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        instruction = instr.load(20'd12,5'd1);
         @(posedge Control_ready);     
         
         $display("LOAD (1,1)");
-        instruction = instr.load(20'd12,5'd2);    // REMEMBER MEM OP HAVE TO BE MUTIPLE OF 
+        instruction = instr.load(20'd12,5'd2);
         @(posedge Control_ready);
-*/       
-        /*                           
+                          
         $display("====================================");
         $display("              R TYPES               ");
         $display("====================================");
@@ -154,8 +169,7 @@ module Top_tb;
         $display("Vector ADD | Add rs3 <- rs1 + rs2");
         instruction = instr.vector_R_type(5'd3, 5'd1, 5'd2, 7'd0, 3'd0);
         @(posedge Control_ready);       
-        */  
-        /*       
+        /*
         $display("====================================");
         $display("              NEWS TYPES            ");
         $display("====================================");
@@ -164,22 +178,25 @@ module Top_tb;
         instruction = instr.news_type(5'd3, 5'd1, 2'b01, 7'd0, 3'd0, 3'd2);
         @(posedge Control_ready);         
         */
-        
         $display("====================================");
-        $display("              STORE TYPES               ");
+        $display("              STORE TYPES           ");
         $display("====================================");
         
-        $display("STORE (0,0) | Reg 1");
-        instruction = instr.store(20'd5, 1'd1);
-        @(posedge Control_ready);        
+        $display("STORE (0,0) | Reg 3");
+        instruction = instr.store(20'd0, 2'd3);
+        @(posedge Control_ready);
+
+        $display("STORE (0,1) | Reg 3");
+        instruction = instr.store(20'd4, 2'd3);
+        @(posedge Control_ready);
         
+        $display("STORE (1,0) | Reg 3");
+        instruction = instr.store(20'd8, 2'd3);
+        @(posedge Control_ready);
         
-        
-        
-        
-        
-        
-        
+        $display("STORE (1,1) | Reg 3");
+        instruction = instr.store(20'd12, 2'd3);
+        @(posedge Control_ready);                
         // -------------------------------------
         // Finish
         // -------------------------------------
