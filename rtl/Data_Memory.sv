@@ -15,7 +15,7 @@ module Data_Memory #(
 
 
     // Normal memory read (only when not array-mapped)
-    always_ff @(negedge i_clk) begin
+    always_ff @(posedge i_clk) begin
         if (i_rd_en) begin
             o_data <= {data_memory[i_address[9:0]+3],
                        data_memory[i_address[9:0]+2],
@@ -25,7 +25,7 @@ module Data_Memory #(
     end
 
     // Normal memory write (only when not array-mapped)
-    always_ff @(negedge i_clk) begin
+    always_ff @(posedge i_clk) begin
         if (i_wr_en) begin
             data_memory[i_address[9:0]]   <= i_data[7:0];
             data_memory[i_address[9:0]+1] <= i_data[15:8];

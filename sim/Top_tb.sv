@@ -60,13 +60,16 @@ module Top_tb;
     // -----------------------------------------
     // Simulation Data Memory
     // -----------------------------------------
-    logic [31:0] data_mem [0:255];
+    logic [7:0] data_mem [0:255];
     logic [7:0] pix[0:3];
     
     // Memory read
     always_ff @(posedge clk) begin
         if (rd_en)
-            array_data_in <= data_mem[address];
+            array_data_in <= {data_mem[address+3],
+                              data_mem[address+2],
+                              data_mem[address+1],
+                              data_mem[address]};
     end
 
     // Memory write + record to file
@@ -75,10 +78,14 @@ module Top_tb;
         if (wr_en) begin
             data_mem[address] <= array_data_out;
 
-            if (address == 0 || address == 4 || address == 8 || address == 12) begin
-                $fwrite(outfile, "%02x\n", array_data_out[7:0]);
-                $display("[TB] OUTPUT PIXEL: addr=%0d  val=%02x", address, array_data_out[7:0]);
-            end
+            data_mem[address[9:0]]   <= array_data_out[7:0];
+            data_mem[address[9:0]+1] <= array_data_out[15:8];
+            data_mem[address[9:0]+2] <= array_data_out[23:16];
+            data_mem[address[9:0]+3] <= array_data_out[31:24];
+
+
+            $fwrite(outfile, "%02x\n", array_data_out);
+            $display("[TB] OUTPUT PIXEL: addr=%0d  val=%02x", address, array_data_out[7:0]);
         end
     end
 
@@ -104,13 +111,13 @@ module Top_tb;
 
 
         $display("[TB] Loading image from /home/gary/Individual_Project/img/2x2_input.hex");
-        $readmemh("/home/gary/Individual_Project/img/2x2_input.hex", pix);
-
+        $readmemh("/home/gary/Individual_Project/img/2x2_input.hex", data_mem);
+/*
         data_mem[0]  = {24'h0, pix[0]}; // (0,0)
         data_mem[4]  = {24'h0, pix[1]}; // (0,1)
         data_mem[8]  = {24'h0, pix[2]}; // (1,0)
         data_mem[12] = {24'h0, pix[3]}; // (1,1)
-
+*/
         // -------------------------------------
         // Open OUTPUT HEX FILE
         // -------------------------------------
@@ -129,7 +136,7 @@ module Top_tb;
         $display("====================================");
         $display("              LOAD TYPES            ");
         $display("====================================");
-        
+/*        
         $display("LOAD (0,0) | Reg 1");
         instruction = instr.load(20'd0,5'd1);
         @(posedge Control_ready);
@@ -161,6 +168,18 @@ module Top_tb;
         $display("LOAD (1,1)");
         instruction = instr.load(20'd12,5'd2);
         @(posedge Control_ready);
+*/
+
+//Recursive load loop
+        for (int i = 0; i < 4; i++) begin
+            for (int j = 0; j < 4; j++) begin
+                for (int reg_num = 1; reg_num <= 2; reg_num++) begin
+                    $display("LOAD (%0d,%0d) | Reg %0d", i, j, reg_num);
+                    instruction = instr.load(20'd4 * (i*4 + j), 5'(reg_num));
+                    @(posedge Control_ready);
+                end
+            end
+        end
                           
         $display("====================================");
         $display("              R TYPES               ");
@@ -181,7 +200,7 @@ module Top_tb;
         $display("====================================");
         $display("              STORE TYPES           ");
         $display("====================================");
-        
+/*        
         $display("STORE (0,0) | Reg 3");
         instruction = instr.store(20'd0, 2'd3);
         @(posedge Control_ready);
@@ -196,8 +215,19 @@ module Top_tb;
         
         $display("STORE (1,1) | Reg 3");
         instruction = instr.store(20'd12, 2'd3);
-        @(posedge Control_ready);                
-        // -------------------------------------
+        @(posedge Control_ready);  
+*/       
+  
+//Recursive store  
+        for (int i = 0; i < 4; i++) begin
+            for (int j = 0; j < 4; j++) begin
+                $display("STORE (%0d,%0d) | Reg 3", i, j);
+                instruction = instr.store(20'd4 * (i*4 + j), 2'd3);
+                @(posedge Control_ready);
+            end
+        end        
+
+       // -------------------------------------
         // Finish
         // -------------------------------------
         instruction = 32'd0;
