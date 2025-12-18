@@ -1,14 +1,14 @@
 `include "Definitions.sv"
 
 module Control_FSM(
-    input  logic        i_clk,
-    input  logic        i_rstn,
-    input  logic [31:0] i_instruction,  // instruction word (opcode + operands)
-    output  logic [5:0] o_counter,      //sync counter
+    input   logic           i_clk,
+    input   logic           i_rstn,
+    input   logic [31:0]    i_instruction,  // instruction word (opcode + operands)
+    output  logic [5:0]     o_counter,      //sync counter
 
-    output logic [3:0]  o_state,
+    output  logic [3:0]     o_state,
     
-    output logic        o_FSM_ready     //ready signal for next instruction to be sent
+    output  logic           o_FSM_ready     //ready signal for next instruction to be sent
     
     
 );
@@ -16,13 +16,13 @@ module Control_FSM(
     // ───────────────────────────────────────────────
     // State encoding
     // ───────────────────────────────────────────────
-    logic [3:0] next_state;
+    logic   [3:0]           next_state;
 
 
     // ───────────────────────────────────────────────
     // Counter Logic
     // ───────────────────────────────────────────────
-    logic [5:0] counter;
+    logic   [5:0]           counter;
     assign o_counter = counter;    
 
     // ───────────────────────────────────────────────

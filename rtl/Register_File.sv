@@ -28,8 +28,8 @@ module Register_File#(
    //Temp shifting variable
     logic [WIDTH:0] tempShift1, tempShift2;
     
-    assign tempShift1 = rf_mem[i_rd1_addr];
-    assign tempShift2 = rf_mem[i_rd2_addr];
+    assign tempShift1  = (rf_mem[i_rd1_addr] > 255) ? 255 : rf_mem[i_rd1_addr];
+    assign tempShift2  = (rf_mem[i_rd2_addr] > 255) ? 255 : rf_mem[i_rd2_addr];
     
 /*================================================================*/
 /*				WRITE				  */

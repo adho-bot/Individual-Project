@@ -6,71 +6,71 @@ module Array_Main #(
     parameter int DATA_WIDTH = 32,
     parameter logic [31:0] ARRAY_BASE_ADDR = 32'h0000_0000  // base for array element mapping (SIM MODE RN)
 )(
-    input  logic                      i_clk,
-    input  logic                      i_rstn,
+    input  logic                        i_clk,
+    input  logic                        i_rstn,
 
     // control (kept for compatibility; unused in stub PE)
-    input  logic [4:0]                i_rd1_addr,
-    input  logic [4:0]                i_rd2_addr,
-    input  logic [4:0]                i_wr_addr,
-    input  logic                      i_wr_en,
-    input  logic                      i_rs2_sel,
-    input  logic [1:0]                i_news_sel,
-    input  logic                      i_wb_sel,
-    input  logic [9:0]                i_opcode,
+    input  logic [4:0]                  i_rd1_addr,
+    input  logic [4:0]                  i_rd2_addr,
+    input  logic [4:0]                  i_wr_addr,
+    input  logic                        i_wr_en,
+    input  logic                        i_rs2_sel,
+    input  logic [1:0]                  i_news_sel,
+    input  logic                        i_wb_sel,
+    input  logic [9:0]                  i_opcode,
     input  logic [$clog2(DATA_WIDTH):0] i_counter,
-    input  logic                      i_dataout_en,
+    input  logic                        i_dataout_en,
 
     // memory mapped signals
-    input  logic [31:0]               i_array_address,
+    input  logic [31:0]                 i_array_address,
 
     // data in/out (word-wide interface)
-    output logic [DATA_WIDTH-1:0]     o_array_data,   // changed to DATA_WIDTH to match register
-    input  logic [DATA_WIDTH-1:0]     i_array_data,
+    output logic [DATA_WIDTH-1:0]       o_array_data,   // changed to DATA_WIDTH to match register
+    input  logic [DATA_WIDTH-1:0]       i_array_data,
 
     // PISO / SIPO control
-    input  logic                      i_piso_load,
-    input  logic                      i_piso_shift,
-    input  logic                      i_sipo_shift, 
+    input  logic                        i_piso_load,
+    input  logic                        i_piso_shift,
+    input  logic                        i_sipo_shift, 
     
     //PE gating signal
-    input  logic                      i_PE_enable
+    input  logic                        i_PE_enable
 );
 
     // --- Derived widths ---
-    localparam int ROW_W = (ROWS > 1) ? $clog2(ROWS) : 1;
-    localparam int COL_W = (COLS > 1) ? $clog2(COLS) : 1;
-    localparam int NUM_ELEMENTS = ROWS * COLS;
-    localparam int ADDR_BYTES_PER_ELEMENT = 4; // mapping granularity
+    localparam int ROW_W                    = (ROWS > 1) ? $clog2(ROWS) : 1;
+    localparam int COL_W                    = (COLS > 1) ? $clog2(COLS) : 1;
+    localparam int NUM_ELEMENTS             = ROWS * COLS;
+    localparam int ADDR_BYTES_PER_ELEMENT   = 4; // mapping granularity
 
     // --- Internal registers ---
-    logic [DATA_WIDTH-1:0] piso_reg;
-    logic arrayIn; // serial bit out of PISO
-    logic [DATA_WIDTH-1:0] parallel_out;
-    logic arrayOut; // serial bit from selected PE into SIPO
+    logic [DATA_WIDTH-1:0]  piso_reg;
+    logic                   arrayIn; // serial bit out of PISO
+    logic [DATA_WIDTH-1:0]  parallel_out;
+    logic                   arrayOut; // serial bit from selected PE into SIPO
 
     // Neighbor wires (kept sized to DATA_WIDTH for compatibility)
-    logic north [0:ROWS-1][0:COLS-1];
-    logic south [0:ROWS-1][0:COLS-1];
-    logic east  [0:ROWS-1][0:COLS-1];
-    logic west  [0:ROWS-1][0:COLS-1];
-    logic news  [0:ROWS-1][0:COLS-1];
+    logic north             [0:ROWS-1][0:COLS-1];
+    logic south             [0:ROWS-1][0:COLS-1];
+    logic east              [0:ROWS-1][0:COLS-1];
+    logic west              [0:ROWS-1][0:COLS-1];
+    logic news              [0:ROWS-1][0:COLS-1];
 
     // 1-bit data in/out per PE (bit-serial)
-    logic array_dataOut [0:ROWS-1][0:COLS-1];
-    logic array_dataIn  [0:ROWS-1][0:COLS-1];
+    logic array_dataOut     [0:ROWS-1][0:COLS-1];
+    logic array_dataIn      [0:ROWS-1][0:COLS-1];
 
     //PE gating
-    logic PE_enable     [0:ROWS-1][0:COLS-1];
+    logic PE_enable         [0:ROWS-1][0:COLS-1];
 
     // Decoded indices and valid flags
-    logic [ROW_W-1:0] wr_row_sel;
-    logic [COL_W-1:0] wr_col_sel;
-    logic             wr_addr_valid;
+    logic [ROW_W-1:0]       wr_row_sel;
+    logic [COL_W-1:0]       wr_col_sel;
+    logic                   wr_addr_valid;
 
-    logic [ROW_W-1:0] rd_row_sel;
-    logic [COL_W-1:0] rd_col_sel;
-    logic             rd_addr_valid;
+    logic [ROW_W-1:0]       rd_row_sel;
+    logic [COL_W-1:0]       rd_col_sel;
+    logic                   rd_addr_valid;
 
 /*===============================================*/
 /*              PE Array                         */
@@ -79,10 +79,10 @@ module Array_Main #(
     generate
         for (r = 0; r < ROWS; r++) begin : gen_row
             for (c = 0; c < COLS; c++) begin : gen_col
-                assign north[r][c] = (r == ROWS-1)        ? '0 : news[r+1][c];
-                assign south[r][c] = (r == 0)   ? '0 : news[r-1][c];
-                assign west[r][c]  = (c == COLS-1)        ? '0 : news[r][c+1];
-                assign east[r][c]  = (c == 0)   ? '0 : news[r][c-1];
+                assign north[r][c] = (r == ROWS-1)  ? '0 : news[r+1][c];
+                assign south[r][c] = (r == 0)       ? '0 : news[r-1][c];
+                assign west[r][c]  = (c == COLS-1)  ? '0 : news[r][c+1];
+                assign east[r][c]  = (c == 0)       ? '0 : news[r][c-1];
 
                 PE_Main #(.WIDTH(DATA_WIDTH), .DEPTH(16)) pe_i (
                     .i_clk        (i_clk),

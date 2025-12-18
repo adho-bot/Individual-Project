@@ -3,36 +3,36 @@ module PE_Main#(
     parameter DEPTH = 16
 )(
     // Global signals
-    input  logic i_clk,
-    input  logic i_rstn,
-    input  logic [$clog2(WIDTH):0] i_counter,
+    input  logic                        i_clk,
+    input  logic                        i_rstn,
+    input  logic [$clog2(WIDTH):0]      i_counter,
     
     // Data input
-    input  logic i_data,
-    output logic o_data,
+    input  logic                        i_data,
+    output logic                        o_data,
     
     // Neighbour inputs
-    input  logic i_north,
-    input  logic i_east,
-    input  logic i_south,
-    input  logic i_west,
+    input  logic                        i_north,
+    input  logic                        i_east,
+    input  logic                        i_south,
+    input  logic                        i_west,
     
     // Neighbour outputs
-    output logic o_news,
+    output logic                        o_news,
     
     // Control signals
-    input  logic [$clog2(DEPTH)-1:0] i_rd1_addr,
-    input  logic [$clog2(DEPTH)-1:0] i_rd2_addr,
-    input  logic [$clog2(DEPTH)-1:0] i_wr_addr,
-    input  logic i_wr_en,
-    input  logic i_rs2_sel,
-    input  logic [1:0] i_news_sel,
-    input  logic i_wb_sel,
-    input  logic [9:0] i_opcode,
-    input  logic i_dataout_en,
+    input  logic [$clog2(DEPTH)-1:0]    i_rd1_addr,
+    input  logic [$clog2(DEPTH)-1:0]    i_rd2_addr,
+    input  logic [$clog2(DEPTH)-1:0]    i_wr_addr,
+    input  logic                        i_wr_en,
+    input  logic                        i_rs2_sel,
+    input  logic [1:0]                  i_news_sel,
+    input  logic                        i_wb_sel,
+    input  logic [9:0]                  i_opcode,
+    input  logic                        i_dataout_en,
     
     //PE gate
-    input  logic i_PE_enable
+    input  logic                        i_PE_enable
 );
     // Parameters
     localparam [1:0] NORTH = 2'b00, EAST = 2'b01, WEST = 2'b10, SOUTH = 2'b11;

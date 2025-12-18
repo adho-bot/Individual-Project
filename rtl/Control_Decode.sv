@@ -21,9 +21,9 @@ module Control_Decode(
     output logic        o_data_rd,
   
     //PISO SIPO control
-    output logic o_piso_load, 
-    output logic o_piso_shift,
-    output logic o_sipo_shift,  
+    output logic        o_piso_load, 
+    output logic        o_piso_shift,
+    output logic        o_sipo_shift,  
     
     //addrss generation
     output logic [31:0] o_array_address,
@@ -105,14 +105,6 @@ always_comb begin
             //Choose register rst from 3 bits
             o_rd2_addr = {2'b00, i_instruction[22:20]};      //override the 5 bit rs2
             
-        end
-        
-        `MV_EXECUTE: begin //MOVE DATA TO NEWS REG
-            o_opcode = {7'd0, 3'd0};        //add rs1 with 0
-            o_rs2_sel = 1'b0;     
-            
-            //enable all PEs
-            o_PE_enable = 1'b1;  
         end
         
         `STORE_DATA: begin

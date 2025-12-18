@@ -38,8 +38,8 @@ module Top (
     logic PE_enable;
     
     Array_Main #(
-        .ROWS(4),         // example: 4x4 array
-        .COLS(4),
+        .ROWS(8),         // example: 4x4 array
+        .COLS(8),
         .DATA_WIDTH(32),
         .ARRAY_BASE_ADDR(32'h0000_0000)
     ) array_inst (

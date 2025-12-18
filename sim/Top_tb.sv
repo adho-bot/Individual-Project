@@ -1,6 +1,17 @@
 `timescale 1ns/1ps
 `include "/home/gary/Individual_Project/rtl/Definitions.sv"
 
+//A B C are the matrix images
+
+
+//B = A + A(north) <- A shifted by 1
+//C = B + B(south) 
+
+
+//D =  C(east) - C(west)
+
+
+
 module Top_tb;
 
     // -----------------------------------------
@@ -61,7 +72,7 @@ module Top_tb;
     // Simulation Data Memory
     // -----------------------------------------
     logic [7:0] data_mem [0:255];
-    logic [7:0] pix[0:3];
+    //logic [7:0] pix[0:3];
     
     // Memory read
     always_ff @(posedge clk) begin
@@ -105,13 +116,8 @@ module Top_tb;
         instruction = 32'h0;
         array_data_in = 0;
 
-        // -------------------------------------
-        // Load IMAGE DATA from hex file
-        // -------------------------------------
-
-
-        $display("[TB] Loading image from /home/gary/Individual_Project/img/2x2_input.hex");
-        $readmemh("/home/gary/Individual_Project/img/2x2_input.hex", data_mem);
+        $display("[TB] Loading image from /home/gary/Individual_Project/img/4x4_input.hex");
+        $readmemh("/home/gary/Individual_Project/img/4x4_input.hex", data_mem);
 /*
         data_mem[0]  = {24'h0, pix[0]}; // (0,0)
         data_mem[4]  = {24'h0, pix[1]}; // (0,1)
@@ -121,7 +127,7 @@ module Top_tb;
         // -------------------------------------
         // Open OUTPUT HEX FILE
         // -------------------------------------
-        outfile = $fopen("/home/gary/Individual_Project/img/2x2_output.hex", "w");
+        outfile = $fopen("/home/gary/Individual_Project/img/4x4_output.hex", "w");
         if (!outfile) begin
             $display("[TB] ERROR: could not open output hex file!");
             $finish;
@@ -130,9 +136,6 @@ module Top_tb;
         #20;
         rstn = 1;
 
-        // -------------------------------------
-        // Your original instruction sequence
-        // -------------------------------------
         $display("====================================");
         $display("              LOAD TYPES            ");
         $display("====================================");

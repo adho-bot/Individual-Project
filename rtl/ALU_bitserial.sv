@@ -24,7 +24,10 @@ module ALU_bitserial(
             `XORR: o_result = i_operandA ^ i_operandB;
             `ANDD: o_result = i_operandA & i_operandB;
             `ORR:  o_result = i_operandA | i_operandB;
-            `SUB:  o_result = i_operandA + ~(i_operandB) + 1;
+            `SUB: begin
+                o_result = i_operandA ^ i_operandB ^ r_carry;       
+                l_carry  = (~i_operandA & i_operandB) | (r_carry & (~i_operandA ^ i_operandB)); 
+            end 
             default: o_result = 0;
         endcase
     end

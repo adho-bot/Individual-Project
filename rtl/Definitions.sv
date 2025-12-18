@@ -2,22 +2,15 @@
 /*                                ALU Operation States                                      */
 /*------------------------------------------------------------------------------------------*/
 //Normal ALU
-`define ADD		    10'b0000000_000 // Addition
-`define SUB     	10'b0100000_000 // Subtraction
-`define SLL    	  	10'b0000000_001 // Shift left logical
-`define XORR     	10'b0000000_100 // Xor
-`define SRL     	10'b0000000_101 // Shift right logical
-`define SRA     	10'b0100000_101 // Shift right arithmetic
-`define ORR     	10'b0000000_110 // Or
-`define ANDD    	10'b0000000_111 // And
+`define ADD		       10'b0000000_000 // Addition
+`define SUB     	   10'b0100000_000 // Subtraction
+`define SLL    	  	   10'b0000000_001 // Shift left logical
+`define XORR     	   10'b0000000_100 // Xor
+`define SRL     	   10'b0000000_101 // Shift right logical
+`define SRA     	   10'b0100000_101 // Shift right arithmetic
+`define ORR     	   10'b0000000_110 // Or
+`define ANDD    	   10'b0000000_111 // And
     
-    
-//Branch
-`define BEQ     	10'b1111111_000  //sketchy way of doing this. Qno funct7 for B instructions. I just made it 7 1s
-`define BNE     	10'b1111111_001
-`define BLT     	10'b1111111_100
-`define BGE     	10'b1111111_101
-
 /*------------------------------------------------------------------------------------------*/
 /*                                Instruction Opcodes                                      */
 /*------------------------------------------------------------------------------------------*/
@@ -32,15 +25,14 @@
 /*                                      FSM STATES                                          */
 /*------------------------------------------------------------------------------------------*/
 
-`define IDLE       4'b0001 // R
-`define DATA_LOAD  4'b0010 // load data into array
-`define R_EXECUTE  4'b0011 // implement as R type
-`define NEWS_EXECUTE 4'b0100 //implement as  I type
-`define MV_EXECUTE 4'b0101 // LOAD
-`define STORE_DATA 4'b0110 // STORE
-`define DATA_TO_MEM 4'b0111 //send data to sipo
-`define MEM_TO_DATA 4'b1000 //send data from memory to piso
-`define DATA_FETCH  4'b1001 //1 cycle to fetch the data
+`define IDLE            4'b0001 // R
+`define DATA_LOAD       4'b0010 // load data into array
+`define R_EXECUTE       4'b0011 // implement as R type
+`define NEWS_EXECUTE    4'b0100 //implement as  I type
+`define STORE_DATA      4'b0101 // STORE
+`define DATA_TO_MEM     4'b0110 //send data to sipo
+`define MEM_TO_DATA     4'b0111 //send data from memory to piso
+`define DATA_FETCH      4'b1000 //1 cycle to fetch the data
 
 
 
