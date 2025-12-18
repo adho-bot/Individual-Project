@@ -225,7 +225,7 @@ module Top_tb;
         for (int i = 0; i < 4; i++) begin
             for (int j = 0; j < 4; j++) begin
                 $display("STORE (%0d,%0d) | Reg 3", i, j);
-                instruction = instr.store(20'd4 * (i*4 + j), 2'd3);
+                instruction = instr.store(20'd4 * (i*4 + j), 5'd3);
                 @(posedge Control_ready);
             end
         end        

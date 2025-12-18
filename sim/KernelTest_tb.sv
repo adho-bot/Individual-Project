@@ -75,7 +75,7 @@ module KernelTest_tb;
     // -----------------------------------------
     // Simulation Data Memory
     // -----------------------------------------
-    logic [7:0] data_mem [0:1023];
+    logic [7:0] data_mem [0:2047];
     //logic [7:0] pix[0:3];
     
     // Memory read
@@ -91,8 +91,6 @@ module KernelTest_tb;
     integer outfile;
     always_ff @(posedge clk) begin
         if (wr_en) begin
-            data_mem[address] <= array_data_out;
-
             data_mem[address[9:0]]   <= array_data_out[7:0];
             data_mem[address[9:0]+1] <= array_data_out[15:8];
             data_mem[address[9:0]+2] <= array_data_out[23:16];
@@ -151,7 +149,7 @@ module KernelTest_tb;
         for (int i = 0; i < 8; i++) begin
             for (int j = 0; j < 8; j++) begin
                     $display("LOAD (%0d,%0d) | Reg %0d", i, j, 1);
-                    instruction = instr.load(20'd4 * (i*4 + j), 5'(1));
+                    instruction = instr.load(20'd4 * (i*8 + j), 5'(1));
                     @(posedge Control_ready);
             end
         end
@@ -201,7 +199,7 @@ module KernelTest_tb;
         for (int i = 0; i < 8; i++) begin
             for (int j = 0; j < 8; j++) begin
                 $display("STORE (%0d,%0d) | Reg 3", i, j);
-                instruction = instr.store(20'd4 * (i*4 + j), 2'd6);
+                instruction = instr.store(20'd4 * (i*8 + j), 5'd6);
                 @(posedge Control_ready);
             end
         end        
