@@ -6,15 +6,21 @@
 
 //B = A + A(north) <- A shifted by 1
 
-//divide by 2
-
 //C = B + B(south) 
 
-//divide by 2
 
 //D =  C(east) - C(west)
 
-//divide by 2
+
+//Compute threshold T (trick to do it without magnitude computation)
+//  Add all values together
+//divide by 
+
+
+//D > T or D < -T (then set as 255)
+// Else set as 0
+
+//If larger than threshold 
 
 module KernelTest_tb;
 
@@ -35,15 +41,17 @@ module KernelTest_tb;
     logic       Control_ready;
 
     localparam INSTR_WIDTH = 32;
+    localparam ROW_LENGTH = 16;
+    localparam COL_LENGTH = 16;
 
     //Instruction class
     class Instructions;    
         function logic [INSTR_WIDTH-1:0] store(logic [19:0] address, logic [4:0] rs1);
-            store = {address[19:8], rs1, address[7:0], `OP_STORE};
+            return {address[19:8], rs1, address[7:0], `OP_STORE};
         endfunction
     
         function logic [INSTR_WIDTH-1:0] load(logic [19:0] address,logic [4:0] rd);
-            load = {address, rd, `OP_LOAD};
+            return {address, rd, `OP_LOAD};
         endfunction
     
         function logic [INSTR_WIDTH-1:0] vector_R_type(logic [4:0] rd, logic [4:0] rs1, logic [4:0] rs2, logic [6:0] funct7, logic [2:0] funct3);
@@ -58,7 +66,9 @@ module KernelTest_tb;
     // -----------------------------------------
     // Instantiate DUT
     // -----------------------------------------
-    Top top_inst (
+    Top #(
+        .THRESH(0.2)
+    ) top_inst(
         .i_clk        (clk),
         .i_rstn       (rstn),
         .i_instruction(instruction),
@@ -75,7 +85,9 @@ module KernelTest_tb;
     // -----------------------------------------
     // Simulation Data Memory
     // -----------------------------------------
-    logic [7:0] data_mem [0:2047];
+    localparam DATA_DEPTH = ROW_LENGTH * COL_LENGTH * 8;
+    
+    logic [7:0] data_mem [0:DATA_DEPTH - 1];
     //logic [7:0] pix[0:3];
     
     // Memory read
@@ -146,18 +158,18 @@ module KernelTest_tb;
 // news_type rd, 
 
 //Recursive load into reg 1
-        for (int i = 0; i < 8; i++) begin
-            for (int j = 0; j < 8; j++) begin
+        for (int i = 0; i < ROW_LENGTH; i++) begin
+            for (int j = 0; j < COL_LENGTH; j++) begin
                     $display("LOAD (%0d,%0d) | Reg %0d", i, j, 1);
-                    instruction = instr.load(20'd4 * (i*8 + j), 5'(1));
+                    instruction = instr.load(20'd4 * (i*ROW_LENGTH + j), 5'(1));
                     @(posedge Control_ready);
             end
         end
-                          
+                         
         $display("====================================");
         $display("            B = A + A North         ");
         $display("====================================");
-        
+       
         $display("Vector NEWS | Move image up and add with A| Store B into 2");
         instruction = instr.news_type(5'd2, 5'd1, 2'b00, 7'd0, 3'd0, 3'd1);
         @(posedge Control_ready);        
@@ -167,7 +179,7 @@ module KernelTest_tb;
         $display("====================================");
         
         $display("Vector NEWS | Move img down and add with B | Store C into 3");
-        instruction = instr.news_type(5'd3, 5'd2, 2'b11, 7'd0, 3'd0, 3'd2);
+        instruction = instr.news_type(5'd3, 5'd1, 2'b11, 7'd0, 3'd0, 3'd1);
         @(posedge Control_ready);     
         
         $display("====================================");
@@ -187,7 +199,7 @@ module KernelTest_tb;
         @(posedge Control_ready);         
  
         $display("====================================");
-        $display("           C east - C west          ");
+        $display("           C west - C east          ");
         $display("====================================");
 
         $display("Vector Sub | Add rs6 <- rs4 - rs5");
@@ -196,10 +208,10 @@ module KernelTest_tb;
 
 
 //Recursive store  
-        for (int i = 0; i < 8; i++) begin
-            for (int j = 0; j < 8; j++) begin
+        for (int i = 0; i < ROW_LENGTH; i++) begin
+            for (int j = 0; j < COL_LENGTH; j++) begin
                 $display("STORE (%0d,%0d) | Reg 3", i, j);
-                instruction = instr.store(20'd4 * (i*8 + j), 5'd6);
+                instruction = instr.store(20'd4 * (i*ROW_LENGTH + j), 5'd6);
                 @(posedge Control_ready);
             end
         end        
@@ -209,7 +221,7 @@ module KernelTest_tb;
         // -------------------------------------
         instruction = 32'd0;
         #100;
-        $display("Simulation completed.");
+        $display("Simulation completed."); 
         $finish;
     end
 

@@ -1,4 +1,6 @@
-module Top (
+module Top #(
+    parameter int THRESH = 0.2
+ )(
     input  logic    i_clk,
     input  logic    i_rstn,
     input  logic    [31:0] i_instruction,
@@ -14,6 +16,9 @@ module Top (
     
     output logic        o_Control_ready //signals when the array has finished processing
 );
+    //Threshold for 8 bit data
+    localparam signed THRESHOLD = THRESH * 1020;
+
 
     // Control signals from Control_Unit to Array_Main
     logic [4:0]  rd1_addr;
@@ -37,9 +42,15 @@ module Top (
     //PE gating
     logic PE_enable;
     
+    //Clipping signal
+    logic signed [31:0] array_data;
+    
+    //Magnitude signal
+    logic [31:0] signed_array_data;
+    
     Array_Main #(
-        .ROWS(8),         // example: 4x4 array
-        .COLS(8),
+        .ROWS(16),         // example: 4x4 array
+        .COLS(16),
         .DATA_WIDTH(32),
         .ARRAY_BASE_ADDR(32'h0000_0000)
     ) array_inst (
@@ -61,7 +72,7 @@ module Top (
         .i_array_address(array_address),
         
         //data into and out of array
-        .o_array_data(o_array_data),               //32 bits
+        .o_array_data(array_data),               //32 bits
         .i_array_data(i_array_data),               //32bits        still need to connect
         
         //PISO SIPO control
@@ -108,5 +119,17 @@ module Top (
     );
     
     assign o_array_address = array_address;
+    
+    //Thresholding (|array data| > T ? 255 : 0)
+    //assign o_array_data = ((array_data > THRESHOLD) || (array_data < -THRESHOLD)) ? 8'd255 : 8'd0;  
 
+
+//Magnitude and Thresholding step
+   //Magnitude |array data|
+   assign signed_array_data =  (array_data > 0) ? array_data : ~array_data + 1;
+   
+    //Scaling
+    assign o_array_data = signed_array_data >> 2;
+    
+    //assign o_array_data = array_data;
 endmodule

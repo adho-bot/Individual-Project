@@ -2,20 +2,40 @@ from PIL import Image
 import numpy as np
 
 # ------------------------
-# 1️⃣ Create 8x8 grayscale image with central division
+# 1️⃣ Create nxn grayscale image with central division
 # ------------------------
-WIDTH = 8
-HEIGHT = 8
-DIV_VALUE = 90
+WIDTH = 16
+HEIGHT = 16
 
 img = np.zeros((HEIGHT, WIDTH), dtype=np.uint8)
 
-for y in range(HEIGHT):
-    for x in range(WIDTH):
-        if x < WIDTH // 2:
-            img[y, x] = 0          # left half
-        else:
-            img[y, x] = DIV_VALUE  # right half (~90)
+# Previous loop (commented out)
+#for y in range(HEIGHT):
+#     for x in range(WIDTH):
+#         img[y, x] = x * 20   # changes only across columns
+
+# Hard-coded Sobel Gx test matrix
+
+img = np.array([
+    [  0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0,   0,   0],
+    [  0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0,   0,   0],
+    [  0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0,   0,   0],
+    [  0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0,   0,   0],
+    [  0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0,   0,   0],
+    [  0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0,   0,   0],
+    [  0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0,   0,   0],
+    [  0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0,   0,   0],
+    [255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255],
+    [255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255],
+    [  0,   0,   0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0],
+    [  0,   0,   0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0],
+    [  0,   0,   0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0],
+    [  0,   0,   0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0],
+    [  0,   0,   0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0],
+    [  0,   0,   0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0],
+], dtype=np.uint8)
+
+
 
 # Save BMP for viewing
 Image.fromarray(img, mode='L').save("input.bmp")

@@ -1,8 +1,8 @@
 // Array_Main.sv
 `timescale 1ns/1ps
 module Array_Main #(
-    parameter int ROWS = 4,
-    parameter int COLS = 4,
+    parameter int ROWS = 2,
+    parameter int COLS = 2,
     parameter int DATA_WIDTH = 32,
     parameter logic [31:0] ARRAY_BASE_ADDR = 32'h0000_0000  // base for array element mapping (SIM MODE RN)
 )(
@@ -163,7 +163,7 @@ module Array_Main #(
             end
         end
 
-        // route serial bit to selected PE when write is valid and PISO is shifting (strobe)
+        // route serial bit to selected PE when write is valid and PISO is shifting 
         if (wr_addr_valid && i_piso_shift) begin
             if (wr_row_sel < ROWS && wr_col_sel < COLS) begin
                 array_dataIn[wr_row_sel][wr_col_sel] = arrayIn;
