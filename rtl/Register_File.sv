@@ -1,6 +1,12 @@
+//Note:
+//Pointers are used for reading a full word based on a base register address
+// E.g. for 8 registers in a rf, the bit serial RF will have a depth 8*32.
+//Words are accessed by having the user choose a base 0,1,2,3,4,5,6,7
+//base is multiplied by 32 and added with pointer values(pointer will increement untill a word is extracted(lsb first))
+//How do i extract individual bits?
+
 module Register_File#(
-    parameter WIDTH = 32,
-    parameter DEPTH = 4
+    parameter DEPTH = 8
 )(
     input  logic        i_clk,
     input  logic        i_rstn,
@@ -23,35 +29,40 @@ module Register_File#(
 );
 
     // Register memory 
-   logic [WIDTH-1:0] rf_mem [0:DEPTH-1];
+   logic rf_mem [0:32 * DEPTH-1];
    
-   //Temp shifting variable
-    logic [WIDTH:0] tempShift1, tempShift2;
+    //Write Pointer
+    logic [4:0] wr_ptr;
     
-    assign tempShift1  = rf_mem[i_rd1_addr];
-    assign tempShift2  = rf_mem[i_rd2_addr];
-    
+    //Bit Test Pointer
+    logic [4:0] bittst;
 /*================================================================*/
 /*				              WRITE		                 		  */
-/*================================================================*/
+/*================================================================*/       
 
-    // Write: shift in one bit per clock to rf_mem[i_wr_addr]
     always_ff @(posedge i_clk or negedge i_rstn) begin
         if (!i_rstn) begin
             integer i;
-            for (i = 0; i < DEPTH; i=i+1)
+            wr_ptr <= 5'd0;
+            bittst <= 5'd0;
+            for (i = 0; i < DEPTH * 32; i=i+1)
                 rf_mem[i] <= '0;
         end else if (i_wr_en && (i_wr_addr != 0)) begin
-            rf_mem[i_wr_addr] <= {i_datain, rf_mem[i_wr_addr][WIDTH-1:1]};
-        end
+            if (wr_ptr == 5'd31)
+                wr_ptr <= 5'd0;
+            else
+                wr_ptr <= wr_ptr + 1;
+                
+                rf_mem[i_wr_addr * 32 + wr_ptr] <= i_datain;
+            end
     end
 
 /*================================================================*/
 /*				             READ				                  */
-/*================================================================*/
-    
-// Serial read: output LSB of selected registers each cycle
-    assign o_rd1 = tempShift1[i_counter];   //this counter goes from 0 to 32 and produces X value for the 0 to 31 bit temp variable
-    assign o_rd2 = tempShift2[i_counter];
+/*================================================================*/           
+    assign o_rd1 = rf_mem[i_rd1_addr * 32 + i_counter + bittst]; //add comparator between rd1 and alu?
+    assign o_rd2 = rf_mem[i_rd2_addr * 32 + i_counter];  
+            
+
 
 endmodule

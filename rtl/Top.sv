@@ -49,8 +49,8 @@ module Top #(
     logic [31:0] signed_array_data;
     
     Array_Main #(
-        .ROWS(16),         // example: 4x4 array
-        .COLS(16),
+        .ROWS(2),         // example: 4x4 array
+        .COLS(2),
         .DATA_WIDTH(32),
         .ARRAY_BASE_ADDR(32'h0000_0000)
     ) array_inst (
@@ -126,10 +126,10 @@ module Top #(
 
 //Magnitude and Thresholding step
    //Magnitude |array data|
-   assign signed_array_data =  (array_data > 0) ? array_data : ~array_data + 1;
+//   assign signed_array_data =  (array_data > 0) ? array_data : ~array_data + 1;
    
     //Scaling
-    assign o_array_data = signed_array_data >> 2;
+//    assign o_array_data = signed_array_data >> 2;
     
-    //assign o_array_data = array_data;
+    assign o_array_data = array_data;
 endmodule

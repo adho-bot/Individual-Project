@@ -4,18 +4,18 @@ import numpy as np
 # ------------------------
 # 1️⃣ Create nxn grayscale image with central division
 # ------------------------
-WIDTH = 16
-HEIGHT = 16
+WIDTH = 2
+HEIGHT = 2
 
 img = np.zeros((HEIGHT, WIDTH), dtype=np.uint8)
 
 # Previous loop (commented out)
-#for y in range(HEIGHT):
-#     for x in range(WIDTH):
-#         img[y, x] = x * 20   # changes only across columns
+for y in range(HEIGHT):
+     for x in range(WIDTH):
+         img[y, x] = x * 80   # changes only across columns
 
-# Hard-coded Sobel Gx test matrix
-
+#Hard-coded Sobel Gx test matrix
+"""
 img = np.array([
     [  0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0,   0,   0],
     [  0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0,   0,   0],
@@ -34,7 +34,7 @@ img = np.array([
     [  0,   0,   0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0],
     [  0,   0,   0,   0,   0,   0,   0,   0,   0, 255, 255,   0,   0,   0,   0,   0],
 ], dtype=np.uint8)
-
+"""
 
 
 # Save BMP for viewing

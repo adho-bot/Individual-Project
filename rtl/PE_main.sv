@@ -1,6 +1,6 @@
 module PE_Main#(
     parameter WIDTH = 32,
-    parameter DEPTH = 16
+    parameter DEPTH = 8
 )(
     // Global signals
     input  logic                        i_clk,
@@ -58,7 +58,6 @@ module PE_Main#(
     
     // Register File instantiation
     Register_File #(
-        .WIDTH(WIDTH),
         .DEPTH(DEPTH)
     ) register_file_inst (
         .i_clk      (i_clk),

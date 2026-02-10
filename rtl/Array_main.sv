@@ -84,7 +84,7 @@ module Array_Main #(
                 assign west[r][c]  = (c == COLS-1)  ? '0 : news[r][c+1];
                 assign east[r][c]  = (c == 0)       ? '0 : news[r][c-1];
 
-                PE_Main #(.WIDTH(DATA_WIDTH), .DEPTH(16)) pe_i (
+                PE_Main #(.WIDTH(DATA_WIDTH), .DEPTH(8)) pe_i (
                     .i_clk        (i_clk),
                     .i_rstn       (i_rstn),
                     .i_counter    (i_counter),

@@ -2,7 +2,7 @@
 `include "/home/gary/Individual_Project/rtl/Definitions.sv"
 
 //A B C are the matrix images
-//divide by 2 in each stage
+
 
 //B = A + A(north) <- A shifted by 1
 
@@ -41,8 +41,8 @@ module KernelTest_tb;
     logic       Control_ready;
 
     localparam INSTR_WIDTH = 32;
-    localparam ROW_LENGTH = 16;
-    localparam COL_LENGTH = 16;
+    localparam ROW_LENGTH = 2;
+    localparam COL_LENGTH = 2;
 
     //Instruction class
     class Instructions;    
@@ -85,7 +85,7 @@ module KernelTest_tb;
     // -----------------------------------------
     // Simulation Data Memory
     // -----------------------------------------
-    localparam DATA_DEPTH = ROW_LENGTH * COL_LENGTH * 8;
+    localparam DATA_DEPTH = ROW_LENGTH * COL_LENGTH * 4;
     
     logic [7:0] data_mem [0:DATA_DEPTH - 1];
     //logic [7:0] pix[0:3];
@@ -173,15 +173,15 @@ module KernelTest_tb;
         $display("Vector NEWS | Move image up and add with A| Store B into 2");
         instruction = instr.news_type(5'd2, 5'd1, 2'b00, 7'd0, 3'd0, 3'd1);
         @(posedge Control_ready);        
-    
+
         $display("====================================");
         $display("            C = B + B South         ");
         $display("====================================");
         
         $display("Vector NEWS | Move img down and add with B | Store C into 3");
-        instruction = instr.news_type(5'd3, 5'd1, 2'b11, 7'd0, 3'd0, 3'd1);
+        instruction = instr.news_type(5'd3, 5'd2, 2'b11, 7'd0, 3'd0, 3'd2);
         @(posedge Control_ready);     
-        
+           
         $display("====================================");
         $display("                C east              ");
         $display("====================================");
