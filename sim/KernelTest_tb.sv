@@ -48,8 +48,8 @@ module KernelTest_tb;
     logic       Control_ready;
 
     localparam INSTR_WIDTH = 32;
-    localparam ROW_LENGTH = 2;
-    localparam COL_LENGTH = 2;
+    localparam ROW_LENGTH = 16;
+    localparam COL_LENGTH = 16;
 
     //Instruction class
     class Instructions;    
@@ -222,17 +222,8 @@ module KernelTest_tb;
         $display("Vector Sub | Add rs6 <- rs4 - rs5");
         instruction = instr.vector_R_type(5'd6, 5'd4, 5'd5, 7'b0100000, 3'd0);
         @(posedge Control_ready);  
-        
-        $display("====================================");
-        $display("                  ABS               ");
-        $display("====================================");
-
-        $display("Vector Absolute | rs7 <- |rs6| ");
-        instruction = instr.abs(5'd7, 5'd6, 7'b0100000, 3'b001);
-        @(posedge Control_ready);          
-        
-        
-/*        
+                         
+     
 //====================================================
 //                           Gy        
 //====================================================
@@ -281,7 +272,22 @@ module KernelTest_tb;
 //====================================================
 //                      Magnitude        
 //====================================================
+        $display("====================================");
+        $display("                  |Gx|              ");
+        $display("====================================");
 
+        $display("Vector Absolute | rs8 <- |rs6| ");
+        instruction = instr.abs(5'd8, 5'd6, 7'b0100000, 3'b001);
+        @(posedge Control_ready); 
+        
+        $display("====================================");
+        $display("                  |Gy|              ");
+        $display("====================================");
+
+        $display("Vector Absolute | rs9 <- |rs7| ");
+        instruction = instr.abs(5'd9, 5'd7, 7'b0100000, 3'b001);
+        @(posedge Control_ready);         
+        
 //====================================================
 //                     |Gx| + |Gy|        
 //====================================================
@@ -290,17 +296,17 @@ module KernelTest_tb;
         $display("               D + E                ");
         $display("====================================");
 
-        $display("Vector Add | rs8 <- rs6 + rs7");
-        instruction = instr.vector_R_type(5'd8, 5'd6, 5'd7, 7'b0000000, 3'd0);
+        $display("Vector Add | rs10 <- rs8 + rs9");
+        instruction = instr.vector_R_type(5'd10, 5'd8, 5'd9, 7'b0000000, 3'd0);
         @(posedge Control_ready);
-*/
+
 
 
 //Recursive store  
         for (int i = 0; i < ROW_LENGTH; i++) begin
             for (int j = 0; j < COL_LENGTH; j++) begin
                 $display("STORE (%0d,%0d) | Reg 3", i, j);
-                instruction = instr.store(20'd4 * (i*ROW_LENGTH + j), 5'd7);
+                instruction = instr.store(20'd4 * (i*ROW_LENGTH + j), 5'd10);
                 @(posedge Control_ready);
             end
         end        

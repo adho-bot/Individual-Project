@@ -45,9 +45,6 @@ module Top #(
     //Clipping signal
     logic signed [31:0] array_data;
     
-    //Magnitude signal
-    logic [31:0] signed_array_data;
-    
     //MSB latching 
     logic bit0;
     
@@ -56,8 +53,8 @@ module Top #(
     
     
     Array_Main #(
-        .ROWS(2),         // example: 4x4 array
-        .COLS(2),
+        .ROWS(16),         // example: 4x4 array
+        .COLS(16),
         .DATA_WIDTH(32),
         .ARRAY_BASE_ADDR(32'h0000_0000)
     ) array_inst (
@@ -145,11 +142,9 @@ module Top #(
 
 
 //Magnitude and Thresholding step
-   //Magnitude |array data|
-//   assign signed_array_data =  (array_data > 0) ? array_data : ~array_data + 1;
-   
+
     //Scaling
-//    assign o_array_data = signed_array_data >> 2;
+    assign o_array_data = array_data >> 2;
     
-    assign o_array_data = array_data;
+//    assign o_array_data = array_data;
 endmodule
