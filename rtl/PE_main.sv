@@ -1,6 +1,6 @@
 module PE_Main#(
     parameter WIDTH = 32,
-    parameter DEPTH = 8
+    parameter DEPTH = 9
 )(
     // Global signals
     input  logic                        i_clk,
@@ -32,7 +32,13 @@ module PE_Main#(
     input  logic                        i_dataout_en,
     
     //PE gate
-    input  logic                        i_PE_enable
+    input  logic                        i_PE_enable,
+    
+    //MSB latching        
+    input logic                         i_bit0,
+    
+    //MSB bit
+    input logic [4:0]                    i_bittst  
 );
     // Parameters
     localparam [1:0] NORTH = 2'b00, EAST = 2'b01, WEST = 2'b10, SOUTH = 2'b11;
@@ -68,6 +74,8 @@ module PE_Main#(
         .i_wr_addr  (i_wr_addr),
         .i_wr_en    (wr_en),
         .i_counter  (i_counter),
+        .i_bittst   (i_bittst),
+        
         .o_rd1      (rd1),
         .o_rd2      (rd2)
     );
@@ -79,6 +87,9 @@ module PE_Main#(
         .i_operandA  (operandA),
         .i_operandB  (operandB),
         .i_opcode    (i_opcode),
+//        .i_sign()
+        .i_bit0(i_bit0),
+        
         .o_result    (result)       
     );
     

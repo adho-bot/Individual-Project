@@ -31,10 +31,16 @@ module Control_Unit(
     output logic o_sipo_shift,
     
     //Address generation
-    output logic [31:0] o_array_address, 
+    output logic [31:0]     o_array_address, 
     
     //PE gating
-    output logic        o_PE_enable
+    output logic            o_PE_enable,
+    
+    //MSB latching
+    output logic            o_bit0,
+    
+    //MSB bit
+    output logic  [4:0]     o_bittst    
 );
 
     //state logic
@@ -76,7 +82,13 @@ module Control_Unit(
         .o_array_address(o_array_address),
         
         //PE gating
-        .o_PE_enable(o_PE_enable)
+        .o_PE_enable(o_PE_enable),
+        
+        //MSB latching        
+        .o_bit0(o_bit0),
+    
+        //MSB bit
+        .o_bittst(o_bittst)        
     );
 
 endmodule

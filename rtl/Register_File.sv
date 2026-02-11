@@ -23,6 +23,9 @@ module Register_File#(
     input  logic        i_wr_en,
     input  logic        [5:0] i_counter, //global counter shared by all PEs
 
+    //MSB
+    input logic         [4:0]i_bittst,
+
     // serial data outputs
     output logic        o_rd1,
     output logic        o_rd2
@@ -34,8 +37,7 @@ module Register_File#(
     //Write Pointer
     logic [4:0] wr_ptr;
     
-    //Bit Test Pointer
-    logic [4:0] bittst;
+
 /*================================================================*/
 /*				              WRITE		                 		  */
 /*================================================================*/       
@@ -44,7 +46,6 @@ module Register_File#(
         if (!i_rstn) begin
             integer i;
             wr_ptr <= 5'd0;
-            bittst <= 5'd0;
             for (i = 0; i < DEPTH * 32; i=i+1)
                 rf_mem[i] <= '0;
         end else if (i_wr_en && (i_wr_addr != 0)) begin
@@ -60,8 +61,8 @@ module Register_File#(
 /*================================================================*/
 /*				             READ				                  */
 /*================================================================*/           
-    assign o_rd1 = rf_mem[i_rd1_addr * 32 + i_counter + bittst]; //add comparator between rd1 and alu?
-    assign o_rd2 = rf_mem[i_rd2_addr * 32 + i_counter];  
+    assign o_rd1 = rf_mem[i_rd1_addr * 32 + i_counter]; 
+    assign o_rd2 = (i_bittst != 0) ? rf_mem[i_rd2_addr * 32 + i_bittst]: rf_mem[i_rd2_addr * 32 + i_counter];  
             
 
 

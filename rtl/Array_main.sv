@@ -34,7 +34,13 @@ module Array_Main #(
     input  logic                        i_sipo_shift, 
     
     //PE gating signal
-    input  logic                        i_PE_enable
+    input  logic                        i_PE_enable,
+    
+    //MSB latching        
+    input logic                         i_bit0,
+    
+    //MSB bit
+    input logic [4:0]                   i_bittst  
 );
 
     // --- Derived widths ---
@@ -84,7 +90,7 @@ module Array_Main #(
                 assign west[r][c]  = (c == COLS-1)  ? '0 : news[r][c+1];
                 assign east[r][c]  = (c == 0)       ? '0 : news[r][c-1];
 
-                PE_Main #(.WIDTH(DATA_WIDTH), .DEPTH(8)) pe_i (
+                PE_Main #(.WIDTH(DATA_WIDTH), .DEPTH(16)) pe_i (
                     .i_clk        (i_clk),
                     .i_rstn       (i_rstn),
                     .i_counter    (i_counter),
@@ -105,7 +111,10 @@ module Array_Main #(
                     .i_opcode     (i_opcode),
                     .i_dataout_en (i_dataout_en),
                     
-                    .i_PE_enable (PE_enable[r][c])
+                    .i_PE_enable (PE_enable[r][c]),
+                    
+                    .i_bit0(i_bit0),
+                    .i_bittst(i_bittst)
                 );
             end
         end

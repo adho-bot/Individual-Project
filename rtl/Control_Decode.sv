@@ -29,7 +29,14 @@ module Control_Decode(
     output logic [31:0] o_array_address,
     
     //PE gating
-    output logic        o_PE_enable 
+    output logic        o_PE_enable,
+    
+    //MSB latching
+    output logic        o_bit0,
+    
+    //MSB bit
+    output logic [4:0]  o_bittst
+     
 );
 
 
@@ -53,6 +60,9 @@ always_comb begin
             o_sipo_shift = 1'b0;
 
             o_array_address = 32'd0;
+            
+            o_bit0 = 1'b0;
+            o_bittst = 5'd0;
             
             o_PE_enable = 1'b0;
     case(i_state)
@@ -117,6 +127,66 @@ always_comb begin
             o_data_wr = 1'b1;
             o_array_address = {12'd0,i_instruction[31:20],i_instruction[14:7]};
         end
+        
+        
+        `ABS_A_MSB: begin
+            o_bit0 = 1'b1;
+            o_opcode = {i_instruction[31:25],i_instruction[14:12]};
+            o_rs2_sel = 1'b0;
+            
+            //Register writeback
+            o_wb_sel = 1'b0; //write back to reg file
+            o_wr_addr = i_instruction[11:7];
+            
+            //enable all PEs
+            o_PE_enable = 1'b1; 
+            
+            //Choose MSB bit
+            o_bittst = 5'd31;
+            
+            //Set address of rs2 to rs1
+            o_rd2_addr = o_rd1_addr;         
+        end
+        
+        `ABS_A1:begin
+            o_bit0 = 1'b1;
+            o_opcode = {i_instruction[31:25],i_instruction[14:12]};
+            o_rs2_sel = 1'b0;
+            
+            //Register writeback
+            o_wb_sel = 1'b0; //write back to reg file
+            o_wr_addr = i_instruction[11:7];
+            o_wr_reg_en = 1'b1;
+            
+            //enable all PEs
+            o_PE_enable = 1'b1; 
+            
+            //Choose MSB bit
+            o_bittst = 5'd31;
+            
+            //Set address of rs2 to rs1
+            o_rd2_addr = o_rd1_addr;        
+        end
+        
+        `ABS_A: begin
+            o_opcode = {i_instruction[31:25],i_instruction[14:12]};
+            o_rs2_sel = 1'b0;
+            
+            //Register writeback
+            o_wb_sel = 1'b0; //write back to reg file
+            o_wr_addr = i_instruction[11:7];
+            o_wr_reg_en = 1'b1;
+            
+            //enable all PEs
+            o_PE_enable = 1'b1;  
+                        
+            //Choose MSB bit
+            o_bittst = 5'd31;
+            
+            //Set address of rs2 to rs1
+            o_rd2_addr = o_rd1_addr;                              
+        end
+        
     endcase
 end
 

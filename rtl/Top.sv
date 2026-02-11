@@ -48,6 +48,13 @@ module Top #(
     //Magnitude signal
     logic [31:0] signed_array_data;
     
+    //MSB latching 
+    logic bit0;
+    
+    //MSB Bit
+    logic [4:0] bittst;
+    
+    
     Array_Main #(
         .ROWS(2),         // example: 4x4 array
         .COLS(2),
@@ -72,7 +79,7 @@ module Top #(
         .i_array_address(array_address),
         
         //data into and out of array
-        .o_array_data(array_data),               //32 bits
+        .o_array_data(array_data),                 //32 bits
         .i_array_data(i_array_data),               //32bits        still need to connect
         
         //PISO SIPO control
@@ -81,7 +88,14 @@ module Top #(
         .i_sipo_shift(sipo_shift), 
         
         //PE gating
-        .i_PE_enable(PE_enable)        
+        .i_PE_enable(PE_enable),   
+
+        //MSB latching        
+        .i_bit0(bit0),
+    
+        //MSB bit
+        .i_bittst(bittst)         
+             
     );
     
     Control_Unit ctrl_inst (
@@ -114,7 +128,13 @@ module Top #(
         .o_array_address(array_address), 
         
         //PE gating
-        .o_PE_enable(PE_enable)    
+        .o_PE_enable(PE_enable), 
+
+        //MSB latching        
+        .o_bit0(bit0),
+    
+        //MSB bit
+        .o_bittst(bittst)          
         
     );
     

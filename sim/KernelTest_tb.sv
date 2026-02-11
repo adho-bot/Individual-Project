@@ -3,13 +3,20 @@
 
 //A B C are the matrix images
 
-
+//Gx
 //B = A + A(north) <- A shifted by 1
 
 //C = B + B(south) 
 
-
 //D =  C(east) - C(west)
+
+
+//Gy 
+//B = A + A(east) 
+
+//C = B + B(west) 
+
+//D =  C(north) - C(south)
 
 
 //Compute threshold T (trick to do it without magnitude computation)
@@ -61,6 +68,11 @@ module KernelTest_tb;
         function logic [INSTR_WIDTH-1:0] news_type(logic [4:0] rd, logic [4:0] rs1, logic [1:0] news_sel, logic [6:0] funct7, logic [2:0] funct3, logic [2:0] rs2);
             return {funct7, news_sel, rs2, rs1, funct3, rd, `OP_NEWS_TYPE};
         endfunction 
+
+        function logic [INSTR_WIDTH-1:0] abs(logic [4:0] rd, logic [4:0] rs1, logic [6:0] funct7, logic [2:0] funct3);
+            return {funct7, 5'b00000, rs1, funct3, rd, `OP_ABS};
+        endfunction        
+        
     endclass
 
     // -----------------------------------------
@@ -165,7 +177,11 @@ module KernelTest_tb;
                     @(posedge Control_ready);
             end
         end
-                         
+
+//====================================================
+//                           Gx        
+//====================================================
+                       
         $display("====================================");
         $display("            B = A + A North         ");
         $display("====================================");
@@ -181,7 +197,8 @@ module KernelTest_tb;
         $display("Vector NEWS | Move img down and add with B | Store C into 3");
         instruction = instr.news_type(5'd3, 5'd2, 2'b11, 7'd0, 3'd0, 3'd2);
         @(posedge Control_ready);     
-           
+   
+       
         $display("====================================");
         $display("                C east              ");
         $display("====================================");
@@ -199,19 +216,91 @@ module KernelTest_tb;
         @(posedge Control_ready);         
  
         $display("====================================");
-        $display("           C west - C east          ");
+        $display("         D = C west - C east        ");
         $display("====================================");
 
         $display("Vector Sub | Add rs6 <- rs4 - rs5");
         instruction = instr.vector_R_type(5'd6, 5'd4, 5'd5, 7'b0100000, 3'd0);
         @(posedge Control_ready);  
+        
+        $display("====================================");
+        $display("                  ABS               ");
+        $display("====================================");
+
+        $display("Vector Absolute | rs7 <- |rs6| ");
+        instruction = instr.abs(5'd7, 5'd6, 7'b0100000, 3'b001);
+        @(posedge Control_ready);          
+        
+        
+/*        
+//====================================================
+//                           Gy        
+//====================================================
+
+        $display("====================================");
+        $display("            B = A + A East          ");
+        $display("====================================");
+       
+        $display("Vector NEWS | Move image east and add with A| Store B into 2");
+        instruction = instr.news_type(5'd2, 5'd1, 2'b01, 7'd0, 3'd0, 3'd1);
+        @(posedge Control_ready);        
+
+        $display("====================================");
+        $display("            C = B + B West          ");
+        $display("====================================");
+        
+        $display("Vector NEWS | Move img west and add with B | Store C into 3");
+        instruction = instr.news_type(5'd3, 5'd2, 2'b10, 7'd0, 3'd0, 3'd2);
+        @(posedge Control_ready);  
+       
+
+        $display("====================================");
+        $display("                C north             ");
+        $display("====================================");
+        
+        $display("Vector NEWS | Move reg 3 to the north | Store C into 4");
+        instruction = instr.news_type(5'd4, 5'd0, 2'b00, 7'd0, 3'd0, 3'd3);
+        @(posedge Control_ready);         
+
+        $display("====================================");
+        $display("                C south             ");
+        $display("====================================");
+        
+        $display("Vector NEWS | Move reg 3 to the south | Store C into 5");
+        instruction = instr.news_type(5'd5, 5'd0, 2'b11, 7'd0, 3'd0, 3'd3);
+        @(posedge Control_ready);         
+ 
+        $display("====================================");
+        $display("       E = C north - C south        ");
+        $display("====================================");
+
+        $display("Vector Sub | rs7 <- rs4 - rs5");
+        instruction = instr.vector_R_type(5'd7, 5'd4, 5'd5, 7'b0100000, 3'd0);
+        @(posedge Control_ready);
+
+//====================================================
+//                      Magnitude        
+//====================================================
+
+//====================================================
+//                     |Gx| + |Gy|        
+//====================================================
+
+        $display("====================================");
+        $display("               D + E                ");
+        $display("====================================");
+
+        $display("Vector Add | rs8 <- rs6 + rs7");
+        instruction = instr.vector_R_type(5'd8, 5'd6, 5'd7, 7'b0000000, 3'd0);
+        @(posedge Control_ready);
+*/
 
 
 //Recursive store  
         for (int i = 0; i < ROW_LENGTH; i++) begin
             for (int j = 0; j < COL_LENGTH; j++) begin
                 $display("STORE (%0d,%0d) | Reg 3", i, j);
-                instruction = instr.store(20'd4 * (i*ROW_LENGTH + j), 5'd6);
+                instruction = instr.store(20'd4 * (i*ROW_LENGTH + j), 5'd7);
                 @(posedge Control_ready);
             end
         end        
