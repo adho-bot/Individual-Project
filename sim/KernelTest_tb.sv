@@ -48,8 +48,8 @@ module KernelTest_tb;
     logic       Control_ready;
 
     localparam INSTR_WIDTH = 32;
-    localparam ROW_LENGTH = 16;
-    localparam COL_LENGTH = 16;
+    localparam ROW_LENGTH = 32;
+    localparam COL_LENGTH = 32;
 
     //Instruction class
     class Instructions;    

@@ -53,8 +53,8 @@ module Top #(
     
     
     Array_Main #(
-        .ROWS(16),         // example: 4x4 array
-        .COLS(16),
+        .ROWS(32),         // example: 4x4 array
+        .COLS(32),
         .DATA_WIDTH(32),
         .ARRAY_BASE_ADDR(32'h0000_0000)
     ) array_inst (

@@ -9,8 +9,8 @@ img = Image.open(in_path).convert("L")
 w, h = img.size
 
 #Parameters
-WIDTH = 16
-HEIGHT = 16
+WIDTH = 32
+HEIGHT = 32
 if w < WIDTH or h < HEIGHT:
     raise ValueError(f"Image too small: {w}x{h}")
 
