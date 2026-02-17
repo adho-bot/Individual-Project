@@ -12,6 +12,11 @@ module Data_Memory #(
 
     logic [7:0] data_memory [0:MEM_SIZE-1];
 
+    integer outfile;
+
+initial begin 
+        $readmemh("/home/gary/Individual_Project/img/4x4_input.hex", data_memory);
+end
 
 
     // Normal memory read (only when not array-mapped)
@@ -31,6 +36,8 @@ module Data_Memory #(
             data_memory[i_address[9:0]+1] <= i_data[15:8];
             data_memory[i_address[9:0]+2] <= i_data[23:16];
             data_memory[i_address[9:0]+3] <= i_data[31:24];
+            
+             $fwrite(outfile, "%02x\n", array_data_out); //write data to output file
         end
     end
 

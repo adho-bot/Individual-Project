@@ -25,6 +25,7 @@ module ALU_bitserial(
     always_comb begin
         l_carry = 1'b0;
         o_result = 1'b0;
+        y = 1'b0;
         case (i_opcode)
             `ADD: begin 
                 o_result = i_operandA ^ i_operandB ^ r_carry;

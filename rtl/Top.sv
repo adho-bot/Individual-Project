@@ -1,4 +1,4 @@
-module Top #(
+module Top#(
     parameter int THRESH = 0.2
  )(
     input  logic    i_clk,

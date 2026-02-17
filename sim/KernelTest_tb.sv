@@ -194,33 +194,33 @@ module KernelTest_tb;
         $display("            C = B + B South         ");
         $display("====================================");
         
-        $display("Vector NEWS | Move img down and add with B | Store C into 3");
-        instruction = instr.news_type(5'd3, 5'd2, 2'b11, 7'd0, 3'd0, 3'd2);
+        $display("Vector NEWS | Move img down and add with B | Store C into 2");
+        instruction = instr.news_type(5'd2, 5'd2, 2'b11, 7'd0, 3'd0, 3'd2);
         @(posedge Control_ready);     
-   
-       
+
+         
         $display("====================================");
         $display("                C east              ");
         $display("====================================");
         
-        $display("Vector NEWS | Move reg 3 to the east | Store C into 4");
-        instruction = instr.news_type(5'd4, 5'd0, 2'b01, 7'd0, 3'd0, 3'd3);
+        $display("Vector NEWS | Move reg 2 to the east | Store C into 3");
+        instruction = instr.news_type(5'd3, 5'd0, 2'b01, 7'd0, 3'd0, 3'd2);
         @(posedge Control_ready);         
 
         $display("====================================");
         $display("                C west              ");
         $display("====================================");
         
-        $display("Vector NEWS | Move reg 3 to the west | Store C into 5");
-        instruction = instr.news_type(5'd5, 5'd0, 2'b10, 7'd0, 3'd0, 3'd3);
+        $display("Vector NEWS | Move reg 2 to the west | Store C into 4");
+        instruction = instr.news_type(5'd4, 5'd0, 2'b10, 7'd0, 3'd0, 3'd2);
         @(posedge Control_ready);         
  
         $display("====================================");
         $display("         D = C west - C east        ");
         $display("====================================");
 
-        $display("Vector Sub | Add rs6 <- rs4 - rs5");
-        instruction = instr.vector_R_type(5'd6, 5'd4, 5'd5, 7'b0100000, 3'd0);
+        $display("Vector Sub | Add rs5 <- rs3 - rs4");
+        instruction = instr.vector_R_type(5'd5, 5'd3, 5'd4, 7'b0100000, 3'd0);
         @(posedge Control_ready);  
                          
      
@@ -240,8 +240,8 @@ module KernelTest_tb;
         $display("            C = B + B West          ");
         $display("====================================");
         
-        $display("Vector NEWS | Move img west and add with B | Store C into 3");
-        instruction = instr.news_type(5'd3, 5'd2, 2'b10, 7'd0, 3'd0, 3'd2);
+        $display("Vector NEWS | Move img west and add with B | Store C into 2");
+        instruction = instr.news_type(5'd2, 5'd2, 2'b10, 7'd0, 3'd0, 3'd2);
         @(posedge Control_ready);  
        
 
@@ -249,24 +249,24 @@ module KernelTest_tb;
         $display("                C north             ");
         $display("====================================");
         
-        $display("Vector NEWS | Move reg 3 to the north | Store C into 4");
-        instruction = instr.news_type(5'd4, 5'd0, 2'b00, 7'd0, 3'd0, 3'd3);
+        $display("Vector NEWS | Move reg 2 to the north | Store C into 3");
+        instruction = instr.news_type(5'd3, 5'd0, 2'b00, 7'd0, 3'd0, 3'd2);
         @(posedge Control_ready);         
 
         $display("====================================");
         $display("                C south             ");
         $display("====================================");
         
-        $display("Vector NEWS | Move reg 3 to the south | Store C into 5");
-        instruction = instr.news_type(5'd5, 5'd0, 2'b11, 7'd0, 3'd0, 3'd3);
+        $display("Vector NEWS | Move reg 2 to the south | Store C into 4");
+        instruction = instr.news_type(5'd4, 5'd0, 2'b11, 7'd0, 3'd0, 3'd2);
         @(posedge Control_ready);         
  
         $display("====================================");
         $display("       E = C north - C south        ");
         $display("====================================");
 
-        $display("Vector Sub | rs7 <- rs4 - rs5");
-        instruction = instr.vector_R_type(5'd7, 5'd4, 5'd5, 7'b0100000, 3'd0);
+        $display("Vector Sub | rs6 <- rs3 - rs4");
+        instruction = instr.vector_R_type(5'd6, 5'd3, 5'd4, 7'b0100000, 3'd0);
         @(posedge Control_ready);
 
 //====================================================
@@ -276,16 +276,16 @@ module KernelTest_tb;
         $display("                  |Gx|              ");
         $display("====================================");
 
-        $display("Vector Absolute | rs8 <- |rs6| ");
-        instruction = instr.abs(5'd8, 5'd6, 7'b0100000, 3'b001);
+        $display("Vector Absolute | rs5 <- |rs5| ");
+        instruction = instr.abs(5'd5, 5'd5, 7'b0100000, 3'b001);
         @(posedge Control_ready); 
         
         $display("====================================");
         $display("                  |Gy|              ");
         $display("====================================");
 
-        $display("Vector Absolute | rs9 <- |rs7| ");
-        instruction = instr.abs(5'd9, 5'd7, 7'b0100000, 3'b001);
+        $display("Vector Absolute | rs6 <- |rs6| ");
+        instruction = instr.abs(5'd6, 5'd6, 7'b0100000, 3'b001);
         @(posedge Control_ready);         
         
 //====================================================
@@ -296,8 +296,8 @@ module KernelTest_tb;
         $display("               D + E                ");
         $display("====================================");
 
-        $display("Vector Add | rs10 <- rs8 + rs9");
-        instruction = instr.vector_R_type(5'd10, 5'd8, 5'd9, 7'b0000000, 3'd0);
+        $display("Vector Add | rs6 <- rs6 + rs6");
+        instruction = instr.vector_R_type(5'd6, 5'd5, 5'd6, 7'b0000000, 3'd0);
         @(posedge Control_ready);
 
 
@@ -306,7 +306,7 @@ module KernelTest_tb;
         for (int i = 0; i < ROW_LENGTH; i++) begin
             for (int j = 0; j < COL_LENGTH; j++) begin
                 $display("STORE (%0d,%0d) | Reg 3", i, j);
-                instruction = instr.store(20'd4 * (i*ROW_LENGTH + j), 5'd10);
+                instruction = instr.store(20'd4 * (i*ROW_LENGTH + j), 5'd6);
                 @(posedge Control_ready);
             end
         end        
