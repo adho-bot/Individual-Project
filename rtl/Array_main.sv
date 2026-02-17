@@ -142,6 +142,8 @@ module Array_Main #(
         rd_row_sel = '0; 
         rd_col_sel = '0; 
         rd_addr_valid = 0;
+        offset = '0;
+        elem_index = '0;
     
         if (i_array_address >= ARRAY_BASE_ADDR) begin
             offset = i_array_address - ARRAY_BASE_ADDR;
