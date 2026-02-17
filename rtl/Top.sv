@@ -53,7 +53,7 @@ module Top#(
     
     
     Array_Main #(
-        .ROWS(32),         // example: 4x4 array
+        .ROWS(32),         // Note: Array size must be of powers of 2
         .COLS(32),
         .DATA_WIDTH(32),
         .ARRAY_BASE_ADDR(32'h0000_0000)

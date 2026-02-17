@@ -92,6 +92,12 @@ module Array_Main #(
                 assign west[r][c]  = (c == COLS-1)  ? '0 : news[r][c+1];
                 assign east[r][c]  = (c == 0)       ? '0 : news[r][c-1];
 
+//PE gating
+                assign PE_enable[r][c] = (i_PE_enable) ? 1'b1 : 
+                                         (wr_addr_valid && i_piso_shift && (wr_row_sel==r && wr_col_sel==c));
+
+
+
                 PE_Main #(.WIDTH(DATA_WIDTH), .DEPTH(8)) pe_i (
                     .i_clk        (i_clk),
                     .i_rstn       (i_rstn),
@@ -126,37 +132,18 @@ module Array_Main #(
 /*              Address Decoder                  */
 /*===============================================*/
     always_comb begin
-        // default
-        wr_row_sel = '0;
-        wr_col_sel = '0;
-        wr_addr_valid = 1'b0;
+        wr_row_sel = '0; wr_col_sel = '0; wr_addr_valid = 0;
+        rd_row_sel = '0; rd_col_sel = '0; rd_addr_valid = 0;
 
-        rd_row_sel = '0;
-        rd_col_sel = '0;
-        rd_addr_valid = 1'b0;
-
-        //Write Decode
         if (i_array_address >= ARRAY_BASE_ADDR) begin
-            logic [31:0] byte_offset;
-            byte_offset = i_array_address - ARRAY_BASE_ADDR;
-            if (byte_offset < NUM_ELEMENTS * ADDR_BYTES_PER_ELEMENT) begin
-                logic [31:0] elem_index;    //word address
-                elem_index = byte_offset >> 2; // convert from byte to word (/4)
+            logic [31:0] offset = i_array_address - ARRAY_BASE_ADDR;
+            if (offset < NUM_ELEMENTS*ADDR_BYTES_PER_ELEMENT) begin
+                logic [31:0] elem_index = offset >> 2; // bytes → words
                 wr_row_sel = elem_index >> COLS_W;
                 wr_col_sel = elem_index & (COLS-1);
+                rd_row_sel = wr_row_sel;
+                rd_col_sel = wr_col_sel;
                 wr_addr_valid = 1'b1;
-            end
-        end
-
-        //Read Decode
-        if (i_array_address >= ARRAY_BASE_ADDR) begin
-            logic [31:0] byte_offset_r;
-            byte_offset_r = i_array_address - ARRAY_BASE_ADDR;
-            if (byte_offset_r < NUM_ELEMENTS * ADDR_BYTES_PER_ELEMENT) begin
-                logic [31:0] elem_index_r;
-                elem_index_r = byte_offset_r >> 2;
-                rd_row_sel = elem_index_r >> COLS_W;
-                rd_col_sel = elem_index_r & (COLS-1);
                 rd_addr_valid = 1'b1;
             end
         end
@@ -193,35 +180,6 @@ module Array_Main #(
         end
     end
 
-/*===============================================*/
-/*               PE gate                         */
-/*===============================================*/
-
-    always_comb begin
-        integer rr, cc;
-
-        if(!i_PE_enable) begin      //i_PE_enable selects between memory instr(0) and other instructions
-            for (rr = 0; rr < ROWS; rr = rr + 1) begin
-                for (cc = 0; cc < COLS; cc = cc + 1) begin
-                    PE_enable[rr][cc] = 1'b0;
-                end
-            end
-    
-            // route serial bit to selected PE when write is valid and PISO is shifting (strobe)
-            if (wr_addr_valid && i_piso_shift) begin
-                if (wr_row_sel < ROWS && wr_col_sel < COLS) begin
-                    PE_enable[wr_row_sel][wr_col_sel] = 1;  //PE enable signal
-                end
-            end
-        end else begin
-            for (rr = 0; rr < ROWS; rr = rr + 1) begin
-                for (cc = 0; cc < COLS; cc = cc + 1) begin
-                    PE_enable[rr][cc] = 1'b1;
-                end
-            end        
-        end
-    end
-
 
 /*===============================================*/
 /*              Data Shift Registers             */
@@ -231,28 +189,15 @@ module Array_Main #(
 
     // PISO: load full word, shift right on strobe
     always_ff @(posedge i_clk or negedge i_rstn) begin
-        if (!i_rstn) begin
-            piso_reg <= '0;
-        end else begin
-            if (i_piso_load) begin
-                piso_reg <= i_array_data;
-            end else if (i_piso_shift) begin
-                // shift right: drop LSB, insert zero at MSB (serial LSB-first)
-                piso_reg <= {1'b0, piso_reg[DATA_WIDTH-1:1]};
-            end
-        end
+        if (!i_rstn) piso_reg <= '0;
+        else if (i_piso_load) piso_reg <= i_array_data;
+        else if (i_piso_shift) piso_reg <= {1'b0, piso_reg[DATA_WIDTH-1:1]};
     end
 
     // SIPO parallel collector: shift left in new bit at LSB side (LSB-first)
     always_ff @(posedge i_clk or negedge i_rstn) begin
-        if (!i_rstn) begin
-            parallel_out <= '0;
-        end else begin
-            if (i_sipo_shift) begin
-                // shift left so LSB is newest bit (this is consistent with arrayOut being serial LSB-first)
-                parallel_out <= {arrayOut, parallel_out[DATA_WIDTH-1:1]};   //Array data out is LSB first
-            end
-        end
+        if (!i_rstn) parallel_out <= '0;
+        else if (i_sipo_shift) parallel_out <= {arrayOut, parallel_out[DATA_WIDTH-1:1]};   //Array data out is LSB first
     end
 
     assign o_array_data = parallel_out;
