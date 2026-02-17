@@ -78,6 +78,8 @@ module Array_Main #(
     logic [COL_W-1:0]       rd_col_sel;
     logic                   rd_addr_valid;
 
+    localparam COLS_W = $clog2(COLS);
+
 /*===============================================*/
 /*              PE Array                         */
 /*===============================================*/
@@ -140,8 +142,8 @@ module Array_Main #(
             if (byte_offset < NUM_ELEMENTS * ADDR_BYTES_PER_ELEMENT) begin
                 logic [31:0] elem_index;    //word address
                 elem_index = byte_offset >> 2; // convert from byte to word (/4)
-                wr_row_sel = elem_index / COLS;
-                wr_col_sel = elem_index % COLS;
+                wr_row_sel = elem_index >> COLS_W;
+                wr_col_sel = elem_index & (COLS-1);
                 wr_addr_valid = 1'b1;
             end
         end
@@ -153,8 +155,8 @@ module Array_Main #(
             if (byte_offset_r < NUM_ELEMENTS * ADDR_BYTES_PER_ELEMENT) begin
                 logic [31:0] elem_index_r;
                 elem_index_r = byte_offset_r >> 2;
-                rd_row_sel = elem_index_r / COLS;
-                rd_col_sel = elem_index_r % COLS;
+                rd_row_sel = elem_index_r >> COLS_W;
+                rd_col_sel = elem_index_r & (COLS-1);
                 rd_addr_valid = 1'b1;
             end
         end
