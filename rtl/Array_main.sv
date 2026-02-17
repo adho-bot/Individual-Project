@@ -131,14 +131,22 @@ module Array_Main #(
 /*===============================================*/
 /*              Address Decoder                  */
 /*===============================================*/
+    // Module-level signals
+    logic [31:0] offset;
+    logic [31:0] elem_index;
+    
     always_comb begin
-        wr_row_sel = '0; wr_col_sel = '0; wr_addr_valid = 0;
-        rd_row_sel = '0; rd_col_sel = '0; rd_addr_valid = 0;
-
+        wr_row_sel = '0; 
+        wr_col_sel = '0; 
+        wr_addr_valid = 0;
+        rd_row_sel = '0; 
+        rd_col_sel = '0; 
+        rd_addr_valid = 0;
+    
         if (i_array_address >= ARRAY_BASE_ADDR) begin
-            logic [31:0] offset = i_array_address - ARRAY_BASE_ADDR;
-            if (offset < NUM_ELEMENTS*ADDR_BYTES_PER_ELEMENT) begin
-                logic [31:0] elem_index = offset >> 2; // bytes → words
+            offset = i_array_address - ARRAY_BASE_ADDR;
+            if (offset < NUM_ELEMENTS * ADDR_BYTES_PER_ELEMENT) begin
+                elem_index = offset >> 2; // bytes → words
                 wr_row_sel = elem_index >> COLS_W;
                 wr_col_sel = elem_index & (COLS-1);
                 rd_row_sel = wr_row_sel;
