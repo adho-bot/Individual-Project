@@ -89,13 +89,11 @@ module KernelTest_tb;
     // Instantiate DUT
     // -----------------------------------------
     Top #(
-        .THRESH(0.2),
         .DATA_WIDTH(DATA_WIDTH),
         .REG_DEPTH(REG_DEPTH),
         .ARRAY_BASE_ADDR(ARRAY_BASE_ADDR),
         .ROW_LENGTH(ROW_LENGTH),
         .COL_LENGTH(COL_LENGTH)
-        
     ) top_inst(
         .i_clk        (clk),
         .i_rstn       (rstn),

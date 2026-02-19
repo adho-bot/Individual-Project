@@ -1,10 +1,9 @@
 module Top#(
-    parameter int THRESH,
-    parameter int DATA_WIDTH,
-    parameter int REG_DEPTH,
-    parameter int ARRAY_BASE_ADDR,
-    parameter int ROW_LENGTH,
-    parameter int COL_LENGTH
+    parameter int DATA_WIDTH = 16,
+    parameter int REG_DEPTH = 8,
+    parameter int ARRAY_BASE_ADDR = 32'h0000_0000,
+    parameter int ROW_LENGTH = 2,
+    parameter int COL_LENGTH = 2
  )(
     input  logic    i_clk,
     input  logic    i_rstn,
@@ -21,9 +20,6 @@ module Top#(
     
     output logic        o_Control_ready //signals when the array has finished processing
 );
-    //Threshold for 8 bit data
-    localparam signed THRESHOLD = THRESH * 1020;
-
 
     // Control signals from Control_Unit to Array_Main
     logic [4:0]  rd1_addr;
@@ -144,12 +140,6 @@ module Top#(
     );
     
     assign o_array_address = array_address;
-    
-    //Thresholding (|array data| > T ? 255 : 0)
-    //assign o_array_data = ((array_data > THRESHOLD) || (array_data < -THRESHOLD)) ? 8'd255 : 8'd0;  
-
-
-//Magnitude and Thresholding step
 
     //Scaling
     assign o_array_data = array_data[15:2]; //divide result by 2
