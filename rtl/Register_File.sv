@@ -6,7 +6,8 @@
 //How do i extract individual bits?
 
 module Register_File#(
-    parameter DEPTH = 8
+    parameter DEPTH,
+    parameter WIDTH
 )(
     input  logic        i_clk,
     input  logic        i_rstn,
@@ -21,10 +22,10 @@ module Register_File#(
 
     // control
     input  logic        i_wr_en,
-    input  logic        [5:0] i_counter, //global counter shared by all PEs
+    input  logic        [$clog2(WIDTH):0] i_counter, //global counter shared by all PEs
 
     //MSB
-    input logic         [4:0]i_bittst,
+    input logic         i_bittst,
 
     // serial data outputs
     output logic        o_rd1,
@@ -32,10 +33,10 @@ module Register_File#(
 );
 
     // Register memory 
-   logic rf_mem [0:32 * DEPTH-1];
+   logic rf_mem [0:WIDTH * DEPTH-1];
    
     //Write Pointer
-    logic [4:0] wr_ptr;
+    logic [$clog2(WIDTH) :0] wr_ptr;
     
 
 /*================================================================*/
@@ -46,23 +47,23 @@ module Register_File#(
         if (!i_rstn) begin
             integer i;
             wr_ptr <= 5'd0;
-            for (i = 0; i < DEPTH * 32; i=i+1)
+            for (i = 0; i < DEPTH * WIDTH; i=i+1)
                 rf_mem[i] <= '0;
         end else if (i_wr_en && (i_wr_addr != 0)) begin
-            if (wr_ptr == 5'd31)
+            if (wr_ptr == WIDTH - 1)
                 wr_ptr <= 5'd0;
             else
                 wr_ptr <= wr_ptr + 1;
                 
-                rf_mem[i_wr_addr * 32 + wr_ptr] <= i_datain;
+                rf_mem[i_wr_addr * WIDTH + wr_ptr] <= i_datain;
             end
     end
 
 /*================================================================*/
 /*				             READ				                  */
 /*================================================================*/           
-    assign o_rd1 = rf_mem[i_rd1_addr * 32 + i_counter]; 
-    assign o_rd2 = (i_bittst != 0) ? rf_mem[i_rd2_addr * 32 + i_bittst]: rf_mem[i_rd2_addr * 32 + i_counter];  
+    assign o_rd1 = rf_mem[i_rd1_addr * WIDTH + i_counter]; 
+    assign o_rd2 = (i_bittst) ? rf_mem[i_rd2_addr * WIDTH + i_bittst * (WIDTH - 1)]: rf_mem[i_rd2_addr * WIDTH + i_counter];  
             
 
 

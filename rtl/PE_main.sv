@@ -1,11 +1,11 @@
 module PE_Main#(
-    parameter WIDTH = 32,
-    parameter DEPTH = 9
+    parameter DATA_WIDTH,
+    parameter REG_DEPTH
 )(
     // Global signals
     input  logic                        i_clk,
     input  logic                        i_rstn,
-    input  logic [$clog2(WIDTH):0]      i_counter,
+    input  logic [$clog2(DATA_WIDTH):0]  i_counter,
     
     // Data input
     input  logic                        i_data,
@@ -21,9 +21,9 @@ module PE_Main#(
     output logic                        o_news,
     
     // Control signals
-    input  logic [$clog2(DEPTH)-1:0]    i_rd1_addr,
-    input  logic [$clog2(DEPTH)-1:0]    i_rd2_addr,
-    input  logic [$clog2(DEPTH)-1:0]    i_wr_addr,
+    input  logic [$clog2(REG_DEPTH)-1:0]    i_rd1_addr,
+    input  logic [$clog2(REG_DEPTH)-1:0]    i_rd2_addr,
+    input  logic [$clog2(REG_DEPTH)-1:0]    i_wr_addr,
     input  logic                        i_wr_en,
     input  logic                        i_rs2_sel,
     input  logic [1:0]                  i_news_sel,
@@ -38,7 +38,7 @@ module PE_Main#(
     input logic                         i_bit0,
     
     //MSB bit
-    input logic [4:0]                    i_bittst  
+    input logic                         i_bittst  
 );
     // Parameters
     localparam [1:0] NORTH = 2'b00, EAST = 2'b01, WEST = 2'b10, SOUTH = 2'b11;
@@ -64,7 +64,8 @@ module PE_Main#(
     
     // Register File instantiation
     Register_File #(
-        .DEPTH(DEPTH)
+        .DEPTH(REG_DEPTH),
+        .WIDTH(DATA_WIDTH)
     ) register_file_inst (
         .i_clk      (i_clk),
         .i_rstn     (i_rstn),

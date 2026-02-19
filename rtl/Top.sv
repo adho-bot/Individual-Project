@@ -1,13 +1,18 @@
 module Top#(
-    parameter int THRESH = 0.2
+    parameter int THRESH,
+    parameter int DATA_WIDTH,
+    parameter int REG_DEPTH,
+    parameter int ARRAY_BASE_ADDR,
+    parameter int ROW_LENGTH,
+    parameter int COL_LENGTH
  )(
     input  logic    i_clk,
     input  logic    i_rstn,
     input  logic    [31:0] i_instruction,
     
     //Data input/output
-    input logic     [31:0] i_array_data,
-    output logic    [31:0] o_array_data,
+    input logic     [DATA_WIDTH - 1:0] i_array_data,
+    output logic    [DATA_WIDTH - 1:0] o_array_data,
     
     // Data Memory Signals
     output logic [31:0] o_array_address,
@@ -29,7 +34,7 @@ module Top#(
     logic [1:0]  news_sel;      // Assuming 2-bit select for NEWS
     logic [1:0]  wb_sel;        // Assuming 2-bit select for writeback
     logic [9:0]  opcode;        // Standard RISC-V opcode width
-    logic [5:0]  counter;       // Assuming 32-bit counter
+    logic [4:0]  counter;       // Assuming 32-bit counter
     logic        dataout_en;
     
     //Memory map write and read
@@ -43,20 +48,21 @@ module Top#(
     logic PE_enable;
     
     //Clipping signal
-    logic signed [31:0] array_data;
+    logic signed [DATA_WIDTH - 1:0] array_data;
     
     //MSB latching 
     logic bit0;
     
     //MSB Bit
-    logic [4:0] bittst;
+    logic               bittst;
     
     
     Array_Main #(
-        .ROWS(2),         // Note: Array size must be of powers of 2
-        .COLS(2),
-        .DATA_WIDTH(32),
-        .ARRAY_BASE_ADDR(32'h0000_0000)
+        .ROWS(ROW_LENGTH),         // Note: Array size must be of powers of 2
+        .COLS(COL_LENGTH),
+        .DATA_WIDTH(DATA_WIDTH),
+        .ARRAY_BASE_ADDR(ARRAY_BASE_ADDR),
+        .REG_DEPTH(REG_DEPTH)
     ) array_inst (
         .i_clk(i_clk),
         .i_rstn(i_rstn),
@@ -76,8 +82,8 @@ module Top#(
         .i_array_address(array_address),
         
         //data into and out of array
-        .o_array_data(array_data),                 //32 bits
-        .i_array_data(i_array_data),               //32bits        still need to connect
+        .o_array_data(array_data),                
+        .i_array_data(i_array_data),             
         
         //PISO SIPO control
         .i_piso_load(piso_load), 
@@ -95,7 +101,9 @@ module Top#(
              
     );
     
-    Control_Unit ctrl_inst (
+    Control_Unit #(
+        .DATA_WIDTH(DATA_WIDTH)
+    )   ctrl_inst(
         .i_clk(i_clk),
         .i_rstn(i_rstn),
         .i_instruction(i_instruction),
@@ -144,7 +152,7 @@ module Top#(
 //Magnitude and Thresholding step
 
     //Scaling
-    assign o_array_data = array_data >> 2;
+    assign o_array_data = array_data[15:2]; //divide result by 2
     
 //    assign o_array_data = array_data;
 endmodule

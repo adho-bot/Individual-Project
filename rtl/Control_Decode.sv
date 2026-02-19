@@ -35,7 +35,7 @@ module Control_Decode(
     output logic        o_bit0,
     
     //MSB bit
-    output logic [4:0]  o_bittst
+    output logic        o_bittst
      
 );
 
@@ -62,7 +62,7 @@ always_comb begin
             o_array_address = 32'd0;
             
             o_bit0 = 1'b0;
-            o_bittst = 5'd0;
+            o_bittst = 1'b0;
             
             o_PE_enable = 1'b0;
     case(i_state)
@@ -142,7 +142,7 @@ always_comb begin
             o_PE_enable = 1'b1; 
             
             //Choose MSB bit
-            o_bittst = 5'd31;
+            o_bittst = 1'b1;
             
             //Set address of rs2 to rs1
             o_rd2_addr = o_rd1_addr;         
@@ -162,7 +162,7 @@ always_comb begin
             o_PE_enable = 1'b1; 
             
             //Choose MSB bit
-            o_bittst = 5'd31;
+            o_bittst = 1'b1;
             
             //Set address of rs2 to rs1
             o_rd2_addr = o_rd1_addr;        
@@ -181,7 +181,7 @@ always_comb begin
             o_PE_enable = 1'b1;  
                         
             //Choose MSB bit
-            o_bittst = 5'd31;
+            o_bittst = 1'b1;
             
             //Set address of rs2 to rs1
             o_rd2_addr = o_rd1_addr;                              

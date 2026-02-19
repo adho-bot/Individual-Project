@@ -1,13 +1,15 @@
 // Array_Main.sv
 
 //LOOK INTO ADDING REDUCTION OR FOR OUTPUT RETREVAL
-
+//RMB, DATA IN MEMORY -> 8 BITS PER WORD
+// 16 BITS IN A REGISTER
 `timescale 1ns/1ps
 module Array_Main #(
-    parameter int ROWS = 2,
-    parameter int COLS = 2,
-    parameter int DATA_WIDTH = 32,
-    parameter logic [31:0] ARRAY_BASE_ADDR = 32'h0000_0000  // base for array element mapping (SIM MODE RN)
+    parameter int ROWS,
+    parameter int COLS,
+    parameter int DATA_WIDTH,
+    parameter int REG_DEPTH,
+    parameter logic [31:0] ARRAY_BASE_ADDR // base for array element mapping (SIM MODE RN)
 )(
     input  logic                        i_clk,
     input  logic                        i_rstn,
@@ -21,7 +23,7 @@ module Array_Main #(
     input  logic [1:0]                  i_news_sel,
     input  logic                        i_wb_sel,
     input  logic [9:0]                  i_opcode,
-    input  logic [$clog2(DATA_WIDTH):0] i_counter,
+    input  logic [$clog2(DATA_WIDTH):0]  i_counter,
     input  logic                        i_dataout_en,
 
     // memory mapped signals
@@ -43,14 +45,15 @@ module Array_Main #(
     input logic                         i_bit0,
     
     //MSB bit
-    input logic [4:0]                   i_bittst  
+    input logic                         i_bittst  
 );
 
     // --- Derived widths ---
     localparam int ROW_W                    = (ROWS > 1) ? $clog2(ROWS) : 1;
     localparam int COL_W                    = (COLS > 1) ? $clog2(COLS) : 1;
     localparam int NUM_ELEMENTS             = ROWS * COLS;
-    localparam int ADDR_BYTES_PER_ELEMENT   = 4; // mapping granularity
+    localparam int ADDR_BYTES_PER_ELEMENT   = DATA_WIDTH / 8; // mapping granularity
+    localparam int BYTE2WORD                = ADDR_BYTES_PER_ELEMENT / 2; //shift number to convert byte to word addressing
 
     // --- Internal registers ---
     logic [DATA_WIDTH-1:0]  piso_reg;
@@ -101,7 +104,10 @@ module Array_Main #(
 
 
 
-                PE_Main #(.WIDTH(DATA_WIDTH), .DEPTH(8)) pe_i (
+                PE_Main #(
+                    .DATA_WIDTH(DATA_WIDTH), 
+                    .REG_DEPTH(REG_DEPTH)
+                )   pe_i (
                     .i_clk        (i_clk),
                     .i_rstn       (i_rstn),
                     .i_counter    (i_counter),
@@ -151,7 +157,7 @@ module Array_Main #(
         if (i_array_address >= ARRAY_BASE_ADDR) begin
             offset = i_array_address - ARRAY_BASE_ADDR;
             if (offset < NUM_ELEMENTS * ADDR_BYTES_PER_ELEMENT) begin
-                elem_index = offset >> 2; // bytes → words
+                elem_index = offset >> BYTE2WORD; // bytes → words (2 bytes for a word)
                 wr_row_sel = elem_index >> COLS_W;
                 wr_col_sel = elem_index & (COLS-1);
                 rd_row_sel = wr_row_sel;

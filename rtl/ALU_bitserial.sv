@@ -1,7 +1,7 @@
 `include "Definitions.sv"
 
 
-//magnitude = (x ^ x[31]) + x[31]
+//magnitude = (x ^ x[WIDTH - 1]) + x[WIDTH - 1]
 
 module ALU_bitserial(
     input  logic i_clk,

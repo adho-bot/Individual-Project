@@ -1,6 +1,8 @@
 `include "Definitions.sv"
 
-module Control_Unit(
+module Control_Unit#(
+    parameter int DATA_WIDTH
+    )(
 	input logic 				   i_clk,
     input logic					   i_rstn,
 	
@@ -17,7 +19,7 @@ module Control_Unit(
     output  logic [1:0]     o_news_sel,
     output  logic        	o_wb_sel,
     output  logic [9:0]  	o_opcode,
-    output  logic [5:0]     o_counter,
+    output  logic [$clog2(DATA_WIDTH):0]     o_counter,
     output  logic           o_dataout_en,
 
     output logic            o_data_wr,
@@ -40,14 +42,16 @@ module Control_Unit(
     output logic            o_bit0,
     
     //MSB bit
-    output logic  [4:0]     o_bittst    
+    output logic            o_bittst    
 );
 
     //state logic
     logic [3:0] state;
 
     
-    Control_FSM control_inst(
+    Control_FSM #(
+        .DATA_WIDTH(DATA_WIDTH)
+    )   control_inst(
         .i_clk(i_clk),
         .i_rstn(i_rstn),
         .i_instruction(i_instruction),  // instruction word (opcode + operands)

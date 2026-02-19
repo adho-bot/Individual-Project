@@ -38,8 +38,8 @@ module KernelTest_tb;
     logic rstn;
 
     logic [31:0] instruction;    
-    logic [31:0] array_data_in;
-    logic [31:0] array_data_out;
+    logic [15:0] array_data_in;
+    logic [15:0] array_data_out;
 
     logic [31:0] address;
     logic        wr_en;
@@ -47,9 +47,19 @@ module KernelTest_tb;
 
     logic       Control_ready;
 
+
+//PROCESSOR CONTROL PARAMETERS
     localparam INSTR_WIDTH = 32;
     localparam ROW_LENGTH = 32;
     localparam COL_LENGTH = 32;
+    
+    localparam DATA_WIDTH = 16;
+    localparam REG_DEPTH = 8;
+    localparam ARRAY_BASE_ADDR = 32'h0000_0000;
+
+
+//PARAMETERS    
+    localparam ADDR_BYTES_PER_ELEMENT = DATA_WIDTH / 8;
 
     //Instruction class
     class Instructions;    
@@ -79,7 +89,13 @@ module KernelTest_tb;
     // Instantiate DUT
     // -----------------------------------------
     Top #(
-        .THRESH(0.2)
+        .THRESH(0.2),
+        .DATA_WIDTH(DATA_WIDTH),
+        .REG_DEPTH(REG_DEPTH),
+        .ARRAY_BASE_ADDR(ARRAY_BASE_ADDR),
+        .ROW_LENGTH(ROW_LENGTH),
+        .COL_LENGTH(COL_LENGTH)
+        
     ) top_inst(
         .i_clk        (clk),
         .i_rstn       (rstn),
@@ -97,7 +113,7 @@ module KernelTest_tb;
     // -----------------------------------------
     // Simulation Data Memory
     // -----------------------------------------
-    localparam DATA_DEPTH = ROW_LENGTH * COL_LENGTH * 4;
+    localparam DATA_DEPTH = ROW_LENGTH * COL_LENGTH * ADDR_BYTES_PER_ELEMENT;
     
     logic [7:0] data_mem [0:DATA_DEPTH - 1];
     //logic [7:0] pix[0:3];
@@ -105,9 +121,7 @@ module KernelTest_tb;
     // Memory read
     always_ff @(posedge clk) begin
         if (rd_en)
-            array_data_in <= {data_mem[address+3],
-                              data_mem[address+2],
-                              data_mem[address+1],
+            array_data_in <= {data_mem[address+1],
                               data_mem[address]};
     end
 
@@ -117,8 +131,6 @@ module KernelTest_tb;
         if (wr_en) begin
             data_mem[address[9:0]]   <= array_data_out[7:0];
             data_mem[address[9:0]+1] <= array_data_out[15:8];
-            data_mem[address[9:0]+2] <= array_data_out[23:16];
-            data_mem[address[9:0]+3] <= array_data_out[31:24];
 
 
             $fwrite(outfile, "%02x\n", array_data_out);
@@ -173,7 +185,7 @@ module KernelTest_tb;
         for (int i = 0; i < ROW_LENGTH; i++) begin
             for (int j = 0; j < COL_LENGTH; j++) begin
                     $display("LOAD (%0d,%0d) | Reg %0d", i, j, 1);
-                    instruction = instr.load(20'd4 * (i*ROW_LENGTH + j), 5'(1));
+                    instruction = instr.load(ADDR_BYTES_PER_ELEMENT * (i*ROW_LENGTH + j), 5'(1));
                     @(posedge Control_ready);
             end
         end
@@ -306,7 +318,7 @@ module KernelTest_tb;
         for (int i = 0; i < ROW_LENGTH; i++) begin
             for (int j = 0; j < COL_LENGTH; j++) begin
                 $display("STORE (%0d,%0d) | Reg 3", i, j);
-                instruction = instr.store(20'd4 * (i*ROW_LENGTH + j), 5'd6);
+                instruction = instr.store(ADDR_BYTES_PER_ELEMENT * (i*ROW_LENGTH + j), 5'd6);
                 @(posedge Control_ready);
             end
         end        

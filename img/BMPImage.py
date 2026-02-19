@@ -49,6 +49,6 @@ pixel_file = "4x4_input.hex"
 with open(pixel_file, "w") as f:
     for y in range(HEIGHT):
         for x in range(WIDTH):
-            f.write(f"{img[y, x]:02x} 00 00 00\n")
+            f.write(f"{img[y, x]:02x} 00\n")
 
 print(f"Saved pixels to {pixel_file}")
