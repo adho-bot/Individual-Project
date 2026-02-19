@@ -53,8 +53,8 @@ module Top#(
     
     
     Array_Main #(
-        .ROWS(32),         // Note: Array size must be of powers of 2
-        .COLS(32),
+        .ROWS(2),         // Note: Array size must be of powers of 2
+        .COLS(2),
         .DATA_WIDTH(32),
         .ARRAY_BASE_ADDR(32'h0000_0000)
     ) array_inst (

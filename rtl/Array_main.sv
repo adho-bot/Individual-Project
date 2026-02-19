@@ -1,4 +1,7 @@
 // Array_Main.sv
+
+//LOOK INTO ADDING REDUCTION OR FOR OUTPUT RETREVAL
+
 `timescale 1ns/1ps
 module Array_Main #(
     parameter int ROWS = 2,
