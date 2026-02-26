@@ -115,7 +115,7 @@ module KernelTest_tb;
     
     // Memory read
     always_ff @(posedge clk) begin
-        if (rd_en)
+//        if (rd_en)
             array_data_in <= data_mem[address];
     end
 

@@ -59,7 +59,7 @@ always_comb begin
             o_piso_shift = 1'b0;
             o_sipo_shift = 1'b0;
 
-            o_array_address = 32'd0;
+            o_array_address = {12'd0,i_instruction[31:12]};
             
             o_bit0 = 1'b0;
             o_bittst = 1'b0;

@@ -50,16 +50,13 @@ module KernelTest_tb;
 
 //PROCESSOR CONTROL PARAMETERS
     localparam INSTR_WIDTH = 32;
-    localparam ROW_LENGTH = 32;
-    localparam COL_LENGTH = 32;
+    localparam ROW_LENGTH = 2;
+    localparam COL_LENGTH = 2;
     
     localparam DATA_WIDTH = 16;
     localparam REG_DEPTH = 8;
     localparam ARRAY_BASE_ADDR = 32'h0000_0000;
 
-
-//PARAMETERS    
-    localparam ADDR_BYTES_PER_ELEMENT = DATA_WIDTH / 8;
 
     //Instruction class
     class Instructions;    
@@ -109,27 +106,24 @@ module KernelTest_tb;
     );
 
     // -----------------------------------------
-    // Simulation Data Memory
+    // Simulation Data Memory (WORD ADDRESSING TO MIMICK BRAM)
     // -----------------------------------------
-    localparam DATA_DEPTH = ROW_LENGTH * COL_LENGTH * ADDR_BYTES_PER_ELEMENT;
+    localparam DATA_DEPTH = ROW_LENGTH * COL_LENGTH;
     
-    logic [7:0] data_mem [0:DATA_DEPTH - 1];
+    logic [15:0] data_mem [0:DATA_DEPTH - 1];
     //logic [7:0] pix[0:3];
     
     // Memory read
     always_ff @(posedge clk) begin
-        if (rd_en)
-            array_data_in <= {data_mem[address+1],
-                              data_mem[address]};
+//        if (rd_en)
+            array_data_in <= data_mem[address];
     end
 
     // Memory write + record to file
     integer outfile;
     always_ff @(posedge clk) begin
         if (wr_en) begin
-            data_mem[address[9:0]]   <= array_data_out[7:0];
-            data_mem[address[9:0]+1] <= array_data_out[15:8];
-
+            data_mem[address]   <= array_data_out[15:0];
 
             $fwrite(outfile, "%02x\n", array_data_out);
             $display("[TB] OUTPUT PIXEL: addr=%0d  val=%02x", address, array_data_out[7:0]);
@@ -183,7 +177,7 @@ module KernelTest_tb;
         for (int i = 0; i < ROW_LENGTH; i++) begin
             for (int j = 0; j < COL_LENGTH; j++) begin
                     $display("LOAD (%0d,%0d) | Reg %0d", i, j, 1);
-                    instruction = instr.load(ADDR_BYTES_PER_ELEMENT * (i*ROW_LENGTH + j), 5'(1));
+                    instruction = instr.load((i*ROW_LENGTH + j), 5'(1));
                     @(posedge Control_ready);
             end
         end
@@ -316,7 +310,7 @@ module KernelTest_tb;
         for (int i = 0; i < ROW_LENGTH; i++) begin
             for (int j = 0; j < COL_LENGTH; j++) begin
                 $display("STORE (%0d,%0d) | Reg 3", i, j);
-                instruction = instr.store(ADDR_BYTES_PER_ELEMENT * (i*ROW_LENGTH + j), 5'd6);
+                instruction = instr.store((i*ROW_LENGTH + j), 5'd6);
                 @(posedge Control_ready);
             end
         end        
