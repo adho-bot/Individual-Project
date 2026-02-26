@@ -52,6 +52,8 @@ module Array_Main #(
     localparam int ROW_W                    = (ROWS > 1) ? $clog2(ROWS) : 1;
     localparam int COL_W                    = (COLS > 1) ? $clog2(COLS) : 1;
     localparam int NUM_ELEMENTS             = ROWS * COLS;
+    localparam int ADDR_BYTES_PER_ELEMENT   = DATA_WIDTH / 8; // mapping granularity
+    localparam int BYTE2WORD                = ADDR_BYTES_PER_ELEMENT / 2; //shift number to convert byte to word addressing
 
     // --- Internal registers ---
     logic [DATA_WIDTH-1:0]  piso_reg;
@@ -154,8 +156,8 @@ module Array_Main #(
     
         if (i_array_address >= ARRAY_BASE_ADDR) begin
             offset = i_array_address - ARRAY_BASE_ADDR;
-            if (offset < NUM_ELEMENTS) begin
-                elem_index = offset;
+            if (offset < NUM_ELEMENTS * ADDR_BYTES_PER_ELEMENT) begin
+                elem_index = offset >> BYTE2WORD; // bytes → words (2 bytes for a word)
                 wr_row_sel = elem_index >> COLS_W;
                 wr_col_sel = elem_index & (COLS-1);
                 rd_row_sel = wr_row_sel;

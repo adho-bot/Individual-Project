@@ -30,7 +30,7 @@ module tb_Register_File;
         .i_rd2_addr(rd2_addr),
         .i_wr_addr(wr_addr),
         .i_wr_en(wr_en),
-        .i_counter(counter)
+        .i_counter(counter),
         .o_rd1(rd1),
         .o_rd2(rd2)
     );
