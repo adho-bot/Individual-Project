@@ -188,11 +188,10 @@ module KernelTest_tb;
             
             // Issue instruction
             instruction = instr.load((i*ROW_LENGTH + j), 5'(1));
-            @(posedge clk);
             instr_valid = 1;
             
             // Hold valid for one clock cycle
-            @(posedge clk);            
+            @(posedge clk);
             instr_valid = 0;
             
             // Wait for FSM to complete execution
@@ -204,7 +203,9 @@ module KernelTest_tb;
 //====================================================
 //                           Gx        
 //====================================================
-  instr_valid = 1'b1;
+                           
+                           #1012;
+                            instr_valid = 1;       
         $display("====================================");
         $display("            B = A + A North         ");
         $display("====================================");

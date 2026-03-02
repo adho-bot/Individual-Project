@@ -75,12 +75,6 @@ initial begin
     $display("\n[TB] Applying LOAD instruction: %b", instruction);
     @(negedge o_Control_ready);
 
-    // MV_TYPE
-    wait(o_Control_ready);
-    instruction = {25'd0, `OP_MV_TYPE};
-    $display("\n[TB] Applying MV_TYPE instruction: %b", instruction);
-    @(negedge o_Control_ready);
-
     // STORE
     wait(o_Control_ready);
     instruction = {25'd0, `OP_STORE};

@@ -158,6 +158,6 @@ always_ff@(posedge i_clk or negedge i_rstn) begin
 	end
 end
 
-assign o_FSM_ready = (o_state == `IDLE) & (next_state == `IDLE);
+assign o_FSM_ready = (o_state == `IDLE);
 
 endmodule
