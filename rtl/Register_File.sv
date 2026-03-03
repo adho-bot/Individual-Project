@@ -33,15 +33,11 @@ module Register_File#(
     output logic        o_rd2
 );
 
-   localparam LOG2_WIDTH = $clog2(WIDTH);
+    // Register memory
+    logic [0:WIDTH * DEPTH-1] rf_mem;
 
-    // Register memory 
-   logic [0:WIDTH * DEPTH-1] rf_mem;
-   
-    //Write Pointer
-    logic [$clog2(WIDTH) :0] wr_ptr;
-    
-//Regsiter base addr computation
+    // Precomputed base addresses - shift instead of multiply (zero LUTs)
+    localparam LOG2_WIDTH = $clog2(WIDTH);
     logic [LOG2_WIDTH + $clog2(DEPTH) - 1:0] rd1_base, rd2_base, wr_base;
 
     always_comb begin
@@ -50,27 +46,18 @@ module Register_File#(
         wr_base  = i_wr_addr  << LOG2_WIDTH;
     end
 
-
-//Write     
+//Write - use global i_counter directly, wr_ptr removed
     always_ff @(posedge i_clk or negedge i_rstn) begin
         if (!i_rstn) begin
-            integer i;
-            wr_ptr <= 5'd0;
-            for (i = 0; i < DEPTH * WIDTH; i=i+1)
+            for (int i = 0; i < DEPTH * WIDTH; i++)
                 rf_mem[i] <= '0;
         end else if (i_wr_en && (i_wr_addr != 0)) begin
-            if (wr_ptr == WIDTH - 1)
-                wr_ptr <= 5'd0;
-            else
-                wr_ptr <= wr_ptr + 1;
-                
-                rf_mem[wr_base + wr_ptr] <= i_datain;
-            end
+            rf_mem[wr_base + i_counter] <= i_datain;
+        end
     end
 
 //Read         
     assign o_rd1 = rf_mem[rd1_base + i_counter]; 
-    assign o_rd2 = (i_bittst) ? rf_mem[rd2_base + (WIDTH - 1)]: rf_mem[rd2_base + i_counter];  
+    assign o_rd2 = (i_bittst) ? rf_mem[rd2_base + (WIDTH - 1)] : rf_mem[rd2_base + i_counter];  
             
 endmodule
-

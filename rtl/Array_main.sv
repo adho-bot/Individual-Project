@@ -9,7 +9,7 @@ module Array_Main #(
     parameter int COLS = 2,
     parameter int DATA_WIDTH = 16,
     parameter int REG_DEPTH = 8,
-    parameter logic [31:0] ARRAY_BASE_ADDR = 32'h0000_0000// base for array element mapping (SIM MODE RN)
+    parameter logic [31:0] ARRAY_BASE_ADDR = 32'h0000_0000
 )(
     input  logic                        i_clk,
     input  logic                        i_rstn,
@@ -99,7 +99,6 @@ module Array_Main #(
 //PE gating
                 assign PE_enable[r][c] = (i_PE_enable) ? 1'b1 : 
                                          (wr_addr_valid && i_piso_shift && (wr_row_sel==r && wr_col_sel==c));
-
 
 
                 PE_Main #(

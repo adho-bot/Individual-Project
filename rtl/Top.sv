@@ -144,7 +144,7 @@ module Top#(
     assign o_array_address = array_address;
 
     //Scaling
-    assign o_array_data = array_data[15:2]; //divide result by 2
+    assign o_array_data = array_data[15:2]; //divide result by 4
     
 //    assign o_array_data = array_data;
 endmodule

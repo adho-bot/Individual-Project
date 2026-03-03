@@ -52,8 +52,8 @@ module KernelTest_tb;
 
 //PROCESSOR CONTROL PARAMETERS
     localparam INSTR_WIDTH = 32;
-    localparam ROW_LENGTH = 2;
-    localparam COL_LENGTH = 2;
+    localparam ROW_LENGTH = 32;
+    localparam COL_LENGTH = 32;
     
     localparam DATA_WIDTH = 16;
     localparam REG_DEPTH = 8;
@@ -148,7 +148,7 @@ module KernelTest_tb;
         rstn = 0;
         instruction = 32'h0;
         array_data_in = 0;
-        instr_valid = 0;
+        instr_valid = 1;
 
         // -------------------------------------
         // Load IMAGE DATA from hex file
@@ -180,31 +180,15 @@ module KernelTest_tb;
     // Recursive load into reg 1
     for (int i = 0; i < ROW_LENGTH; i++) begin
         for (int j = 0; j < COL_LENGTH; j++) begin
-            $display("LOAD (%0d,%0d) | Reg %0d", i, j, 1);
-            
-            // Wait for FSM ready on clock edge
-            @(posedge clk);
-            while(!Control_ready) @(posedge clk);
-            
-            // Issue instruction
-            instruction = instr.load((i*ROW_LENGTH + j), 5'(1));
-            @(posedge clk);
-            instr_valid = 1;
-            
-            // Hold valid for one clock cycle
-            @(posedge clk);            
-            instr_valid = 0;
-            
-            // Wait for FSM to complete execution
-            @(posedge clk);
-            while(!Control_ready) @(posedge clk);
+            $display("LOAD (%0d,%0d) | Reg %0d", i, j, 1);          
+            instruction = instr.load((i*ROW_LENGTH + j), 5'(1));           
+            @(posedge Control_ready);
         end
     end
 
 //====================================================
 //                           Gx        
 //====================================================
-  instr_valid = 1'b1;
         $display("====================================");
         $display("            B = A + A North         ");
         $display("====================================");

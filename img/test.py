@@ -34,6 +34,6 @@ data = img_32.tobytes()  # 1024 bytes
 # --- Write hex output (pixel in MSB, zero-padded to 32 bits) ---
 with open(out_path, "w", newline="\n") as f:
     for b in data:
-        f.write(f"{b:02x} 00\n")
+        f.write(f"{b:02x}\n")
 
 print(f"Wrote {len(data)} bytes to {out_path}")
