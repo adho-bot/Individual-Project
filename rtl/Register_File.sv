@@ -5,6 +5,7 @@
 //base is multiplied by 32 and added with pointer values(pointer will increement untill a word is extracted(lsb first))
 //How do i extract individual bits?
 
+
 module Register_File#(
     parameter DEPTH,
     parameter WIDTH
@@ -32,17 +33,25 @@ module Register_File#(
     output logic        o_rd2
 );
 
+   localparam LOG2_WIDTH = $clog2(WIDTH);
+
     // Register memory 
-   logic rf_mem [0:WIDTH * DEPTH-1];
+   logic [0:WIDTH * DEPTH-1] rf_mem;
    
     //Write Pointer
     logic [$clog2(WIDTH) :0] wr_ptr;
     
+//Regsiter base addr computation
+    logic [LOG2_WIDTH + $clog2(DEPTH) - 1:0] rd1_base, rd2_base, wr_base;
 
-/*================================================================*/
-/*				              WRITE		                 		  */
-/*================================================================*/       
+    always_comb begin
+        rd1_base = i_rd1_addr << LOG2_WIDTH;
+        rd2_base = i_rd2_addr << LOG2_WIDTH;
+        wr_base  = i_wr_addr  << LOG2_WIDTH;
+    end
 
+
+//Write     
     always_ff @(posedge i_clk or negedge i_rstn) begin
         if (!i_rstn) begin
             integer i;
@@ -55,16 +64,13 @@ module Register_File#(
             else
                 wr_ptr <= wr_ptr + 1;
                 
-                rf_mem[i_wr_addr * WIDTH + wr_ptr] <= i_datain;
+                rf_mem[wr_base + wr_ptr] <= i_datain;
             end
     end
 
-/*================================================================*/
-/*				             READ				                  */
-/*================================================================*/           
-    assign o_rd1 = rf_mem[i_rd1_addr * WIDTH + i_counter]; 
-    assign o_rd2 = (i_bittst) ? rf_mem[i_rd2_addr * WIDTH + i_bittst * (WIDTH - 1)]: rf_mem[i_rd2_addr * WIDTH + i_counter];  
+//Read         
+    assign o_rd1 = rf_mem[rd1_base + i_counter]; 
+    assign o_rd2 = (i_bittst) ? rf_mem[rd2_base + (WIDTH - 1)]: rf_mem[rd2_base + i_counter];  
             
-
-
 endmodule
+

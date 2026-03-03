@@ -50,19 +50,17 @@ module Control_Unit#(
     //state logic
     logic [3:0] state;
 
-    
     Control_FSM #(
         .DATA_WIDTH(DATA_WIDTH)
     )   control_inst(
         .i_clk(i_clk),
         .i_rstn(i_rstn),
-        .i_instruction(i_instruction),  // instruction word (opcode + operands)
+        .i_opcode(i_instruction[6:0]),  // instruction word (opcode + operands)
         .i_instr_valid(i_instr_valid), //instruction handshaking signal
         .o_counter(o_counter),
         .o_state(state),
         .o_FSM_ready(o_Control_ready)
     );
-
 
     Control_Decode decode_inst (
         .i_state(state),

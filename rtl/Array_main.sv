@@ -23,7 +23,7 @@ module Array_Main #(
     input  logic [1:0]                  i_news_sel,
     input  logic                        i_wb_sel,
     input  logic [9:0]                  i_opcode,
-    input  logic [$clog2(DATA_WIDTH):0]  i_counter,
+    input  logic [$clog2(DATA_WIDTH):0] i_counter,
     input  logic                        i_dataout_en,
 
     // memory mapped signals
