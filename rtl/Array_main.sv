@@ -38,14 +38,11 @@ module Array_Main #(
     input  logic                        i_piso_shift,
     input  logic                        i_sipo_shift, 
     
+    //MSB test
+    input  logic                        i_bittst,
+    
     //PE gating signal
-    input  logic                        i_PE_enable,
-    
-    //MSB latching        
-    input logic                         i_bit0,
-    
-    //MSB bit
-    input logic                         i_bittst  
+    input  logic                        i_PE_enable
 );
 
     // --- Derived widths ---
@@ -74,12 +71,10 @@ module Array_Main #(
     logic PE_enable         [0:ROWS-1][0:COLS-1];
 
     // Decoded indices and valid flags
-    logic [ROW_W-1:0]       wr_row_sel;
-    logic [COL_W-1:0]       wr_col_sel;
+    logic [ROW_W-1:0]       row_sel;
+    logic [COL_W-1:0]       col_sel;
     logic                   wr_addr_valid;
 
-    logic [ROW_W-1:0]       rd_row_sel;
-    logic [COL_W-1:0]       rd_col_sel;
     logic                   rd_addr_valid;
 
     localparam COLS_W = $clog2(COLS);
@@ -98,7 +93,7 @@ module Array_Main #(
 
 //PE gating
                 assign PE_enable[r][c] = (i_PE_enable) ? 1'b1 : 
-                                         (wr_addr_valid && i_piso_shift && (wr_row_sel==r && wr_col_sel==c));
+                                         (wr_addr_valid && i_piso_shift && (row_sel==r && col_sel==c));
 
 
                 PE_Main #(
@@ -124,11 +119,9 @@ module Array_Main #(
                     .i_wb_sel     (i_wb_sel),
                     .i_opcode     (i_opcode),
                     .i_dataout_en (i_dataout_en),
+                    .i_bittst     (i_bittst),
                     
-                    .i_PE_enable (PE_enable[r][c]),
-                    
-                    .i_bit0(i_bit0),
-                    .i_bittst(i_bittst)
+                    .i_PE_enable (PE_enable[r][c])
                 );
             end
         end
@@ -142,11 +135,9 @@ module Array_Main #(
     logic [31:0] elem_index;
     
     always_comb begin
-        wr_row_sel = '0; 
-        wr_col_sel = '0; 
+        row_sel = '0; 
+        col_sel = '0; 
         wr_addr_valid = 0;
-        rd_row_sel = '0; 
-        rd_col_sel = '0; 
         rd_addr_valid = 0;
         offset = '0;
         elem_index = '0;
@@ -155,10 +146,10 @@ module Array_Main #(
             offset = i_array_address - ARRAY_BASE_ADDR;
             if (offset < NUM_ELEMENTS) begin
                 elem_index = offset;
-                wr_row_sel = elem_index >> COLS_W;
-                wr_col_sel = elem_index & (COLS-1);
-                rd_row_sel = wr_row_sel;
-                rd_col_sel = wr_col_sel;
+                //wr_row_sel = elem_index >> COLS_W;
+                //wr_col_sel = elem_index & (COLS-1);
+                row_sel = elem_index[COLS_W + (COLS_W -1):COLS_W];
+                col_sel = elem_index[COLS_W - 1:0];
                 wr_addr_valid = 1'b1;
                 rd_addr_valid = 1'b1;
             end
@@ -179,8 +170,8 @@ module Array_Main #(
 
         // route serial bit to selected PE when write is valid and PISO is shifting 
         if (wr_addr_valid && i_piso_shift) begin
-            if (wr_row_sel < ROWS && wr_col_sel < COLS) begin
-                array_dataIn[wr_row_sel][wr_col_sel] = arrayIn;
+            if (row_sel < ROWS && col_sel < COLS) begin
+                array_dataIn[row_sel][col_sel] = arrayIn;
             end
         end
     end
@@ -189,8 +180,8 @@ module Array_Main #(
 /*              Output Mux                       */
 /*===============================================*/
     always_comb begin
-        if (rd_addr_valid && rd_row_sel < ROWS && rd_col_sel < COLS) begin
-            arrayOut = array_dataOut[rd_row_sel][rd_col_sel];
+        if (rd_addr_valid && row_sel < ROWS && col_sel < COLS) begin
+            arrayOut = array_dataOut[row_sel][col_sel];
         end else begin
             arrayOut = 1'b0;
         end

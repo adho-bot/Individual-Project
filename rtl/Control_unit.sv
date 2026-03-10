@@ -40,9 +40,6 @@ module Control_Unit#(
     //PE gating
     output logic            o_PE_enable,
     
-    //MSB latching
-    output logic            o_bit0,
-    
     //MSB bit
     output logic            o_bittst    
 );
@@ -55,7 +52,7 @@ module Control_Unit#(
     )   control_inst(
         .i_clk(i_clk),
         .i_rstn(i_rstn),
-        .i_opcode(i_instruction[6:0]),  // instruction word (opcode + operands)
+        .i_instruction(i_instruction),  // instruction word (opcode + operands)
         .i_instr_valid(i_instr_valid), //instruction handshaking signal
         .o_counter(o_counter),
         .o_state(state),
@@ -86,14 +83,10 @@ module Control_Unit#(
         //Address generation
         .o_array_address(o_array_address),
         
-        //PE gating
-        .o_PE_enable(o_PE_enable),
+        .o_bittst(o_bittst),
         
-        //MSB latching        
-        .o_bit0(o_bit0),
-    
-        //MSB bit
-        .o_bittst(o_bittst)        
+        //PE gating
+        .o_PE_enable(o_PE_enable)   
     );
 
 endmodule

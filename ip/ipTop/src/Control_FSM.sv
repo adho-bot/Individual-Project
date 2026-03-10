@@ -5,7 +5,7 @@ module Control_FSM#(
     )(
     input   logic           i_clk,
     input   logic           i_rstn,
-    input   logic [6:0]     i_opcode,  // instruction word (opcode + operands)
+    input   logic [31:0]    i_instruction,  // instruction word (opcode + operands)
     
     //Instruction Handshaking
     input logic             i_instr_valid,
@@ -29,21 +29,7 @@ module Control_FSM#(
     // Counter Logic
     // ───────────────────────────────────────────────
     logic   [$clog2(DATA_WIDTH):0]           counter;
-    assign o_counter = counter;    
-
-
-//Handshaking Latch
-// In Control_FSM, add an internal latch
-    logic instr_valid_latched;
-    
-    always_ff @(posedge i_clk or negedge i_rstn) begin
-        if (!i_rstn)
-            instr_valid_latched <= 0;
-        else if (i_instr_valid && o_state == `IDLE)
-            instr_valid_latched <= 1;  // latch on first detection
-        else
-            instr_valid_latched <= 0;  // clear immediately after
-    end
+    assign  o_counter = counter;    
 
 
 
@@ -61,12 +47,10 @@ module Control_FSM#(
     // Combinational block - next state logic
     // ───────────────────────────────────────────────
     always_comb begin
-
         case (o_state)
-
             `IDLE: begin
-                if(instr_valid_latched) begin
-                    case(i_opcode)
+                if(i_instr_valid) begin
+                    case(i_instruction[6:0])
                         `OP_LOAD:   next_state = `DATA_FETCH;
                         `OP_R_TYPE:  next_state = `R_EXECUTE;
                         `OP_STORE: next_state = `STORE_DATA;
@@ -101,7 +85,7 @@ module Control_FSM#(
             
             `NEWS_EXECUTE: begin    //
                 if(counter < DATA_WIDTH - 1) begin
-                    next_state = `NEWS_EXECUTE; // fallback
+                    next_state = `NEWS_EXECUTE; //
                 end else begin
                     next_state = `IDLE;
                 end
@@ -158,6 +142,6 @@ always_ff@(posedge i_clk or negedge i_rstn) begin
 	end
 end
 
-assign o_FSM_ready = (o_state == `IDLE) & (next_state == `IDLE);
+assign o_FSM_ready = (o_state == `IDLE) && (next_state ==`IDLE);
 
 endmodule

@@ -30,15 +30,10 @@ module PE_Main#(
     input  logic                        i_wb_sel,
     input  logic [9:0]                  i_opcode,
     input  logic                        i_dataout_en,
+    input  logic                        i_bittst,
     
     //PE gate
-    input  logic                        i_PE_enable,
-    
-    //MSB latching        
-    input logic                         i_bit0,
-    
-    //MSB bit
-    input logic                         i_bittst  
+    input  logic                        i_PE_enable
 );
     // Parameters
     localparam [1:0] NORTH = 2'b00, EAST = 2'b01, WEST = 2'b10, SOUTH = 2'b11;
@@ -88,8 +83,6 @@ module PE_Main#(
         .i_operandA  (operandA),
         .i_operandB  (operandB),
         .i_opcode    (i_opcode),
-//        .i_sign()
-        .i_bit0(i_bit0),
         
         .o_result    (result)       
     );

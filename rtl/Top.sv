@@ -34,6 +34,8 @@ module Top#(
     logic [4:0]  counter;       // Assuming 32-bit counter
     logic        dataout_en;
     
+    logic        bittst;
+    
     //Memory map write and read
     logic [31:0] array_address;
     
@@ -46,12 +48,7 @@ module Top#(
     
     //Clipping signal
     logic signed [DATA_WIDTH - 1:0] array_data;
-    
-    //MSB latching 
-    logic bit0;
-    
-    //MSB Bit
-    logic               bittst;
+ 
     
     
     Array_Main #(
@@ -87,14 +84,11 @@ module Top#(
         .i_piso_shift(piso_shift),
         .i_sipo_shift(sipo_shift), 
         
+        .i_bittst(bittst),
+        
         //PE gating
-        .i_PE_enable(PE_enable),   
-
-        //MSB latching        
-        .i_bit0(bit0),
-    
-        //MSB bit
-        .i_bittst(bittst)         
+        .i_PE_enable(PE_enable)  
+   
              
     );
     
@@ -130,14 +124,10 @@ module Top#(
         //Address generation
         .o_array_address(array_address), 
         
+        .o_bittst(bittst),
+        
         //PE gating
-        .o_PE_enable(PE_enable), 
-
-        //MSB latching        
-        .o_bit0(bit0),
-    
-        //MSB bit
-        .o_bittst(bittst)          
+        .o_PE_enable(PE_enable)       
         
     );
     

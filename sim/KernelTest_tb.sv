@@ -1,5 +1,5 @@
 `timescale 1ns/1ps
-`include "/home/gary/Individual_Project/rtl/Definitions.sv"
+`include "/home/gary/CNN_PROJECT/rtl/Definitions.sv"
 
 //A B C are the matrix images
 
@@ -78,10 +78,6 @@ module KernelTest_tb;
             return {funct7, news_sel, rs2, rs1, funct3, rd, `OP_NEWS_TYPE};
         endfunction 
 
-        function logic [INSTR_WIDTH-1:0] abs(logic [4:0] rd, logic [4:0] rs1, logic [6:0] funct7, logic [2:0] funct3);
-            return {funct7, 5'b00000, rs1, funct3, rd, `OP_ABS};
-        endfunction        
-        
     endclass
 
     // -----------------------------------------
@@ -279,21 +275,33 @@ module KernelTest_tb;
 //====================================================
 //                      Magnitude        
 //====================================================
-        $display("====================================");
-        $display("                  |Gx|              ");
-        $display("====================================");
+        // At this point: r5 = Gx, r6 = Gy
 
-        $display("Vector Absolute | rs5 <- |rs5| ");
-        instruction = instr.abs(5'd5, 5'd5, 7'b0100000, 3'b001);
-        @(posedge Control_ready); 
+        // --- |Gx|: abs(r5) → r5, using r3,r4 as temps ---
+        $display("GETMSB | r3 <- sign_extend(r5[MSB])");
+        instruction = instr.vector_R_type(5'd3, 5'd0, 5'd5, 7'b1000000, 3'b000);
+        @(posedge Control_ready);    
         
-        $display("====================================");
-        $display("                  |Gy|              ");
-        $display("====================================");
+        $display("XOR | r4 <- r5 ^ r3");       
+        instruction = instr.vector_R_type(5'd4, 5'd5, 5'd3, 7'b0000000, 3'b100);
+        @(posedge Control_ready);           
+        
+        $display("SUB | r5 <- r4 - r3 = |Gx|");  
+        instruction = instr.vector_R_type(5'd5, 5'd4, 5'd3, 7'b0100000, 3'b000);
+        @(posedge Control_ready);           
 
-        $display("Vector Absolute | rs6 <- |rs6| ");
-        instruction = instr.abs(5'd6, 5'd6, 7'b0100000, 3'b001);
-        @(posedge Control_ready);         
+        // --- |Gy|: abs(r6) → r6, using r3,r4 as temps ---
+        $display("GETMSB | r3 <- sign_extend(r6[MSB])");
+        instruction = instr.vector_R_type(5'd3, 5'd0, 5'd6, 7'b1000000, 3'b000);
+        @(posedge Control_ready);    
+        
+        $display("XOR | r4 <- r6 ^ r3");       
+        instruction = instr.vector_R_type(5'd4, 5'd6, 5'd3, 7'b0000000, 3'b100);
+        @(posedge Control_ready);           
+        
+        $display("SUB | r6 <- r4 - r3 = |Gy|");  
+        instruction = instr.vector_R_type(5'd6, 5'd4, 5'd3, 7'b0100000, 3'b000);
+        @(posedge Control_ready);    
         
 //====================================================
 //                     |Gx| + |Gy|        

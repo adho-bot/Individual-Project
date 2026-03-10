@@ -7,6 +7,16 @@
 #include "xparameters.h"
 #include "Instructions.h"
 
+//NOTE: if ld not working, go to code /home/gary/Individual_Project_System/hello_world/src/UserConfig.cmake
+//Add Instructions.c into 
+//set(USER_COMPILE_SOURCES
+//    helloworld.c
+//    platform.c
+//    Instructions.c    # add this
+//)
+
+//right now, if rd = rs1 or rs2, the system fails as there are repeated instruction executions.
+
 /*======================================*/
 /*              DEFINES                 */
 /*======================================*/
@@ -172,8 +182,6 @@ int main(){
     }
 
     xil_printf("Sobel Done\r\n");
-
-
 
 
     // BRAM Read after processing

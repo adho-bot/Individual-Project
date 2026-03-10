@@ -55,7 +55,6 @@ module Control_FSM#(
                         `OP_R_TYPE:  next_state = `R_EXECUTE;
                         `OP_STORE: next_state = `STORE_DATA;
                         `OP_NEWS_TYPE: next_state = `NEWS_EXECUTE;
-                        `OP_ABS: next_state = `ABS_A_MSB;
                         default:   next_state = `IDLE;
                     endcase
                 end else begin
@@ -106,23 +105,7 @@ module Control_FSM#(
             `MEM_TO_DATA: begin
                 next_state = `DATA_LOAD;
             end
-            
-            
-            `ABS_A_MSB: begin
-                next_state = `ABS_A1;
-            end
-            
-            `ABS_A1:begin
-                next_state = `ABS_A;
-            end
-            
-            `ABS_A: begin
-                if(counter < DATA_WIDTH - 1) begin
-                    next_state = `ABS_A; 
-                end else begin
-                    next_state = `IDLE;
-                end            
-            end
+   
             
             default: begin
                 next_state = `IDLE;
@@ -135,7 +118,7 @@ always_ff@(posedge i_clk or negedge i_rstn) begin
 	if(!i_rstn) begin
 		counter <= '0;
 	end else if(o_state == `DATA_LOAD ||o_state == `R_EXECUTE ||
-	            o_state == `NEWS_EXECUTE ||o_state == `STORE_DATA ||o_state == `ABS_A || o_state == `ABS_A1) begin
+	            o_state == `NEWS_EXECUTE ||o_state == `STORE_DATA) begin
 	               counter <= counter + 1;
 	end else begin
 	   counter <= '0;

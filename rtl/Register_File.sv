@@ -58,6 +58,6 @@ module Register_File#(
 
 //Read         
     assign o_rd1 = rf_mem[rd1_base + i_counter]; 
-    assign o_rd2 = (i_bittst) ? rf_mem[rd2_base + (WIDTH - 1)] : rf_mem[rd2_base + i_counter];  
+    assign o_rd2 = (i_bittst) ? rf_mem[rd2_base + (WIDTH - 1)] : rf_mem[rd2_base + i_counter];   //change this in the ALU
             
 endmodule
