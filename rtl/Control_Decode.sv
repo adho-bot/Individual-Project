@@ -31,7 +31,11 @@ module Control_Decode(
     output logic        o_bittst,
     
     //PE gating
-    output logic        o_PE_enable
+    output logic        o_PE_enable,
+    
+    //Shift logic
+    output logic [4:0] o_shift_amount,
+    output logic       o_sra      
      
 );
 
@@ -58,6 +62,9 @@ always_comb begin
             o_bittst = 1'b0;
             
             o_PE_enable = 1'b0;
+            
+            o_sra = 1'b0;
+            o_shift_amount = 5'd0;
     case(i_state)
         
         `DATA_FETCH: begin
@@ -91,6 +98,10 @@ always_comb begin
             
             //enable all PEs
             o_PE_enable = 1'b1;
+            
+            // SRA: extract shift amount from rs2 field
+            o_sra = ({i_instruction[31:25], i_instruction[14:12]} == `SRA);
+            o_shift_amount = i_instruction[24:20];
         end
         
         `NEWS_EXECUTE: begin        //this is operation between rs1 and NEWS

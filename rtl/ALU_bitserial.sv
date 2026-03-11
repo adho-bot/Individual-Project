@@ -38,7 +38,10 @@ module ALU_bitserial(
             
             `MSBTST: begin
                 o_result = i_operandA ^ i_operandB;
-            end            
+            end      
+            `SRA: begin
+                o_result = i_operandA;  // shift is handled in register file
+            end       
             
             
             default: begin 

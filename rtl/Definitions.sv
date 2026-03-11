@@ -8,6 +8,7 @@
 `define ORR     	   10'b0000000_110 // Or
 `define ANDD    	   10'b0000000_111 // And
 `define MSBTST         10'b1000000_000 //Absolute Value
+`define SRA            10'b0100000_101 // Arithmetic Shift Right
     
 /*------------------------------------------------------------------------------------------*/
 /*                                Instruction Opcodes                                      */

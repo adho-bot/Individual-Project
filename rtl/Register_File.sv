@@ -30,7 +30,11 @@ module Register_File#(
 
     // serial data outputs
     output logic        o_rd1,
-    output logic        o_rd2
+    output logic        o_rd2,
+    
+    //Shift logic
+    input logic [4:0] i_shift_amount,
+    input logic       i_sra
 );
 
     // Register memory
@@ -39,6 +43,10 @@ module Register_File#(
     // Precomputed base addresses - shift instead of multiply (zero LUTs)
     localparam LOG2_WIDTH = $clog2(WIDTH);
     logic [LOG2_WIDTH + $clog2(DEPTH) - 1:0] rd1_base, rd2_base, wr_base;
+
+    //Shift amount
+    logic [$clog2(WIDTH):0] shifted_idx;
+    assign shifted_idx = i_counter + i_shift_amount;
 
     always_comb begin
         rd1_base = i_rd1_addr << LOG2_WIDTH;
@@ -57,7 +65,8 @@ module Register_File#(
     end
 
 //Read         
-    assign o_rd1 = rf_mem[rd1_base + i_counter]; 
+    assign o_rd1 = (i_sra) ? rf_mem[rd1_base + ((shifted_idx >= WIDTH) ? (WIDTH-1) : shifted_idx)]
+                            :rf_mem[rd1_base + i_counter];
     assign o_rd2 = (i_bittst) ? rf_mem[rd2_base + (WIDTH - 1)] : rf_mem[rd2_base + i_counter];   //change this in the ALU
             
 endmodule

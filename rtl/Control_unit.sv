@@ -41,7 +41,11 @@ module Control_Unit#(
     output logic            o_PE_enable,
     
     //MSB bit
-    output logic            o_bittst    
+    output logic            o_bittst,
+    
+    //Shift logic
+    output logic [4:0] o_shift_amount,
+    output logic       o_sra    
 );
 
     //state logic
@@ -86,7 +90,10 @@ module Control_Unit#(
         .o_bittst(o_bittst),
         
         //PE gating
-        .o_PE_enable(o_PE_enable)   
+        .o_PE_enable(o_PE_enable),
+        
+        .o_shift_amount(o_shift_amount),
+        .o_sra(o_sra)    
     );
 
 endmodule

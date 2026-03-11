@@ -49,7 +49,9 @@ module Top#(
     //Clipping signal
     logic signed [DATA_WIDTH - 1:0] array_data;
  
-    
+    //Shifting signals
+    logic [4:0] shift_amount;
+    logic       sra;
     
     Array_Main #(
         .ROWS(ROW_LENGTH),         // Note: Array size must be of powers of 2
@@ -87,9 +89,10 @@ module Top#(
         .i_bittst(bittst),
         
         //PE gating
-        .i_PE_enable(PE_enable)  
-   
-             
+        .i_PE_enable(PE_enable),
+        
+        .i_shift_amount(shift_amount),
+        .i_sra(sra) 
     );
     
     Control_Unit #(
@@ -127,14 +130,14 @@ module Top#(
         .o_bittst(bittst),
         
         //PE gating
-        .o_PE_enable(PE_enable)       
+        .o_PE_enable(PE_enable),
         
+        .o_shift_amount(shift_amount),
+        .o_sra(sra)        
     );
     
     assign o_array_address = array_address;
 
-    //Scaling
-    assign o_array_data = array_data[15:2]; //divide result by 4
-    
-//    assign o_array_data = array_data;
+
+    assign o_array_data = array_data;
 endmodule

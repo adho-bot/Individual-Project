@@ -42,7 +42,11 @@ module Array_Main #(
     input  logic                        i_bittst,
     
     //PE gating signal
-    input  logic                        i_PE_enable
+    input  logic                        i_PE_enable,
+    
+    //Shift logic
+    input logic [4:0] i_shift_amount,
+    input logic       i_sra
 );
 
     // --- Derived widths ---
@@ -121,7 +125,10 @@ module Array_Main #(
                     .i_dataout_en (i_dataout_en),
                     .i_bittst     (i_bittst),
                     
-                    .i_PE_enable (PE_enable[r][c])
+                    .i_PE_enable (PE_enable[r][c]),
+                    
+                    .i_shift_amount(i_shift_amount),
+                    .i_sra(i_sra)
                 );
             end
         end
