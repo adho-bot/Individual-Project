@@ -82,6 +82,7 @@ always_comb begin
             o_wr_reg_en = 1'b1;
             o_wb_sel = 1'b1;
             o_wr_addr = i_instruction[11:7];
+            o_rd1_addr = i_instruction[11:7];             
             o_piso_shift = 1'b1;
             o_array_address = {12'd0,i_instruction[31:12]};
         end
