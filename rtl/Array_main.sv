@@ -15,19 +15,19 @@ module Array_Main #(
     input  logic                        i_rstn,
 
     // control (kept for compatibility; unused in stub PE)
-    input  logic [4:0]                  i_rd1_addr,
-    input  logic [4:0]                  i_rd2_addr,
-    input  logic [4:0]                  i_wr_addr,
+    input  logic [$clog2(REG_DEPTH) - 1:0]                  i_rs1_addr,
+    input  logic [$clog2(REG_DEPTH) - 1:0]                  i_rs2_addr,
+    input  logic [$clog2(REG_DEPTH) - 1:0]                  i_rd_addr,
     input  logic                        i_wr_en,
     input  logic                        i_rs2_sel,
     input  logic [1:0]                  i_news_sel,
     input  logic                        i_wb_sel,
-    input  logic [9:0]                  i_opcode,
+    input  logic [2:0]                  i_opcode,
     input  logic [$clog2(DATA_WIDTH):0] i_counter,
     input  logic                        i_dataout_en,
 
     // memory mapped signals
-    input  logic [31:0]                 i_array_address,
+    input  logic [9:0]                 i_array_address,
 
     // data in/out (word-wide interface)
     output logic [DATA_WIDTH-1:0]       o_array_data,   // changed to DATA_WIDTH to match register
@@ -45,7 +45,7 @@ module Array_Main #(
     input  logic                        i_PE_enable,
     
     //Shift logic
-    input logic [4:0] i_shift_amount,
+    input logic [2:0] i_shift_amount,
     input logic       i_sra
 );
 
@@ -114,9 +114,9 @@ module Array_Main #(
                     .i_south      (south[r][c]),
                     .i_west       (west[r][c]),
                     .o_news       (news[r][c]),
-                    .i_rd1_addr   (i_rd1_addr),
-                    .i_rd2_addr   (i_rd2_addr),
-                    .i_wr_addr    (i_wr_addr),
+                    .i_rs1_addr   (i_rs1_addr),
+                    .i_rs2_addr   (i_rs2_addr),
+                    .i_rd_addr    (i_rd_addr),
                     .i_wr_en      (i_wr_en),
                     .i_rs2_sel    (i_rs2_sel),
                     .i_news_sel   (i_news_sel),
@@ -137,30 +137,12 @@ module Array_Main #(
 /*===============================================*/
 /*              Address Decoder                  */
 /*===============================================*/
-    // Module-level signals
-    logic [31:0] offset;
-    logic [31:0] elem_index;
     
     always_comb begin
-        row_sel = '0; 
-        col_sel = '0; 
-        wr_addr_valid = 0;
-        rd_addr_valid = 0;
-        offset = '0;
-        elem_index = '0;
-    
-        if (i_array_address >= ARRAY_BASE_ADDR) begin
-            offset = i_array_address - ARRAY_BASE_ADDR;
-            if (offset < NUM_ELEMENTS) begin
-                elem_index = offset;
-                //wr_row_sel = elem_index >> COLS_W;
-                //wr_col_sel = elem_index & (COLS-1);
-                row_sel = elem_index[COLS_W + (COLS_W -1):COLS_W];
-                col_sel = elem_index[COLS_W - 1:0];
-                wr_addr_valid = 1'b1;
-                rd_addr_valid = 1'b1;
-            end
-        end
+        row_sel = i_array_address[COLS_W +: ROW_W];
+        col_sel = i_array_address[COLS_W-1:0];
+        wr_addr_valid = (i_array_address < NUM_ELEMENTS);
+        rd_addr_valid = wr_addr_valid;
     end
 
 /*===============================================*/

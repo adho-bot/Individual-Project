@@ -5,7 +5,7 @@ module Control_FSM#(
     )(
     input   logic           i_clk,
     input   logic           i_rstn,
-    input   logic [31:0]    i_instruction,  // instruction word (opcode + operands)
+    input   logic [19:0]    i_instruction,  // instruction word (opcode + operands)
     
     //Instruction Handshaking
     input logic             i_instr_valid,
@@ -50,7 +50,7 @@ module Control_FSM#(
         case (o_state)
             `IDLE: begin
                 if(i_instr_valid) begin
-                    case(i_instruction[6:0])
+                    case(i_instruction[1:0])
                         `OP_LOAD:   next_state = `DATA_FETCH;
                         `OP_R_TYPE:  next_state = `R_EXECUTE;
                         `OP_STORE: next_state = `STORE_DATA;

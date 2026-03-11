@@ -7,7 +7,7 @@ module Top#(
  )(
     input   logic           i_clk,
     input   logic           i_rstn,
-    input   logic   [31:0]  i_instruction,
+    input   logic   [19:0]  i_instruction,
     input   logic           i_instr_valid,  //instruction handshaking
     
     //Data input/output
@@ -23,21 +23,21 @@ module Top#(
 );
 
     // Control signals from Control_Unit to Array_Main
-    logic [4:0]  rd1_addr;
-    logic [4:0]  rd2_addr;
-    logic [4:0]  wr_addr;
+    logic [$clog2(REG_DEPTH) - 1:0]  rs1_addr;
+    logic [$clog2(REG_DEPTH) - 1:0]  rs2_addr;
+    logic [$clog2(REG_DEPTH) - 1:0]  rd_addr;
     logic        wr_reg_en;
     logic        rs2_sel;
     logic [1:0]  news_sel;      // Assuming 2-bit select for NEWS
-    logic [1:0]  wb_sel;        // Assuming 2-bit select for writeback
-    logic [9:0]  opcode;        // Standard RISC-V opcode width
-    logic [4:0]  counter;       // Assuming 32-bit counter
+    logic        wb_sel;        // Assuming 2-bit select for writeback
+    logic [2:0]  opcode;        // Standard RISC-V opcode width
+    logic [$clog2(DATA_WIDTH):0] counter;      // Assuming 32-bit counter
     logic        dataout_en;
     
     logic        bittst;
     
     //Memory map write and read
-    logic [31:0] array_address;
+    logic [9:0] array_address;
     
     //PISO SIPO control
     logic sipo_shift;
@@ -50,7 +50,7 @@ module Top#(
     logic signed [DATA_WIDTH - 1:0] array_data;
  
     //Shifting signals
-    logic [4:0] shift_amount;
+    logic [2:0] shift_amount;
     logic       sra;
     
     Array_Main #(
@@ -64,9 +64,9 @@ module Top#(
         .i_rstn(i_rstn),
 
         // Control signals
-        .i_rd1_addr(rd1_addr),
-        .i_rd2_addr(rd2_addr),
-        .i_wr_addr(wr_addr),
+        .i_rs1_addr(rs1_addr),
+        .i_rs2_addr(rs2_addr),
+        .i_rd_addr(rd_addr),
         .i_wr_en(wr_reg_en),
         .i_rs2_sel(rs2_sel),
         .i_news_sel(news_sel),
@@ -96,16 +96,17 @@ module Top#(
     );
     
     Control_Unit #(
-        .DATA_WIDTH(DATA_WIDTH)
+        .DATA_WIDTH(DATA_WIDTH),
+        .REG_DEPTH(REG_DEPTH)
     )   ctrl_inst(
         .i_clk(i_clk),
         .i_rstn(i_rstn),
         .i_instruction(i_instruction),
         .i_instr_valid(i_instr_valid), //instruction handshaking
 
-        .o_rd1_addr(rd1_addr),
-        .o_rd2_addr(rd2_addr),
-        .o_wr_addr(wr_addr),
+        .o_rs1_addr(rs1_addr),
+        .o_rs2_addr(rs2_addr),
+        .o_rd_addr(rd_addr),
         .o_wr_reg_en(wr_reg_en),            //register write enable signal
         .o_rs2_sel(rs2_sel),                // ALU's rs2 input select   
         .o_news_sel(news_sel),              // Select between N,E,W,S
@@ -136,7 +137,7 @@ module Top#(
         .o_sra(sra)        
     );
     
-    assign o_array_address = array_address;
+    assign o_array_address = {22'd0,array_address};
 
 
     assign o_array_data = array_data;

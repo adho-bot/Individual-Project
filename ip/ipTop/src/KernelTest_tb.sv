@@ -156,7 +156,7 @@ module KernelTest_tb;
     localparam COL_LENGTH = 32;
     
     localparam DATA_WIDTH = 16;
-    localparam REG_DEPTH = 8;
+    localparam REG_DEPTH = 4;
     localparam ARRAY_BASE_ADDR = 32'h0000_0000;
 
 

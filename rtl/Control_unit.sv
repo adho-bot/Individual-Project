@@ -1,26 +1,27 @@
 `include "Definitions.sv"
 
 module Control_Unit#(
-    parameter int DATA_WIDTH
+    parameter int DATA_WIDTH,
+    parameter int REG_DEPTH
     )(
 	input logic 				   i_clk,
     input logic					   i_rstn,
 	
 	//instruction output
-	input logic 	[31:0]	       i_instruction,
+	input logic 	[19:0]	       i_instruction,
 	
 	//Instruction handshaking
 	input logic                    i_instr_valid,
 
 	//Control logic
-    output  logic [4:0]  	o_rd1_addr,
-    output  logic [4:0]  	o_rd2_addr,
-    output  logic [4:0]  	o_wr_addr,
+    output  logic [$clog2(REG_DEPTH) - 1:0]  	o_rs1_addr,
+    output  logic [$clog2(REG_DEPTH) - 1:0]  	o_rs2_addr,
+    output  logic [$clog2(REG_DEPTH) - 1:0]  	o_rd_addr,
     output  logic        	o_wr_reg_en,
     output  logic        	o_rs2_sel,
     output  logic [1:0]     o_news_sel,
     output  logic        	o_wb_sel,
-    output  logic [9:0]  	o_opcode,
+    output  logic [2:0]  	o_opcode,
     output  logic [$clog2(DATA_WIDTH):0]     o_counter,
     output  logic           o_dataout_en,
 
@@ -35,7 +36,7 @@ module Control_Unit#(
     output logic o_sipo_shift,
     
     //Address generation
-    output logic [31:0]     o_array_address, 
+    output logic [9:0]     o_array_address, 
     
     //PE gating
     output logic            o_PE_enable,
@@ -44,7 +45,7 @@ module Control_Unit#(
     output logic            o_bittst,
     
     //Shift logic
-    output logic [4:0] o_shift_amount,
+    output logic [2:0] o_shift_amount,
     output logic       o_sra    
 );
 
@@ -63,12 +64,14 @@ module Control_Unit#(
         .o_FSM_ready(o_Control_ready)
     );
 
-    Control_Decode decode_inst (
+    Control_Decode #(
+        .REG_DEPTH(REG_DEPTH)
+    )   decode_inst(
         .i_state(state),
         .i_instruction(i_instruction),
-        .o_rd1_addr(o_rd1_addr),
-        .o_rd2_addr(o_rd2_addr),
-        .o_wr_addr(o_wr_addr),
+        .o_rs1_addr(o_rs1_addr),
+        .o_rs2_addr(o_rs2_addr),
+        .o_rd_addr(o_rd_addr),
         .o_wr_reg_en(o_wr_reg_en),
         .o_rs2_sel(o_rs2_sel),
         .o_news_sel(o_news_sel),

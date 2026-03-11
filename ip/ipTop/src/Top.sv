@@ -1,6 +1,6 @@
 module Top#(
     parameter int DATA_WIDTH = 16,
-    parameter int REG_DEPTH = 8,
+    parameter int REG_DEPTH = 4,
     parameter int ARRAY_BASE_ADDR = 32'h0000_0000,
     parameter int ROW_LENGTH = 2,
     parameter int COL_LENGTH = 2

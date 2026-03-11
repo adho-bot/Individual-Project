@@ -21,14 +21,14 @@ module PE_Main#(
     output logic                        o_news,
     
     // Control signals
-    input  logic [$clog2(REG_DEPTH)-1:0]    i_rd1_addr,
-    input  logic [$clog2(REG_DEPTH)-1:0]    i_rd2_addr,
-    input  logic [$clog2(REG_DEPTH)-1:0]    i_wr_addr,
+    input  logic [$clog2(REG_DEPTH)-1:0]    i_rs1_addr,
+    input  logic [$clog2(REG_DEPTH)-1:0]    i_rs2_addr,
+    input  logic [$clog2(REG_DEPTH)-1:0]    i_rd_addr,
     input  logic                        i_wr_en,
     input  logic                        i_rs2_sel,
     input  logic [1:0]                  i_news_sel,
     input  logic                        i_wb_sel,
-    input  logic [9:0]                  i_opcode,
+    input  logic [2:0]                  i_opcode,
     input  logic                        i_dataout_en,
     input  logic                        i_bittst,
     
@@ -36,7 +36,7 @@ module PE_Main#(
     input  logic                        i_PE_enable,
     
     //Shift logic
-    input logic [4:0] i_shift_amount,
+    input logic [2:0] i_shift_amount,
     input logic       i_sra
 );
     // Parameters
@@ -69,9 +69,9 @@ module PE_Main#(
         .i_clk      (i_clk),
         .i_rstn     (i_rstn),
         .i_datain   (datain),
-        .i_rd1_addr (i_rd1_addr),
-        .i_rd2_addr (i_rd2_addr),
-        .i_wr_addr  (i_wr_addr),
+        .i_rs1_addr (i_rs1_addr),
+        .i_rs2_addr (i_rs2_addr),
+        .i_rd_addr  (i_rd_addr),
         .i_wr_en    (wr_en),
         .i_counter  (i_counter),
         .i_bittst   (i_bittst),

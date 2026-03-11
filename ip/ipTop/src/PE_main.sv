@@ -59,7 +59,7 @@ module PE_Main#(
     logic wr_en;
     
     //PE Gating
-    assign wr_en = i_wr_en & i_PE_enable;
+    assign wr_en = i_wr_en;
     
     // Register File instantiation
     Register_File #(
@@ -113,7 +113,7 @@ module PE_Main#(
     end
     
     // ALU result writeback mux
-    assign datain = (i_wb_sel) ? i_data : result;
+    assign datain = (i_wb_sel) ? (i_PE_enable ? i_data : rd1) : result;
     
     //Data output to data bus
     assign o_data = (i_dataout_en) ? rd1 : 0; 
