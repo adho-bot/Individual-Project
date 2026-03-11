@@ -7,8 +7,8 @@
 
 
 module Register_File#(
-    parameter DEPTH,
-    parameter WIDTH
+    parameter DEPTH = 8,
+    parameter WIDTH = 16
 )(
     input  logic        i_clk,
     input  logic        i_rstn,
@@ -23,41 +23,50 @@ module Register_File#(
 
     // control
     input  logic        i_wr_en,
-    input  logic        [$clog2(WIDTH):0] i_counter, //global counter shared by all PEs
+    input  logic [$clog2(WIDTH):0] i_counter,
 
-    //MSB
-    input logic         i_bittst,
+    // MSB
+    input  logic        i_bittst,
 
     // serial data outputs
     output logic        o_rd1,
-    output logic        o_rd2
+    output logic        o_rd2,
+
+    // Shift logic
+    input  logic [4:0]  i_shift_amount,
+    input  logic        i_sra
 );
 
-    // Register memory
-    logic [0:WIDTH * DEPTH-1] rf_mem;
+    // Infer this as distributed RAM
+    logic [WIDTH-1:0] rf_mem [0:DEPTH-1];
 
-    // Precomputed base addresses - shift instead of multiply (zero LUTs)
-    localparam LOG2_WIDTH = $clog2(WIDTH);
-    logic [LOG2_WIDTH + $clog2(DEPTH) - 1:0] rd1_base, rd2_base, wr_base;
+    // Shift amount
+    logic [$clog2(WIDTH):0] shifted_idx;
+    assign shifted_idx = i_counter + i_shift_amount;
 
-    always_comb begin
-        rd1_base = i_rd1_addr << LOG2_WIDTH;
-        rd2_base = i_rd2_addr << LOG2_WIDTH;
-        wr_base  = i_wr_addr  << LOG2_WIDTH;
-    end
+    // Read words fetched from RAM by register address
+    logic [WIDTH-1:0] rd1_word, rd2_word;
+    assign rd1_word = rf_mem[i_rd1_addr];
+    assign rd2_word = rf_mem[i_rd2_addr];
 
-//Write - use global i_counter directly, wr_ptr removed
-    always_ff @(posedge i_clk or negedge i_rstn) begin
-        if (!i_rstn) begin
-            for (int i = 0; i < DEPTH * WIDTH; i++)
-                rf_mem[i] <= '0;
-        end else if (i_wr_en && (i_wr_addr != 0)) begin
-            rf_mem[wr_base + i_counter] <= i_datain;
+    // Bit-serial read: select one bit per cycle using counter
+    assign o_rd1 = (i_sra) ? rd1_word[(shifted_idx >= WIDTH) ? (WIDTH-1) : shifted_idx[$clog2(WIDTH)-1:0]]
+                            : rd1_word[i_counter[$clog2(WIDTH)-1:0]];
+
+    assign o_rd2 = (i_bittst) ? rd2_word[WIDTH-1]
+                               : rd2_word[i_counter[$clog2(WIDTH)-1:0]];
+
+    // Write: synchronous, no async reset
+    always_ff @(posedge i_clk) begin
+        if (i_wr_en && (i_wr_addr != 0)) begin
+            rf_mem[i_wr_addr][i_counter[$clog2(WIDTH)-1:0]] <= i_datain;
         end
     end
 
-//Read         
-    assign o_rd1 = rf_mem[rd1_base + i_counter]; 
-    assign o_rd2 = (i_bittst) ? rf_mem[rd2_base + (WIDTH - 1)] : rf_mem[rd2_base + i_counter];  
-            
+    // Register 0 is hardwired to zero - initialize once at elaboration
+    initial begin
+        for (int i = 0; i < DEPTH; i++)
+            rf_mem[i] = '0;
+    end
+
 endmodule

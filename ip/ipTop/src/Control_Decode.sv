@@ -28,14 +28,14 @@ module Control_Decode(
     //addrss generation
     output logic [31:0] o_array_address,
     
+    output logic        o_bittst,
+    
     //PE gating
     output logic        o_PE_enable,
     
-    //MSB latching
-    output logic        o_bit0,
-    
-    //MSB bit
-    output logic        o_bittst
+    //Shift logic
+    output logic [4:0] o_shift_amount,
+    output logic       o_sra      
      
 );
 
@@ -59,10 +59,12 @@ always_comb begin
 
             o_array_address = {12'd0,i_instruction[31:12]};
             
-            o_bit0 = 1'b0;
             o_bittst = 1'b0;
             
             o_PE_enable = 1'b0;
+            
+            o_sra = 1'b0;
+            o_shift_amount = 5'd0;
     case(i_state)
         
         `DATA_FETCH: begin
@@ -85,6 +87,7 @@ always_comb begin
         end
         
         `R_EXECUTE: begin
+            o_bittst = i_instruction[31];
             o_opcode = {i_instruction[31:25],i_instruction[14:12]};
             o_rs2_sel = 1'b0;
             
@@ -95,6 +98,10 @@ always_comb begin
             
             //enable all PEs
             o_PE_enable = 1'b1;
+            
+            // SRA: extract shift amount from rs2 field
+            o_sra = ({i_instruction[31:25], i_instruction[14:12]} == `SRA);
+            o_shift_amount = i_instruction[24:20];
         end
         
         `NEWS_EXECUTE: begin        //this is operation between rs1 and NEWS
@@ -124,65 +131,6 @@ always_comb begin
         `DATA_TO_MEM: begin
             o_data_wr = 1'b1;
             o_array_address = {12'd0,i_instruction[31:20],i_instruction[14:7]};
-        end
-        
-        
-        `ABS_A_MSB: begin
-            o_bit0 = 1'b1;
-            o_opcode = {i_instruction[31:25],i_instruction[14:12]};
-            o_rs2_sel = 1'b0;
-            
-            //Register writeback
-            o_wb_sel = 1'b0; //write back to reg file
-            o_wr_addr = i_instruction[11:7];
-            
-            //enable all PEs
-            o_PE_enable = 1'b1; 
-            
-            //Choose MSB bit
-            o_bittst = 1'b1;
-            
-            //Set address of rs2 to rs1
-            o_rd2_addr = o_rd1_addr;         
-        end
-        
-        `ABS_A1:begin
-            o_bit0 = 1'b1;
-            o_opcode = {i_instruction[31:25],i_instruction[14:12]};
-            o_rs2_sel = 1'b0;
-            
-            //Register writeback
-            o_wb_sel = 1'b0; //write back to reg file
-            o_wr_addr = i_instruction[11:7];
-            o_wr_reg_en = 1'b1;
-            
-            //enable all PEs
-            o_PE_enable = 1'b1; 
-            
-            //Choose MSB bit
-            o_bittst = 1'b1;
-            
-            //Set address of rs2 to rs1
-            o_rd2_addr = o_rd1_addr;        
-        end
-        
-        `ABS_A: begin
-            o_opcode = {i_instruction[31:25],i_instruction[14:12]};
-            o_rs2_sel = 1'b0;
-            
-            //Register writeback
-            o_wb_sel = 1'b0; //write back to reg file
-            o_wr_addr = i_instruction[11:7];
-            o_wr_reg_en = 1'b1;
-            
-            //enable all PEs
-            o_PE_enable = 1'b1;  
-                        
-            //Choose MSB bit
-            o_bittst = 1'b1;
-            
-            //Set address of rs2 to rs1
-            o_rd2_addr = o_rd1_addr;                              
         end
         
     endcase

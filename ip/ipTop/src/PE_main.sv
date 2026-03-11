@@ -30,15 +30,14 @@ module PE_Main#(
     input  logic                        i_wb_sel,
     input  logic [9:0]                  i_opcode,
     input  logic                        i_dataout_en,
+    input  logic                        i_bittst,
     
     //PE gate
     input  logic                        i_PE_enable,
     
-    //MSB latching        
-    input logic                         i_bit0,
-    
-    //MSB bit
-    input logic                         i_bittst  
+    //Shift logic
+    input logic [4:0] i_shift_amount,
+    input logic       i_sra
 );
     // Parameters
     localparam [1:0] NORTH = 2'b00, EAST = 2'b01, WEST = 2'b10, SOUTH = 2'b11;
@@ -78,7 +77,10 @@ module PE_Main#(
         .i_bittst   (i_bittst),
         
         .o_rd1      (rd1),
-        .o_rd2      (rd2)
+        .o_rd2      (rd2),
+        
+        .i_shift_amount(i_shift_amount),
+        .i_sra(i_sra)
     );
     
     // ALU instantiation
@@ -88,8 +90,6 @@ module PE_Main#(
         .i_operandA  (operandA),
         .i_operandB  (operandB),
         .i_opcode    (i_opcode),
-//        .i_sign()
-        .i_bit0(i_bit0),
         
         .o_result    (result)       
     );

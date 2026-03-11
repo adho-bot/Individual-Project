@@ -9,10 +9,7 @@ module ALU_bitserial(
     input  logic i_operandA,
     input  logic i_operandB,
     input  logic [9:0] i_opcode,   // Only 5 ops for now
-    output logic o_result,
-
-    //input  logic i_sign,   // sign of operandA (latched MSB)
-    input  logic i_bit0    // asserted on first bit time of the word (LSB)
+    output logic o_result
 
 );
 
@@ -39,17 +36,12 @@ module ALU_bitserial(
                 l_carry  = (~i_operandA & i_operandB) | (r_carry & (~i_operandA ^ i_operandB)); 
             end 
             
-            `ABS: begin
-                // y = x XOR sssss...  (bitwise mask is just signed each cycle)
-                y        = i_operandA ^ i_operandB;
-
-                // out = y + s (bit-serial add using carry only)
-                o_result = y ^ r_carry;
-
-                // carry ripple when adding only carry-in:
-                // c_next = y & c
-                l_carry  = y & r_carry;
-            end            
+            `MSBTST: begin
+                o_result = i_operandA ^ i_operandB;
+            end      
+            `SRA: begin
+                o_result = i_operandA;  // shift is handled in register file
+            end       
             
             
             default: begin 
@@ -64,17 +56,8 @@ module ALU_bitserial(
         if (!i_rstn) begin
             r_carry <= 1'b0;
         end else begin
-            // initialise carry at start of word for ops that use it
-            if (i_bit0) begin
-                if (i_opcode == `ABS)
-                    r_carry <= i_operandB;   // inject +s at LSB time
-                else
-                    r_carry <= 1'b0;     // clear carry for ADD/SUB etc (recommended)
-            end else begin
-                // normal ripple
                 r_carry <= l_carry;
             end
-        end
     end
 
     //assign o_carry_out = r_carry;

@@ -7,7 +7,8 @@
 `define XORR     	   10'b0000000_100 // Xor
 `define ORR     	   10'b0000000_110 // Or
 `define ANDD    	   10'b0000000_111 // And
-`define ABS            10'b0100000_001 //Absolute Value
+`define MSBTST         10'b1000000_000 //Absolute Value
+`define SRA            10'b0100000_101 // Arithmetic Shift Right
     
 /*------------------------------------------------------------------------------------------*/
 /*                                Instruction Opcodes                                      */
@@ -17,7 +18,6 @@
 `define OP_LOAD         7'b1111000 // LOAD
 `define OP_STORE        7'b1110100 // STORE
 `define OP_NEWS_TYPE    7'b1111010 // Another R type implementation
-`define OP_ABS          7'b1010100 //Find absolute value.
 /*------------------------------------------------------------------------------------------*/
 /*                                      FSM STATES                                          */
 /*------------------------------------------------------------------------------------------*/
@@ -30,11 +30,6 @@
 `define DATA_TO_MEM     4'b0110 //send data to sipo
 `define MEM_TO_DATA     4'b0111 //send data from memory to piso
 `define DATA_FETCH      4'b1000 //1 cycle to fetch the data
-
-`define ABS_A_MSB       4'b1001 //1 cycle to fetch msb (xor and add the first bit)
-`define ABS_A1          4'b1010 //hold msb
-`define ABS_A           4'b1011 //xor and Add
-
 
 
 

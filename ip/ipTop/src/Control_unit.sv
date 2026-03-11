@@ -40,11 +40,12 @@ module Control_Unit#(
     //PE gating
     output logic            o_PE_enable,
     
-    //MSB latching
-    output logic            o_bit0,
-    
     //MSB bit
-    output logic            o_bittst    
+    output logic            o_bittst,
+    
+    //Shift logic
+    output logic [4:0] o_shift_amount,
+    output logic       o_sra    
 );
 
     //state logic
@@ -86,14 +87,13 @@ module Control_Unit#(
         //Address generation
         .o_array_address(o_array_address),
         
+        .o_bittst(o_bittst),
+        
         //PE gating
         .o_PE_enable(o_PE_enable),
         
-        //MSB latching        
-        .o_bit0(o_bit0),
-    
-        //MSB bit
-        .o_bittst(o_bittst)        
+        .o_shift_amount(o_shift_amount),
+        .o_sra(o_sra)    
     );
 
 endmodule

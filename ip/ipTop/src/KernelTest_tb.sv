@@ -1,6 +1,5 @@
 `timescale 1ns/1ps
 `include "/home/gary/Individual_Project/rtl/Definitions.sv"
-
 //A B C are the matrix images
 
 //Gx
@@ -31,6 +30,108 @@
 
 module KernelTest_tb;
 
+    class Instructions;
+        localparam logic [1:0] NORTH = 2'b00, EAST = 2'b01, WEST = 2'b10, SOUTH = 2'b11;
+
+        // --- Base encoding ---
+        function logic [31:0] store(logic [19:0] address, logic [4:0] rs1);
+            return {address[19:8], rs1, address[7:0], `OP_STORE};
+        endfunction
+
+        function logic [31:0] load(logic [19:0] address, logic [4:0] rd);
+            return {address, rd, `OP_LOAD};
+        endfunction
+
+        function logic [31:0] vector_R_type(logic [4:0] rd, logic [4:0] rs1, logic [4:0] rs2, logic [6:0] funct7, logic [2:0] funct3);
+            return {funct7, rs2, rs1, funct3, rd, `OP_R_TYPE};
+        endfunction
+
+        function logic [31:0] news_type(logic [4:0] rd, logic [4:0] rs1, logic [1:0] news_sel, logic [6:0] funct7, logic [2:0] funct3, logic [2:0] rs2);
+            return {funct7, news_sel, rs2, rs1, funct3, rd, `OP_NEWS_TYPE};
+        endfunction
+
+        // --- ALU ---
+        function logic [31:0] add(logic [4:0] rd, logic [4:0] rs1, logic [4:0] rs2);
+            return vector_R_type(rd, rs1, rs2, 7'b0000000, 3'b000);
+        endfunction
+
+        function logic [31:0] sub(logic [4:0] rd, logic [4:0] rs1, logic [4:0] rs2);
+            return vector_R_type(rd, rs1, rs2, 7'b0100000, 3'b000);
+        endfunction
+
+        function logic [31:0] xorr(logic [4:0] rd, logic [4:0] rs1, logic [4:0] rs2);
+            return vector_R_type(rd, rs1, rs2, 7'b0000000, 3'b100);
+        endfunction
+
+        function logic [31:0] orr(logic [4:0] rd, logic [4:0] rs1, logic [4:0] rs2);
+            return vector_R_type(rd, rs1, rs2, 7'b0000000, 3'b110);
+        endfunction
+
+        function logic [31:0] andd(logic [4:0] rd, logic [4:0] rs1, logic [4:0] rs2);
+            return vector_R_type(rd, rs1, rs2, 7'b0000000, 3'b111);
+        endfunction
+
+        function logic [31:0] getmsb(logic [4:0] rd, logic [4:0] rs);
+            return vector_R_type(rd, 5'd0, rs, 7'b1000000, 3'b000);
+        endfunction
+
+        function logic [31:0] sra(logic [4:0] rd, logic [4:0] rs1, logic [4:0] shamt);
+            return vector_R_type(rd, rs1, shamt, 7'b0100000, 3'b101);
+        endfunction
+
+        // --- NEWS move ---
+        function logic [31:0] mov_north(logic [4:0] rd, logic [2:0] rs2);
+            return news_type(rd, 5'd0, NORTH, 7'b0000000, 3'b000, rs2);
+        endfunction
+
+        function logic [31:0] mov_south(logic [4:0] rd, logic [2:0] rs2);
+            return news_type(rd, 5'd0, SOUTH, 7'b0000000, 3'b000, rs2);
+        endfunction
+
+        function logic [31:0] mov_east(logic [4:0] rd, logic [2:0] rs2);
+            return news_type(rd, 5'd0, EAST, 7'b0000000, 3'b000, rs2);
+        endfunction
+
+        function logic [31:0] mov_west(logic [4:0] rd, logic [2:0] rs2);
+            return news_type(rd, 5'd0, WEST, 7'b0000000, 3'b000, rs2);
+        endfunction
+
+        // --- NEWS add ---
+        function logic [31:0] add_north(logic [4:0] rd, logic [4:0] rs1, logic [2:0] rs2);
+            return news_type(rd, rs1, NORTH, 7'b0000000, 3'b000, rs2);
+        endfunction
+
+        function logic [31:0] add_south(logic [4:0] rd, logic [4:0] rs1, logic [2:0] rs2);
+            return news_type(rd, rs1, SOUTH, 7'b0000000, 3'b000, rs2);
+        endfunction
+
+        function logic [31:0] add_east(logic [4:0] rd, logic [4:0] rs1, logic [2:0] rs2);
+            return news_type(rd, rs1, EAST, 7'b0000000, 3'b000, rs2);
+        endfunction
+
+        function logic [31:0] add_west(logic [4:0] rd, logic [4:0] rs1, logic [2:0] rs2);
+            return news_type(rd, rs1, WEST, 7'b0000000, 3'b000, rs2);
+        endfunction
+
+        // --- NEWS sub ---
+        function logic [31:0] sub_north(logic [4:0] rd, logic [4:0] rs1, logic [2:0] rs2);
+            return news_type(rd, rs1, NORTH, 7'b0100000, 3'b000, rs2);
+        endfunction
+
+        function logic [31:0] sub_south(logic [4:0] rd, logic [4:0] rs1, logic [2:0] rs2);
+            return news_type(rd, rs1, SOUTH, 7'b0100000, 3'b000, rs2);
+        endfunction
+
+        function logic [31:0] sub_east(logic [4:0] rd, logic [4:0] rs1, logic [2:0] rs2);
+            return news_type(rd, rs1, EAST, 7'b0100000, 3'b000, rs2);
+        endfunction
+
+        function logic [31:0] sub_west(logic [4:0] rd, logic [4:0] rs1, logic [2:0] rs2);
+            return news_type(rd, rs1, WEST, 7'b0100000, 3'b000, rs2);
+        endfunction
+
+    endclass
+
     // -----------------------------------------
     // DUT I/O declarations
     // -----------------------------------------
@@ -51,7 +152,6 @@ module KernelTest_tb;
 
 
 //PROCESSOR CONTROL PARAMETERS
-    localparam INSTR_WIDTH = 32;
     localparam ROW_LENGTH = 32;
     localparam COL_LENGTH = 32;
     
@@ -59,30 +159,6 @@ module KernelTest_tb;
     localparam REG_DEPTH = 8;
     localparam ARRAY_BASE_ADDR = 32'h0000_0000;
 
-
-    //Instruction class
-    class Instructions;    
-        function logic [INSTR_WIDTH-1:0] store(logic [19:0] address, logic [4:0] rs1);
-            return {address[19:8], rs1, address[7:0], `OP_STORE};
-        endfunction
-    
-        function logic [INSTR_WIDTH-1:0] load(logic [19:0] address,logic [4:0] rd);
-            return {address, rd, `OP_LOAD};
-        endfunction
-    
-        function logic [INSTR_WIDTH-1:0] vector_R_type(logic [4:0] rd, logic [4:0] rs1, logic [4:0] rs2, logic [6:0] funct7, logic [2:0] funct3);
-            return {funct7, rs2, rs1, funct3, rd, `OP_R_TYPE};
-        endfunction
-    
-        function logic [INSTR_WIDTH-1:0] news_type(logic [4:0] rd, logic [4:0] rs1, logic [1:0] news_sel, logic [6:0] funct7, logic [2:0] funct3, logic [2:0] rs2);
-            return {funct7, news_sel, rs2, rs1, funct3, rd, `OP_NEWS_TYPE};
-        endfunction 
-
-        function logic [INSTR_WIDTH-1:0] abs(logic [4:0] rd, logic [4:0] rs1, logic [6:0] funct7, logic [2:0] funct3);
-            return {funct7, 5'b00000, rs1, funct3, rd, `OP_ABS};
-        endfunction        
-        
-    endclass
 
     // -----------------------------------------
     // Instantiate DUT
@@ -174,149 +250,101 @@ module KernelTest_tb;
 
         #20;
         rstn = 1;
-
-// news_type rd, 
-
-    // Recursive load into reg 1
-    for (int i = 0; i < ROW_LENGTH; i++) begin
-        for (int j = 0; j < COL_LENGTH; j++) begin
-            $display("LOAD (%0d,%0d) | Reg %0d", i, j, 1);          
-            instruction = instr.load((i*ROW_LENGTH + j), 5'(1));           
-            @(posedge Control_ready);
-        end
-    end
-
-//====================================================
-//                           Gx        
-//====================================================
-        $display("====================================");
-        $display("            B = A + A North         ");
-        $display("====================================");
-       
-        $display("Vector NEWS | Move image up and add with A| Store B into 2");
-        instruction = instr.news_type(5'd2, 5'd1, 2'b00, 7'd0, 3'd0, 3'd1);
-        @(posedge Control_ready);        
-
-        $display("====================================");
-        $display("            C = B + B South         ");
-        $display("====================================");
         
-        $display("Vector NEWS | Move img down and add with B | Store C into 2");
-        instruction = instr.news_type(5'd2, 5'd2, 2'b11, 7'd0, 3'd0, 3'd2);
-        @(posedge Control_ready);     
-
-         
-        $display("====================================");
-        $display("                C east              ");
-        $display("====================================");
-        
-        $display("Vector NEWS | Move reg 2 to the east | Store C into 3");
-        instruction = instr.news_type(5'd3, 5'd0, 2'b01, 7'd0, 3'd0, 3'd2);
-        @(posedge Control_ready);         
-
-        $display("====================================");
-        $display("                C west              ");
-        $display("====================================");
-        
-        $display("Vector NEWS | Move reg 2 to the west | Store C into 4");
-        instruction = instr.news_type(5'd4, 5'd0, 2'b10, 7'd0, 3'd0, 3'd2);
-        @(posedge Control_ready);         
- 
-        $display("====================================");
-        $display("         D = C west - C east        ");
-        $display("====================================");
-
-        $display("Vector Sub | Add rs5 <- rs3 - rs4");
-        instruction = instr.vector_R_type(5'd5, 5'd3, 5'd4, 7'b0100000, 3'd0);
-        @(posedge Control_ready);  
-                         
-     
-//====================================================
-//                           Gy        
-//====================================================
-
-        $display("====================================");
-        $display("            B = A + A East          ");
-        $display("====================================");
-       
-        $display("Vector NEWS | Move image east and add with A| Store B into 2");
-        instruction = instr.news_type(5'd2, 5'd1, 2'b01, 7'd0, 3'd0, 3'd1);
-        @(posedge Control_ready);        
-
-        $display("====================================");
-        $display("            C = B + B West          ");
-        $display("====================================");
-        
-        $display("Vector NEWS | Move img west and add with B | Store C into 2");
-        instruction = instr.news_type(5'd2, 5'd2, 2'b10, 7'd0, 3'd0, 3'd2);
-        @(posedge Control_ready);  
-       
-
-        $display("====================================");
-        $display("                C north             ");
-        $display("====================================");
-        
-        $display("Vector NEWS | Move reg 2 to the north | Store C into 3");
-        instruction = instr.news_type(5'd3, 5'd0, 2'b00, 7'd0, 3'd0, 3'd2);
-        @(posedge Control_ready);         
-
-        $display("====================================");
-        $display("                C south             ");
-        $display("====================================");
-        
-        $display("Vector NEWS | Move reg 2 to the south | Store C into 4");
-        instruction = instr.news_type(5'd4, 5'd0, 2'b11, 7'd0, 3'd0, 3'd2);
-        @(posedge Control_ready);         
- 
-        $display("====================================");
-        $display("       E = C north - C south        ");
-        $display("====================================");
-
-        $display("Vector Sub | rs6 <- rs3 - rs4");
-        instruction = instr.vector_R_type(5'd6, 5'd3, 5'd4, 7'b0100000, 3'd0);
-        @(posedge Control_ready);
-
-//====================================================
-//                      Magnitude        
-//====================================================
-        $display("====================================");
-        $display("                  |Gx|              ");
-        $display("====================================");
-
-        $display("Vector Absolute | rs5 <- |rs5| ");
-        instruction = instr.abs(5'd5, 5'd5, 7'b0100000, 3'b001);
-        @(posedge Control_ready); 
-        
-        $display("====================================");
-        $display("                  |Gy|              ");
-        $display("====================================");
-
-        $display("Vector Absolute | rs6 <- |rs6| ");
-        instruction = instr.abs(5'd6, 5'd6, 7'b0100000, 3'b001);
-        @(posedge Control_ready);         
-        
-//====================================================
-//                     |Gx| + |Gy|        
-//====================================================
-
-        $display("====================================");
-        $display("               D + E                ");
-        $display("====================================");
-
-        $display("Vector Add | rs6 <- rs6 + rs6");
-        instruction = instr.vector_R_type(5'd6, 5'd5, 5'd6, 7'b0000000, 3'd0);
-        @(posedge Control_ready);
-
-
-//Recursive store  
-        for (int i = 0; i < ROW_LENGTH; i++) begin
-            for (int j = 0; j < COL_LENGTH; j++) begin
-                $display("STORE (%0d,%0d) | Reg 3", i, j);
-                instruction = instr.store((i*ROW_LENGTH + j), 5'd6);
-                @(posedge Control_ready);
+        // Recursive load into reg 1
+            for (int i = 0; i < ROW_LENGTH; i++) begin
+                for (int j = 0; j < COL_LENGTH; j++) begin
+                    instruction = instr.load((i*ROW_LENGTH + j), 5'd1);           
+                    @(posedge Control_ready);
+                end
             end
-        end        
-
+        
+        //====================================================
+        //                           Gx        
+        //====================================================
+                // B = A + A(north)
+                instruction = instr.add_north(5'd2, 5'd1, 3'd1);
+                @(posedge Control_ready);        
+        
+                // C = B + B(south)
+                instruction = instr.add_south(5'd2, 5'd2, 3'd2);
+                @(posedge Control_ready);     
+        
+                // C east → r3
+                instruction = instr.mov_east(5'd3, 3'd2);
+                @(posedge Control_ready);         
+        
+                // C west → r4
+                instruction = instr.mov_west(5'd4, 3'd2);
+                @(posedge Control_ready);         
+        
+                // Gx = C_east - C_west → r5
+                instruction = instr.sub(5'd5, 5'd3, 5'd4);
+                @(posedge Control_ready);  
+                                 
+        //====================================================
+        //                           Gy        
+        //====================================================
+                // B = A + A(east)
+                instruction = instr.add_east(5'd2, 5'd1, 3'd1);
+                @(posedge Control_ready);        
+        
+                // C = B + B(west)
+                instruction = instr.add_west(5'd2, 5'd2, 3'd2);
+                @(posedge Control_ready);  
+        
+                // C north → r3
+                instruction = instr.mov_north(5'd3, 3'd2);
+                @(posedge Control_ready);         
+        
+                // C south → r4
+                instruction = instr.mov_south(5'd4, 3'd2);
+                @(posedge Control_ready);         
+        
+                // Gy = C_north - C_south → r6
+                instruction = instr.sub(5'd6, 5'd3, 5'd4);
+                @(posedge Control_ready);
+        
+        //====================================================
+        //                      Magnitude        
+        //====================================================
+                // --- |Gx| ---
+                instruction = instr.getmsb(5'd3, 5'd5);
+                @(posedge Control_ready);    
+                instruction = instr.xorr(5'd4, 5'd5, 5'd3);
+                @(posedge Control_ready);           
+                instruction = instr.sub(5'd5, 5'd4, 5'd3);
+                @(posedge Control_ready);           
+        
+                // --- |Gy| ---
+                instruction = instr.getmsb(5'd3, 5'd6);
+                @(posedge Control_ready);    
+                instruction = instr.xorr(5'd4, 5'd6, 5'd3);
+                @(posedge Control_ready);           
+                instruction = instr.sub(5'd6, 5'd4, 5'd3);
+                @(posedge Control_ready);    
+                
+        //====================================================
+        //                     |Gx| + |Gy|        
+        //====================================================
+                instruction = instr.add(5'd6, 5'd5, 5'd6);
+                @(posedge Control_ready);
+        
+                
+        //====================================================
+        //                     Shift 2 right        
+        //====================================================
+        instruction = instr.sra(5'd6, 5'd6, 5'd2);  // r6 = r6 >> 2 (divide by 4)
+        @(posedge Control_ready);        
+        
+        
+        //Recursive store  
+                for (int i = 0; i < ROW_LENGTH; i++) begin
+                    for (int j = 0; j < COL_LENGTH; j++) begin
+                        instruction = instr.store((i*ROW_LENGTH + j), 5'd6);
+                        @(posedge Control_ready);
+                    end
+                end 
        // -------------------------------------
         // Finish
         // -------------------------------------

@@ -38,14 +38,15 @@ module Array_Main #(
     input  logic                        i_piso_shift,
     input  logic                        i_sipo_shift, 
     
+    //MSB test
+    input  logic                        i_bittst,
+    
     //PE gating signal
     input  logic                        i_PE_enable,
     
-    //MSB latching        
-    input logic                         i_bit0,
-    
-    //MSB bit
-    input logic                         i_bittst  
+    //Shift logic
+    input logic [4:0] i_shift_amount,
+    input logic       i_sra
 );
 
     // --- Derived widths ---
@@ -122,11 +123,12 @@ module Array_Main #(
                     .i_wb_sel     (i_wb_sel),
                     .i_opcode     (i_opcode),
                     .i_dataout_en (i_dataout_en),
+                    .i_bittst     (i_bittst),
                     
                     .i_PE_enable (PE_enable[r][c]),
                     
-                    .i_bit0(i_bit0),
-                    .i_bittst(i_bittst)
+                    .i_shift_amount(i_shift_amount),
+                    .i_sra(i_sra)
                 );
             end
         end
