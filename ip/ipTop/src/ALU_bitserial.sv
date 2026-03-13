@@ -8,7 +8,7 @@ module ALU_bitserial(
     input  logic i_rstn,
     input  logic i_operandA,
     input  logic i_operandB,
-    input  logic [9:0] i_opcode,   // Only 5 ops for now
+    input  logic [2:0] i_opcode,   // Only 5 ops for now
     output logic o_result
 
 );

@@ -1,37 +1,31 @@
-/*------------------------------------------------------------------------------------------*/
-/*                                ALU Operation States                                      */
-/*------------------------------------------------------------------------------------------*/
-//Normal ALU
-`define ADD		       10'b0000000_000 // Addition
-`define SUB     	   10'b0100000_000 // Subtraction
-`define XORR     	   10'b0000000_100 // Xor
-`define ORR     	   10'b0000000_110 // Or
-`define ANDD    	   10'b0000000_111 // And
-`define MSBTST         10'b1000000_000 //Absolute Value
-`define SRA            10'b0100000_101 // Arithmetic Shift Right
-    
-/*------------------------------------------------------------------------------------------*/
-/*                                Instruction Opcodes                                      */
-/*------------------------------------------------------------------------------------------*/
-//temp, will change once i decide on the instruction encodings
-`define OP_R_TYPE       7'b1011100 // R
-`define OP_LOAD         7'b1111000 // LOAD
-`define OP_STORE        7'b1110100 // STORE
-`define OP_NEWS_TYPE    7'b1111010 // Another R type implementation
-/*------------------------------------------------------------------------------------------*/
-/*                                      FSM STATES                                          */
-/*------------------------------------------------------------------------------------------*/
+/*==========================================================================================*/
+/*                            ALU Operation Encoding (3-bit)                                */
+/*==========================================================================================*/
+`define ADD       3'b000   // Addition
+`define SUB       3'b001   // Subtraction
+`define XORR      3'b010   // Xor
+`define ORR       3'b011   // Or
+`define ANDD      3'b100   // And
+`define MSBTST    3'b101   // MSB Test
+`define SRA       3'b110   // Arithmetic Shift Right
+// 3'b111 reserved
 
-`define IDLE            4'b0001 // R
-`define DATA_LOAD       4'b0010 // load data into array
-`define R_EXECUTE       4'b0011 // implement as R type
-`define NEWS_EXECUTE    4'b0100 //implement as  I type
-`define STORE_DATA      4'b0101 // STORE
-`define DATA_TO_MEM     4'b0110 //send data to sipo
-`define MEM_TO_DATA     4'b0111 //send data from memory to piso
-`define DATA_FETCH      4'b1000 //1 cycle to fetch the data
+/*==========================================================================================*/
+/*                          Instruction Type Encoding (2-bit)                               */
+/*==========================================================================================*/
+`define OP_LOAD        2'b00
+`define OP_R_TYPE      2'b01
+`define OP_STORE       2'b10
+`define OP_NEWS_TYPE   2'b11
 
-
-
-
-
+/*==========================================================================================*/
+/*                                   FSM STATES                                             */
+/*==========================================================================================*/
+`define IDLE           4'b0001
+`define DATA_LOAD      4'b0010
+`define R_EXECUTE      4'b0011
+`define NEWS_EXECUTE   4'b0100
+`define STORE_DATA     4'b0101
+`define DATA_TO_MEM    4'b0110
+`define MEM_TO_DATA    4'b0111
+`define DATA_FETCH     4'b1000

@@ -17,9 +17,9 @@ module Register_File#(
     input  logic        i_datain,
 
     // addresses
-    input  logic [$clog2(DEPTH)-1:0] i_rd1_addr,
-    input  logic [$clog2(DEPTH)-1:0] i_rd2_addr,
-    input  logic [$clog2(DEPTH)-1:0] i_wr_addr,
+    input  logic [$clog2(DEPTH)-1:0] i_rs1_addr,
+    input  logic [$clog2(DEPTH)-1:0] i_rs2_addr,
+    input  logic [$clog2(DEPTH)-1:0] i_rd_addr,
 
     // control
     input  logic        i_wr_en,
@@ -33,7 +33,7 @@ module Register_File#(
     output logic        o_rd2,
 
     // Shift logic
-    input  logic [4:0]  i_shift_amount,
+    input  logic [2:0]  i_shift_amount,
     input  logic        i_sra
 );
 
@@ -46,8 +46,8 @@ module Register_File#(
 
     // Read words fetched from RAM by register address
     logic [WIDTH-1:0] rd1_word, rd2_word;
-    assign rd1_word = rf_mem[i_rd1_addr];
-    assign rd2_word = rf_mem[i_rd2_addr];
+    assign rd1_word = rf_mem[i_rs1_addr];
+    assign rd2_word = rf_mem[i_rs2_addr];
 
     // Bit-serial read: select one bit per cycle using counter
     assign o_rd1 = (i_sra) ? rd1_word[(shifted_idx >= WIDTH) ? (WIDTH-1) : shifted_idx[$clog2(WIDTH)-1:0]]
@@ -58,8 +58,8 @@ module Register_File#(
 
     // Write: synchronous, no async reset
     always_ff @(posedge i_clk) begin
-        if (i_wr_en && (i_wr_addr != 0)) begin
-            rf_mem[i_wr_addr][i_counter[$clog2(WIDTH)-1:0]] <= i_datain;
+        if (i_wr_en && (i_rd_addr != 0)) begin
+            rf_mem[i_rd_addr][i_counter[$clog2(WIDTH)-1:0]] <= i_datain;
         end
     end
 

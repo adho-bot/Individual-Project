@@ -14,7 +14,7 @@
 	)
 	(
 		// Users to add ports here
-        output wire [31:0]  o_instruction,
+        output wire [19:0]  o_instruction,
         output wire         o_instr_valid,
         input  wire         i_fsm_ready,
 		// User ports ends

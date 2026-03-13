@@ -14,7 +14,7 @@
 	)
 	(
 		// Users to add ports here
-        output wire [31:0]  o_instruction,
+        output wire [19:0]  o_instruction,
         output wire         o_instr_valid,
         input  wire         i_fsm_ready,
 		// User ports ends
@@ -312,7 +312,7 @@
     
     assign o_instr_valid = slv_reg1[0] & ~prev_valid; //PS writes valid flag to offset 0x04 ,  1-cycle pulse on rising edge	
 	
-    assign o_instruction = slv_reg0;        // PS writes instruction to offset 0x00
+    assign o_instruction = slv_reg0[19:0];        // PS writes instruction to offset 0x00
 
 	// User logic ends
 

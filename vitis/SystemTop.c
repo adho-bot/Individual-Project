@@ -6,6 +6,7 @@
 #include "xbram.h"
 #include "xparameters.h"
 #include "Instructions.h"
+#include "imagedata.h"
 
 //NOTE: if ld not working, go to code /home/gary/Individual_Project_System/hello_world/src/UserConfig.cmake
 //Add Instructions.c into 
@@ -21,8 +22,8 @@
 /*              DEFINES                 */
 /*======================================*/
 
-#define ROW_LENGTH 2
-#define COL_LENGTH 2
+#define ROW_LENGTH 16
+#define COL_LENGTH 16
 
 #define IP_BASEADDR  XPAR_AXI_ARRAYPROC_0_BASEADDR
 #define INSTR_OFFSET 0x00
@@ -51,18 +52,20 @@ int BRAMinit(int baseAddr){
     return XST_SUCCESS;
 }
 
+
+
 void BRAMimgInt(int baseAddr){
-    XBram_WriteReg(baseAddr, 0x00, 0x00);
-    XBram_WriteReg(baseAddr, 0x04, 0x50);
-    XBram_WriteReg(baseAddr, 0x08, 0x00);
-    XBram_WriteReg(baseAddr, 0x0C, 0x50);
+    for(int i = 0; i < IMG_WIDTH * IMG_HEIGHT; i++)
+    {
+        XBram_WriteReg(baseAddr, i*4, image_data[i]);
+    }
 }
 
 void BRAMimgRead(int baseAddr){
     int tempVar;
-    for(int i = 0; i < 16; i += 4){
+    for(int i = 0; i < ROW_LENGTH * COL_LENGTH * 4 ; i += 4){
         tempVar = XBram_ReadReg(baseAddr, i);
-        xil_printf("%d: %x\n", i, tempVar);
+        xil_printf("%x\n", tempVar);
     }
 }
 
@@ -112,81 +115,123 @@ int main(){
     BRAMimgInt(XPAR_XBRAM_0_BASEADDR);
 
     // BRAM Read
-    BRAMimgRead(XPAR_XBRAM_0_BASEADDR);
+  //  BRAMimgRead(XPAR_XBRAM_0_BASEADDR);
 
     // Sanity check
     u32 ready = Xil_In32(IP_BASEADDR + READY_OFFSET);
     xil_printf("FSM ready at startup: %d\r\n", ready & 0x1);
 
-    /*================ LOAD A -> r1 ================*/
-    for (int i = 0; i < ROW_LENGTH; i++) {
-        for (int j = 0; j < COL_LENGTH; j++) {
-            xil_printf("LOAD (%d,%d)\r\n", i, j);
-            issue_instruction(vload((i*ROW_LENGTH + j), 1));
-        }
+/*====================================================*/
+/*                     LOAD IMAGE                     */
+/*====================================================*/
+
+for (int i = 0; i < ROW_LENGTH; i++) {
+    for (int j = 0; j < COL_LENGTH; j++) {
+        xil_printf("LOAD (%d,%d)\r\n", i, j);
+        issue_instruction(vload((i*ROW_LENGTH + j), 1));
     }
+}
 
-    /*================ Gx Calculation ================*/
+/*====================================================*/
+/*                        Gx                          */
+/*====================================================*/
 
-    xil_printf("B = A + A North\r\n");
-    issue_instruction(mvnorthadd(2, 1, 1));
+xil_printf("B = A + A(north)\r\n");
+issue_instruction(mvnorthadd(2,1,1));
 
-    xil_printf("C = B + B South\r\n");
-    issue_instruction(mvsouthadd(2, 2, 2));
+xil_printf("C = B + B(south)\r\n");
+issue_instruction(mvsouthadd(2,2,2));
 
-    xil_printf("C East -> r3\r\n");
-    issue_instruction(mveastadd(3, 0, 2));
+xil_printf("C east -> r3\r\n");
+issue_instruction(mveastadd(3,0,2));   // mov_east
 
-    xil_printf("C West -> r4\r\n");
-    issue_instruction(mvwestadd(4, 0, 2));
+xil_printf("C west -> r4\r\n");
+issue_instruction(mvwestadd(4,0,2));   // mov_west
 
-    xil_printf("D = C West - C East -> r5\r\n");
-    issue_instruction(vsub(5, 3, 4));
+xil_printf("Gx = C_east - C_west\r\n");
+issue_instruction(vsub(5,3,4));
 
-    /*================ Gy Calculation ================*/
+/*====================================================*/
+/*                        Gy                          */
+/*====================================================*/
 
-    xil_printf("B = A + A East\r\n");
-    issue_instruction(mveastadd(2, 1, 1));
+xil_printf("B = A + A(east)\r\n");
+issue_instruction(mveastadd(2,1,1));
 
-    xil_printf("C = B + B West\r\n");
-    issue_instruction(mvwestadd(2, 2, 2));
+xil_printf("C = B + B(west)\r\n");
+issue_instruction(mvwestadd(2,2,2));
 
-    xil_printf("C North -> r3\r\n");
-    issue_instruction(mvnorthadd(3, 0, 2));
+xil_printf("C north -> r3\r\n");
+issue_instruction(mvnorthadd(3,0,2));  // mov_north
 
-    xil_printf("C South -> r4\r\n");
-    issue_instruction(mvsouthadd(4, 0, 2));
+xil_printf("C south -> r4\r\n");
+issue_instruction(mvsouthadd(4,0,2));  // mov_south
 
-    xil_printf("E = C North - C South -> r6\r\n");
-    issue_instruction(vsub(6, 3, 4));
+xil_printf("Gy = C_north - C_south\r\n");
+issue_instruction(vsub(6,3,4));
 
-    /*================ Magnitude ================*/
+/*====================================================*/
+/*                     |Gx|                           */
+/*====================================================*/
 
-    xil_printf("|Gx| = |r5|\r\n");
-    issue_instruction(vabs(5, 5));
+xil_printf("Extract MSB of Gx\r\n");
+issue_instruction(getmsb(3,5));
 
-    xil_printf("|Gy| = |r6|\r\n");
-    issue_instruction(vabs(6, 6));
+xil_printf("XOR with sign\r\n");
+issue_instruction(vxor(4,5,3));
 
-    xil_printf("|Gx| + |Gy| -> r6\r\n");
-    issue_instruction(vadd(6, 5, 6));
+xil_printf("Subtract sign\r\n");
+issue_instruction(vsub(5,4,3));
 
+/*====================================================*/
+/*                     |Gy|                           */
+/*====================================================*/
 
-    /*================ STORE ================*/
-    for (int i = 0; i < ROW_LENGTH; i++) {
-        for (int j = 0; j < COL_LENGTH; j++) {
-            xil_printf("STORE (%d,%d)\r\n", i, j);
-            issue_instruction(vstore((i*ROW_LENGTH + j), 6));
-            BRAMimgRead(XPAR_XBRAM_0_BASEADDR);
-        }
+xil_printf("Extract MSB of Gy\r\n");
+issue_instruction(getmsb(3,6));
+
+xil_printf("XOR with sign\r\n");
+issue_instruction(vxor(4,6,3));
+
+xil_printf("Subtract sign\r\n");
+issue_instruction(vsub(6,4,3));
+
+/*====================================================*/
+/*                   |Gx| + |Gy|                      */
+/*====================================================*/
+
+xil_printf("|Gx| + |Gy|\r\n");
+issue_instruction(vadd(6,5,6));
+
+/*====================================================*/
+/*                    SHIFT >> 2                      */
+/*====================================================*/
+
+xil_printf("Shift right 2\r\n");
+issue_instruction(vsra(6,6,2));
+
+/*====================================================*/
+/*                      STORE                         */
+/*====================================================*/
+
+for (int i = 0; i < ROW_LENGTH; i++) {
+    for (int j = 0; j < COL_LENGTH; j++) {
+
+        xil_printf("STORE (%d,%d)\r\n", i, j);
+
+        issue_instruction(vstore((i*ROW_LENGTH + j), 6));
     }
+}
 
-    xil_printf("Sobel Done\r\n");
+    xil_printf("Sobel done\n");
 
+    xil_printf("BEGIN_IMAGE\n");
 
     // BRAM Read after processing
     BRAMimgRead(XPAR_XBRAM_0_BASEADDR);
 
+
+    xil_printf("END_IMAGE\n");
     cleanup_platform();
     return 0;
 }
