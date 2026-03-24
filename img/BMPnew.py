@@ -4,8 +4,8 @@ import numpy as np
 # ------------------------
 # 1️⃣ Parameters
 # ------------------------
-WIDTH = 16
-HEIGHT = 16
+WIDTH = 32
+HEIGHT = 32
 hex_file = "4x4_output.hex"
 bmp_file = "reconstructed.bmp"
 

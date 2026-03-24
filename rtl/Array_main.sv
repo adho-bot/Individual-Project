@@ -1,8 +1,5 @@
 // Array_Main.sv
 
-//LOOK INTO ADDING REDUCTION OR FOR OUTPUT RETREVAL
-//RMB, DATA IN MEMORY -> 8 BITS PER WORD
-// 16 BITS IN A REGISTER
 `timescale 1ns/1ps
 module Array_Main #(
     parameter int ROWS = 2,
@@ -14,7 +11,7 @@ module Array_Main #(
     input  logic                        i_clk,
     input  logic                        i_rstn,
 
-    // control (kept for compatibility; unused in stub PE)
+    // control
     input  logic [$clog2(REG_DEPTH) - 1:0]                  i_rs1_addr,
     input  logic [$clog2(REG_DEPTH) - 1:0]                  i_rs2_addr,
     input  logic [$clog2(REG_DEPTH) - 1:0]                  i_rd_addr,
@@ -30,7 +27,7 @@ module Array_Main #(
     input  logic [9:0]                 i_array_address,
 
     // data in/out (word-wide interface)
-    output logic [DATA_WIDTH-1:0]       o_array_data,   // changed to DATA_WIDTH to match register
+    output logic [DATA_WIDTH-1:0]       o_array_data,
     input  logic [DATA_WIDTH-1:0]       i_array_data,
 
     // PISO / SIPO control
@@ -56,30 +53,30 @@ module Array_Main #(
 
     // --- Internal registers ---
     logic [DATA_WIDTH-1:0]  piso_reg;
-    logic                   arrayIn; // serial bit out of PISO
+    logic                   arrayIn;
     logic [DATA_WIDTH-1:0]  parallel_out;
-    logic                   arrayOut; // serial bit from selected PE into SIPO
+    logic                   arrayOut;
 
-    // Neighbor wires (kept sized to DATA_WIDTH for compatibility)
+    // Neighbor wires
     logic north             [0:ROWS-1][0:COLS-1];
     logic south             [0:ROWS-1][0:COLS-1];
     logic east              [0:ROWS-1][0:COLS-1];
     logic west              [0:ROWS-1][0:COLS-1];
     logic news              [0:ROWS-1][0:COLS-1];
 
-    // 1-bit data in/out per PE (bit-serial)
+    // 1-bit data out per PE (bit-serial) - OR-reduced together
     logic array_dataOut     [0:ROWS-1][0:COLS-1];
-    logic array_dataIn      [0:ROWS-1][0:COLS-1];
-
-    //PE gating
+    
+    // Per-PE dataout enable (scalar per PE)
+    logic dataout_en        [0:ROWS-1][0:COLS-1];
+    
+    // PE gating
     logic PE_enable         [0:ROWS-1][0:COLS-1];
 
     // Decoded indices and valid flags
     logic [ROW_W-1:0]       row_sel;
     logic [COL_W-1:0]       col_sel;
     logic                   wr_addr_valid;
-
-    logic                   rd_addr_valid;
 
     localparam COLS_W = $clog2(COLS);
 
@@ -95,10 +92,12 @@ module Array_Main #(
                 assign west[r][c]  = (c == COLS-1)  ? '0 : news[r][c+1];
                 assign east[r][c]  = (c == 0)       ? '0 : news[r][c-1];
 
-//PE gating
+                // PE gating
                 assign PE_enable[r][c] = (i_PE_enable) ? 1'b1 : 
-                                         (wr_addr_valid && i_piso_shift && (row_sel==r && col_sel==c));
+                                         (wr_addr_valid && i_piso_shift && (row_sel == r && col_sel == c));
 
+                // Per-PE dataout enable: only the addressed PE gets enabled
+                assign dataout_en[r][c] = (wr_addr_valid && row_sel == r && col_sel == c) ? i_dataout_en : 1'b0;
 
                 PE_Main #(
                     .DATA_WIDTH(DATA_WIDTH), 
@@ -107,7 +106,7 @@ module Array_Main #(
                     .i_clk        (i_clk),
                     .i_rstn       (i_rstn),
                     .i_counter    (i_counter),
-                    .i_data       (array_dataIn[r][c]),
+                    .i_data       (arrayIn),
                     .o_data       (array_dataOut[r][c]),
                     .i_north      (north[r][c]),
                     .i_east       (east[r][c]),
@@ -122,7 +121,7 @@ module Array_Main #(
                     .i_news_sel   (i_news_sel),
                     .i_wb_sel     (i_wb_sel),
                     .i_opcode     (i_opcode),
-                    .i_dataout_en (i_dataout_en),
+                    .i_dataout_en (dataout_en[r][c]),
                     .i_bittst     (i_bittst),
                     
                     .i_PE_enable (PE_enable[r][c]),
@@ -142,40 +141,21 @@ module Array_Main #(
         row_sel = i_array_address[COLS_W +: ROW_W];
         col_sel = i_array_address[COLS_W-1:0];
         wr_addr_valid = (i_array_address < NUM_ELEMENTS);
-        rd_addr_valid = wr_addr_valid;
     end
 
 /*===============================================*/
-/*              Input Decoder                    */
+/*              Output OR-Reduction              */
 /*===============================================*/
+    // Each PE outputs 0 when its dataout_en is low (gated in PE_Main).
+    // OR-reduce all PE outputs - only the selected PE contributes a 1.
     always_comb begin
-        integer rr, cc;
-        // default 0 to avoid latches
-        for (rr = 0; rr < ROWS; rr = rr + 1) begin
-            for (cc = 0; cc < COLS; cc = cc + 1) begin
-                array_dataIn[rr][cc] = 1'b0;
-            end
-        end
-
-        // route serial bit to selected PE when write is valid and PISO is shifting 
-        if (wr_addr_valid && i_piso_shift) begin
-            if (row_sel < ROWS && col_sel < COLS) begin
-                array_dataIn[row_sel][col_sel] = arrayIn;
+        arrayOut = 1'b0;
+        for (int rr = 0; rr < ROWS; rr++) begin
+            for (int cc = 0; cc < COLS; cc++) begin
+                arrayOut = arrayOut | array_dataOut[rr][cc];
             end
         end
     end
-
-/*===============================================*/
-/*              Output Mux                       */
-/*===============================================*/
-    always_comb begin
-        if (rd_addr_valid && row_sel < ROWS && col_sel < COLS) begin
-            arrayOut = array_dataOut[row_sel][col_sel];
-        end else begin
-            arrayOut = 1'b0;
-        end
-    end
-
 
 /*===============================================*/
 /*              Data Shift Registers             */
@@ -190,10 +170,10 @@ module Array_Main #(
         else if (i_piso_shift) piso_reg <= {1'b0, piso_reg[DATA_WIDTH-1:1]};
     end
 
-    // SIPO parallel collector: shift left in new bit at LSB side (LSB-first)
+    // SIPO parallel collector: shift in new bit (LSB-first)
     always_ff @(posedge i_clk or negedge i_rstn) begin
         if (!i_rstn) parallel_out <= '0;
-        else if (i_sipo_shift) parallel_out <= {arrayOut, parallel_out[DATA_WIDTH-1:1]};   //Array data out is LSB first
+        else if (i_sipo_shift) parallel_out <= {arrayOut, parallel_out[DATA_WIDTH-1:1]};
     end
 
     assign o_array_data = parallel_out;
