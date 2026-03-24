@@ -1,0 +1,14 @@
+0.7
+2020.2
+Nov 14 2025
+12:36:23
+/home/gary/Individual_Project/rtl/ALU_bitserial.sv,1774368473,systemVerilog,,/home/gary/Individual_Project/rtl/Register_File.sv,/home/gary/Individual_Project/rtl/Definitions.sv,ALU_bitserial,,,,,,,,
+/home/gary/Individual_Project/rtl/Array_main.sv,1774310871,systemVerilog,,/home/gary/Individual_Project/rtl/Control_Decode.sv,,Array_Main,,,,,,,,
+/home/gary/Individual_Project/rtl/Control_Decode.sv,1774368472,systemVerilog,,/home/gary/Individual_Project/rtl/Control_FSM.sv,/home/gary/Individual_Project/rtl/Definitions.sv,Control_Decode,,,,,,,,
+/home/gary/Individual_Project/rtl/Control_FSM.sv,1774217272,systemVerilog,,/home/gary/Individual_Project/rtl/Control_unit.sv,/home/gary/Individual_Project/rtl/Definitions.sv,Control_FSM,,,,,,,,
+/home/gary/Individual_Project/rtl/Control_unit.sv,1774217272,systemVerilog,,/home/gary/Individual_Project/rtl/Top.sv,/home/gary/Individual_Project/rtl/Definitions.sv,Control_Unit,,,,,,,,
+/home/gary/Individual_Project/rtl/Definitions.sv,1774217272,systemVerilog,,/home/gary/Individual_Project/rtl/ALU_bitserial.sv,,,,,,,,,,
+/home/gary/Individual_Project/rtl/PE_main.sv,1774368474,systemVerilog,,/home/gary/Individual_Project/rtl/Array_main.sv,,PE_Main,,,,,,,,
+/home/gary/Individual_Project/rtl/Register_File.sv,1774368474,systemVerilog,,/home/gary/Individual_Project/rtl/PE_main.sv,,Register_File,,,,,,,,
+/home/gary/Individual_Project/rtl/Top.sv,1774217272,systemVerilog,,/home/gary/Individual_Project/sim/tb_selfCheck.sv,,Top,,,,,,,,
+/home/gary/Individual_Project/sim/tb_selfCheck.sv,1774368252,systemVerilog,,,/home/gary/Individual_Project/rtl/Definitions.sv,tb_selfCheck,,,,,,,,

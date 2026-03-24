@@ -1,0 +1,134 @@
+# ============================================================================
+#  Makefile — Sobel verification automation
+# ============================================================================
+#  Usage:
+#    make golden          # Generate expected output from Python model
+#    make sim             # Compile + run RTL simulation (self-checking)
+#    make all             # golden + sim (full flow)
+#    make compare         # Compare RTL output vs golden (after sim)
+#    make clean           # Remove generated files
+#
+#  Configuration:
+#    make sim SIMULATOR=questa    (or xsim, iverilog)
+#    make sim ROWS=8 COLS=8       (for smaller test arrays)
+# ============================================================================
+
+# ── Paths (edit these) ──
+PROJECT_DIR  := /home/gary/Individual_Project
+RTL_DIR      := $(PROJECT_DIR)/rtl
+TB_DIR       := $(PROJECT_DIR)/sim
+SCRIPTS_DIR  := $(PROJECT_DIR)/scripts
+IMG_DIR      := $(PROJECT_DIR)/img
+SIM_DIR      := $(PROJECT_DIR)/sim
+
+# ── Files ──
+INPUT_HEX    := $(IMG_DIR)/4x4_input.hex
+GOLDEN_OUT_HEX   := $(SIM_DIR)/expected_sobel_output.hex
+RTL_OUT_HEX   := $(SIM_DIR)/actual_output.hex
+
+# ── Parameters ──
+ROWS         ?= 32
+COLS         ?= 32
+SIMULATOR    ?= xsim
+
+# ── Python ──
+PYTHON := $(SCRIPTS_DIR)/venv/bin/python3
+ifeq (,$(wildcard $(PYTHON)))
+    PYTHON := python3
+endif
+
+# ── RTL sources ──
+RTL_SRC := \
+    $(RTL_DIR)/Definitions.sv \
+    $(RTL_DIR)/ALU_bitserial.sv \
+    $(RTL_DIR)/Register_File.sv \
+    $(RTL_DIR)/PE_main.sv \
+    $(RTL_DIR)/Array_main.sv \
+    $(RTL_DIR)/Control_Decode.sv \
+    $(RTL_DIR)/Control_FSM.sv \
+    $(RTL_DIR)/Control_unit.sv \
+    $(RTL_DIR)/Top.sv
+
+TB_SRC := $(TB_DIR)/tb_selfCheck.sv
+
+PLUSARGS := +INPUT_HEX=$(INPUT_HEX) +GOLDEN_OUT_HEX=$(GOLDEN_OUT_HEX) +RTL_OUT_HEX=$(RTL_OUT_HEX)
+
+# ============================================================================
+#  Targets
+# ============================================================================
+.PHONY: all golden sim compare clean help
+
+all: golden sim
+	@echo ""
+	@echo "=== Full flow complete ==="
+
+# ── Step 1: Generate golden reference ──
+golden: $(GOLDEN_OUT_HEX)
+
+$(GOLDEN_OUT_HEX): $(INPUT_HEX) $(SCRIPTS_DIR)/sobel_verify.py
+	@echo "=== Generating golden reference ==="
+	cd $(SIM_DIR) && $(PYTHON) $(SCRIPTS_DIR)/sobel_verify.py \
+	    --input $(INPUT_HEX) --rows $(ROWS) --cols $(COLS)
+	@echo ""
+
+# ── Step 2: Compile + run ──
+sim: $(GOLDEN_OUT_HEX)
+	@echo "=== Running simulation ($(SIMULATOR)) ==="
+ifeq ($(SIMULATOR),xsim)
+	cd $(SIM_DIR) && xvlog -sv --incr $(RTL_SRC) $(TB_SRC)
+	cd $(SIM_DIR) && xelab tb_selfCheck -s sim_snapshot --incr --debug typical
+	cd $(SIM_DIR) && xsim sim_snapshot -runall \
+	    -testplusarg "INPUT_HEX=$(INPUT_HEX)" \
+	    -testplusarg "GOLDEN_OUT_HEX=$(GOLDEN_OUT_HEX)" \
+	    -testplusarg "RTL_OUT_HEX=$(RTL_OUT_HEX)" \
+	    | tee sim.log
+else ifeq ($(SIMULATOR),questa)
+	cd $(SIM_DIR) && test -d work || vlib work
+	cd $(SIM_DIR) && vlog -sv +incdir+$(RTL_DIR) $(RTL_SRC) $(TB_SRC)
+	cd $(SIM_DIR) && vsim -c -do "run -all; quit -f" \
+	    $(PLUSARGS) tb_selfCheck | tee sim.log
+else ifeq ($(SIMULATOR),iverilog)
+	cd $(SIM_DIR) && iverilog -g2012 -I $(RTL_DIR) -o sim.vvp $(RTL_SRC) $(TB_SRC)
+	cd $(SIM_DIR) && vvp sim.vvp $(PLUSARGS) | tee sim.log
+endif
+	@echo ""
+	@# Check for PASS/FAIL in output
+	@if grep -q '\*\*\* PASS \*\*\*' $(SIM_DIR)/sim.log 2>/dev/null; then \
+	    echo "=== RESULT: PASS ==="; \
+	else \
+	    echo "=== RESULT: FAIL (check $(SIM_DIR)/sim.log) ==="; \
+	    exit 1; \
+	fi
+
+# ── Optional: Python-side comparison of output hex ──
+compare: $(RTL_OUT_HEX)
+	@echo "=== Comparing output vs golden ==="
+	$(PYTHON) $(SCRIPTS_DIR)/sobel_verify.py \
+	    --input $(INPUT_HEX) \
+	    --rtl-output $(RTL_OUT_HEX) \
+	    --rows $(ROWS) --cols $(COLS)
+
+# ── Clean ──
+clean:
+	rm -rf $(SIM_DIR)/work $(SIM_DIR)/sim.vvp $(SIM_DIR)/sim_snapshot
+	rm -f  $(SIM_DIR)/*.log $(SIM_DIR)/*.jou $(SIM_DIR)/*.pb
+	rm -f  $(SIM_DIR)/*.wdb $(SIM_DIR)/*.vcd
+	rm -f  $(GOLDEN_OUT_HEX) $(RTL_OUT_HEX)
+	rm -f  $(SIM_DIR)/expected_sobel_output.hex
+	rm -rf $(SIM_DIR)/xsim.dir
+	@echo "Cleaned."
+
+# ── Help ──
+help:
+	@echo "Targets:"
+	@echo "  make all          — full flow: golden + sim"
+	@echo "  make golden       — generate expected output (Python)"
+	@echo "  make sim          — compile + run simulation"
+	@echo "  make compare      — compare output hex vs golden (Python)"
+	@echo "  make clean        — remove build artifacts"
+	@echo ""
+	@echo "Options:"
+	@echo "  SIMULATOR=xsim    — Vivado (default)"
+	@echo "  SIMULATOR=questa  — Questa/ModelSim"
+	@echo "  SIMULATOR=iverilog — Icarus Verilog"
+	@echo "  ROWS=8 COLS=8     — smaller array for quick tests"

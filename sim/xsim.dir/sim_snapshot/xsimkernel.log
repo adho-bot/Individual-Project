@@ -1,0 +1,7 @@
+Running: xsim.dir/sim_snapshot/xsimk -runall -simmode gui -testplusarg INPUT_HEX=/home/gary/Individual_Project/img/4x4_input.hex -testplusarg GOLDEN_OUT_HEX=/home/gary/Individual_Project/sim/expected_sobel_output.hex -testplusarg RTL_OUT_HEX=/home/gary/Individual_Project/sim/actual_output.hex -wdb sim_snapshot.wdb -simrunnum 0 -socket 38281
+Design successfully loaded
+Design Loading Memory Usage: 226324 KB (Peak: 226456 KB)
+Design Loading CPU Usage: 830 ms
+Simulation completed
+Simulation Memory Usage: 316252 KB (Peak: 365592 KB)
+Simulation CPU Usage: 28200 ms

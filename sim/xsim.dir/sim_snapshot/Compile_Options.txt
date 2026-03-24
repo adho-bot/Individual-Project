@@ -1,0 +1,1 @@
+"tb_selfCheck" -s "sim_snapshot" --incr --debug "typical" 

@@ -1,0 +1,19 @@
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/gary/Individual_Project/rtl/Definitions.sv" into library work
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/gary/Individual_Project/rtl/ALU_bitserial.sv" into library work
+INFO: [VRFC 10-311] analyzing module ALU_bitserial
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/gary/Individual_Project/rtl/Register_File.sv" into library work
+INFO: [VRFC 10-311] analyzing module Register_File
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/gary/Individual_Project/rtl/PE_main.sv" into library work
+INFO: [VRFC 10-311] analyzing module PE_Main
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/gary/Individual_Project/rtl/Array_main.sv" into library work
+INFO: [VRFC 10-311] analyzing module Array_Main
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/gary/Individual_Project/rtl/Control_Decode.sv" into library work
+INFO: [VRFC 10-311] analyzing module Control_Decode
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/gary/Individual_Project/rtl/Control_FSM.sv" into library work
+INFO: [VRFC 10-311] analyzing module Control_FSM
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/gary/Individual_Project/rtl/Control_unit.sv" into library work
+INFO: [VRFC 10-311] analyzing module Control_Unit
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/gary/Individual_Project/rtl/Top.sv" into library work
+INFO: [VRFC 10-311] analyzing module Top
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/gary/Individual_Project/sim/tb_selfCheck.sv" into library work
+INFO: [VRFC 10-311] analyzing module tb_selfCheck

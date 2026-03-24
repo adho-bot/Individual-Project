@@ -1,0 +1,12 @@
+
+{ 
+    crc :  1167676381841141249  , 
+    ccp_crc :  0  , 
+    cmdline : " tb_selfCheck -s sim_snapshot --incr --debug typical" , 
+    buildDate : "Nov 14 2025" , 
+    buildTime : "12:36:23" , 
+    linkCmd : "/opt/2025.2/Vivado/lib/lnx64.o/../../tps/lnx64/gcc-9.3.0/bin/g++ -Wa,-W  -O -fPIC  -m64  -Wl,--no-as-needed  -Wl,--unresolved-symbols=ignore-all  -o \"xsim.dir/sim_snapshot/xsimk\"   \"xsim.dir/sim_snapshot/obj/xsim_0.lnx64.o\" \"xsim.dir/sim_snapshot/obj/xsim_1.lnx64.o\" \"xsim.dir/sim_snapshot/obj/xsim_2.lnx64.o\" \"xsim.dir/sim_snapshot/obj/xsim_3.lnx64.o\" \"xsim.dir/sim_snapshot/obj/xsim_4.lnx64.o\" \"xsim.dir/sim_snapshot/obj/xsim_5.lnx64.o\" \"xsim.dir/sim_snapshot/obj/xsim_6.lnx64.o\" \"xsim.dir/sim_snapshot/obj/xsim_7.lnx64.o\" \"xsim.dir/sim_snapshot/obj/xsim_8.lnx64.o\" \"xsim.dir/sim_snapshot/obj/xsim_9.lnx64.o\" \"xsim.dir/sim_snapshot/obj/xsim_10.lnx64.o\" \"xsim.dir/sim_snapshot/obj/xsim_11.lnx64.o\" \"xsim.dir/sim_snapshot/obj/xsim_12.lnx64.o\" \"xsim.dir/sim_snapshot/obj/xsim_13.lnx64.o\" \"xsim.dir/sim_snapshot/obj/xsim_14.lnx64.o\" \"xsim.dir/sim_snapshot/obj/xsim_15.lnx64.o\" -L\"/opt/2025.2/Vivado/lib/lnx64.o\" -lxv_simulator_kernel   -lxv_simbridge_kernel" , 
+    aggregate_nets : 
+    [ 
+    ] 
+} 

@@ -5,7 +5,7 @@
 //base is multiplied by 32 and added with pointer values(pointer will increement untill a word is extracted(lsb first))
 //How do i extract individual bits?
 
-
+`timescale 1ns/1ps
 module Register_File#(
     parameter DEPTH = 8,
     parameter WIDTH = 16

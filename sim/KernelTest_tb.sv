@@ -162,8 +162,8 @@ module KernelTest_tb;
     logic       instr_valid;
 
     // PROCESSOR CONTROL PARAMETERS
-    localparam ROW_LENGTH = 32;
-    localparam COL_LENGTH = 32;
+    localparam ROW_LENGTH = 2;
+    localparam COL_LENGTH = 2;
 
     localparam DATA_WIDTH = 16;
     localparam REG_DEPTH = 8;
@@ -229,7 +229,6 @@ module KernelTest_tb;
         clk = 0;
         rstn = 0;
         instruction = 20'h0;
-        array_data_in = 0;
         instr_valid = 1;
 
         $display("[TB] Loading image from /home/gary/Individual_Project/img/4x4_input.hex");
