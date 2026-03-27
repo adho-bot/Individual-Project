@@ -1,4 +1,5 @@
 `include "Definitions.sv"
+`timescale 1ns/1ps
 
 module Control_FSM#(
     parameter int DATA_WIDTH

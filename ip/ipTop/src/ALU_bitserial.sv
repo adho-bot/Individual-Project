@@ -1,6 +1,6 @@
 `include "Definitions.sv"
 
-
+`timescale 1ns/1ps
 //magnitude = (x ^ x[WIDTH - 1]) + x[WIDTH - 1]
 
 module ALU_bitserial(

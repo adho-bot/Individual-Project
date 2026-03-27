@@ -1,0 +1,43 @@
+#-----------------------------------------------------------
+# Vivado v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Fri Mar 27 12:00:04 2026
+# Process ID         : 408161
+# Current directory  : /home/gary/Individual_Project/rtl
+# Command line       : vivado
+# Log file           : /home/gary/Individual_Project/rtl/vivado.log
+# Journal file       : /home/gary/Individual_Project/rtl/vivado.jou
+# Running On         : gary-IdeaPad-Slim-5-Light-14ABR8
+# Platform           : Ubuntu
+# Operating System   : Ubuntu 24.04.4 LTS
+# Processor Detail   : AMD Ryzen 7 7730U with Radeon Graphics
+# CPU Frequency      : 1822.753 MHz
+# CPU Physical cores : 8
+# CPU Logical cores  : 16
+# Host memory        : 14479 MB
+# Swap memory        : 4294 MB
+# Total Virtual      : 18774 MB
+# Available Virtual  : 9389 MB
+#-----------------------------------------------------------
+start_gui
+open_project /home/gary/Individual_Project_System/Individual_Project_System.xpr
+update_compile_order -fileset sources_1
+open_bd_design {/home/gary/Individual_Project_System/Individual_Project_System.srcs/sources_1/bd/System_Top/System_Top.bd}
+report_ip_status -name ip_status 
+upgrade_ip -vlnv user.org:user:Top:1.0 [get_ips  System_Top_Top_0_0] -log ip_upgrade.log
+export_ip_user_files -of_objects [get_ips System_Top_Top_0_0] -no_script -sync -force -quiet
+generate_target all [get_files  /home/gary/Individual_Project_System/Individual_Project_System.srcs/sources_1/bd/System_Top/System_Top.bd]
+catch { config_ip_cache -export [get_ips -all System_Top_smartconnect_0_0] }
+catch { [ delete_ip_run [get_ips -all System_Top_smartconnect_0_0] ] }
+catch { config_ip_cache -export [get_ips -all System_Top_Top_0_0] }
+export_ip_user_files -of_objects [get_files /home/gary/Individual_Project_System/Individual_Project_System.srcs/sources_1/bd/System_Top/System_Top.bd] -no_script -sync -force -quiet
+create_ip_run [get_files -of_objects [get_fileset sources_1] /home/gary/Individual_Project_System/Individual_Project_System.srcs/sources_1/bd/System_Top/System_Top.bd]
+launch_runs System_Top_Top_0_0_synth_1 -jobs 8
+wait_on_run System_Top_Top_0_0_synth_1
+export_simulation -lib_map_path [list {modelsim=/home/gary/Individual_Project_System/Individual_Project_System.cache/compile_simlib/modelsim} {questa=/home/gary/Individual_Project_System/Individual_Project_System.cache/compile_simlib/questa} {xcelium=/home/gary/Individual_Project_System/Individual_Project_System.cache/compile_simlib/xcelium} {vcs=/home/gary/Individual_Project_System/Individual_Project_System.cache/compile_simlib/vcs} {riviera=/home/gary/Individual_Project_System/Individual_Project_System.cache/compile_simlib/riviera}] -of_objects [get_files /home/gary/Individual_Project_System/Individual_Project_System.srcs/sources_1/bd/System_Top/System_Top.bd] -directory /home/gary/Individual_Project_System/Individual_Project_System.ip_user_files/sim_scripts -ip_user_files_dir /home/gary/Individual_Project_System/Individual_Project_System.ip_user_files -ipstatic_source_dir /home/gary/Individual_Project_System/Individual_Project_System.ip_user_files/ipstatic -use_ip_compiled_libs -force -quiet
+report_ip_status -name ip_status 
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1

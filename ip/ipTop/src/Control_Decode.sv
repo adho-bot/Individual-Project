@@ -1,4 +1,7 @@
 `include "Definitions.sv"
+`timescale 1ns/1ps
+
+
 //need to add control signals for piso sipo
 module Control_Decode#(
     parameter int REG_DEPTH
@@ -50,7 +53,7 @@ always_comb begin
             o_rs2_sel    = 1'b0;
             o_news_sel   = 2'b00;
             o_wb_sel     = 1'b0;
-            o_opcode     = 3'd0;
+            o_opcode     = 3'b111;
             o_dataout_en = 1'b0; 
             o_data_wr    = 1'b0;
             o_data_rd    = 1'b0;

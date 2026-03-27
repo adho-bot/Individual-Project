@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 module PE_Main#(
     parameter DATA_WIDTH,
     parameter REG_DEPTH
