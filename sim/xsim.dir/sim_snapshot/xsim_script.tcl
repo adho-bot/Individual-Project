@@ -1,1 +1,0 @@
-xsim {sim_snapshot} -testplusarg INPUT_HEX=/home/gary/Individual_Project/img/4x4_input.hex -testplusarg GOLDEN_OUT_HEX=/home/gary/Individual_Project/sim/expected_sobel_output.hex -testplusarg RTL_OUT_HEX=/home/gary/Individual_Project/sim/actual_output.hex -autoloadwcfg -runall

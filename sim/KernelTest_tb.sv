@@ -240,7 +240,7 @@ module KernelTest_tb;
             $finish;
         end
 
-        #20;
+        #200;
         rstn = 1;
 
         // Recursive load into reg 1

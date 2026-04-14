@@ -162,8 +162,8 @@ module KernelTest_tb;
     logic       instr_valid;
 
     // PROCESSOR CONTROL PARAMETERS
-    localparam ROW_LENGTH = 2;
-    localparam COL_LENGTH = 2;
+    localparam ROW_LENGTH = 32;
+    localparam COL_LENGTH = 32;
 
     localparam DATA_WIDTH = 16;
     localparam REG_DEPTH = 8;
@@ -240,7 +240,7 @@ module KernelTest_tb;
             $finish;
         end
 
-        #20;
+        #200;
         rstn = 1;
 
         // Recursive load into reg 1

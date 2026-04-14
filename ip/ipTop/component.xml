@@ -64,7 +64,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>0eb32dff</spirit:value>
+            <spirit:value>ee7c986f</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -80,7 +80,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>0eb32dff</spirit:value>
+            <spirit:value>ee7c986f</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -95,7 +95,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>8ce89b27</spirit:value>
+            <spirit:value>5c35c3f8</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -281,12 +281,12 @@
       <spirit:modelParameter spirit:dataType="int">
         <spirit:name>ROW_LENGTH</spirit:name>
         <spirit:displayName>Row Length</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.ROW_LENGTH">2</spirit:value>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.ROW_LENGTH">16</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="int">
         <spirit:name>COL_LENGTH</spirit:name>
         <spirit:displayName>Col Length</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.COL_LENGTH">2</spirit:value>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.COL_LENGTH">16</spirit:value>
       </spirit:modelParameter>
     </spirit:modelParameters>
   </spirit:model>
@@ -304,7 +304,6 @@
         <spirit:name>src/Definitions.sv</spirit:name>
         <spirit:fileType>systemVerilogSource</spirit:fileType>
         <spirit:userFileType>IMPORTED_FILE</spirit:userFileType>
-        <spirit:isIncludeFile>true</spirit:isIncludeFile>
       </spirit:file>
       <spirit:file>
         <spirit:name>src/ALU_bitserial.sv</spirit:name>
@@ -344,7 +343,7 @@
       <spirit:file>
         <spirit:name>src/Top.sv</spirit:name>
         <spirit:fileType>systemVerilogSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_d3d206d2</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_0ffb2343</spirit:userFileType>
         <spirit:userFileType>IMPORTED_FILE</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
@@ -354,7 +353,6 @@
         <spirit:name>src/Definitions.sv</spirit:name>
         <spirit:fileType>systemVerilogSource</spirit:fileType>
         <spirit:userFileType>IMPORTED_FILE</spirit:userFileType>
-        <spirit:isIncludeFile>true</spirit:isIncludeFile>
       </spirit:file>
       <spirit:file>
         <spirit:name>src/ALU_bitserial.sv</spirit:name>
@@ -438,12 +436,12 @@
     <spirit:parameter>
       <spirit:name>ROW_LENGTH</spirit:name>
       <spirit:displayName>Row Length</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.ROW_LENGTH">2</spirit:value>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.ROW_LENGTH">16</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>COL_LENGTH</spirit:name>
       <spirit:displayName>Col Length</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.COL_LENGTH">2</spirit:value>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.COL_LENGTH">16</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>Component_Name</spirit:name>
@@ -469,15 +467,15 @@
       <xilinx:displayName>Top_v1_0</xilinx:displayName>
       <xilinx:definitionSource>package_project</xilinx:definitionSource>
       <xilinx:coreRevision>2</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2026-03-27T11:56:40Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2026-04-14T10:45:35Z</xilinx:coreCreationDateTime>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2025.2</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="973ddee7"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="385816bd"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="8675db89"/>
       <xilinx:checksum xilinx:scope="ports" xilinx:value="39c24918"/>
-      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="609fb255"/>
-      <xilinx:checksum xilinx:scope="parameters" xilinx:value="1d672d42"/>
+      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="a2a3bc8a"/>
+      <xilinx:checksum xilinx:scope="parameters" xilinx:value="dc242970"/>
     </xilinx:packagingInfo>
   </spirit:vendorExtensions>
 </spirit:component>
