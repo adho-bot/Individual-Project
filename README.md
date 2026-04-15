@@ -33,6 +33,12 @@ Hardware/software co-design project for Sobel edge detection on a custom SIMD ar
 
 ## Quick start
 
+Set your repo root once:
+
+```bash
+export PROJECT_DIR=/absolute/path/to/Individual-Project
+```
+
 ### 1) Configure project path in Makefile
 
 `Makefile.sobel` contains a fixed path:
@@ -41,19 +47,19 @@ Hardware/software co-design project for Sobel edge detection on a custom SIMD ar
 
 Update it to your local repository path, for example:
 
-- `PROJECT_DIR := /home/runner/work/Individual-Project/Individual-Project`
+- `PROJECT_DIR := /absolute/path/to/Individual-Project`
 
 ### 2) Generate golden output
 
 ```bash
-cd /home/runner/work/Individual-Project/Individual-Project
+cd ${PROJECT_DIR}
 make -f Makefile.sobel golden
 ```
 
 ### 3) Run RTL simulation
 
 ```bash
-cd /home/runner/work/Individual-Project/Individual-Project
+cd ${PROJECT_DIR}
 make -f Makefile.sobel sim SIMULATOR=iverilog
 ```
 
@@ -62,14 +68,14 @@ Replace `iverilog` with `xsim` or `questa` as needed.
 ### 4) Compare outputs
 
 ```bash
-cd /home/runner/work/Individual-Project/Individual-Project
+cd ${PROJECT_DIR}
 make -f Makefile.sobel compare
 ```
 
 ## Useful commands
 
 ```bash
-cd /home/runner/work/Individual-Project/Individual-Project
+cd ${PROJECT_DIR}
 make -f Makefile.sobel help
 make -f Makefile.sobel clean
 ```
@@ -79,9 +85,9 @@ make -f Makefile.sobel clean
 Main script: `/scripts/sobel_verify.py`
 
 ```bash
-python3 /home/runner/work/Individual-Project/Individual-Project/scripts/sobel_verify.py --self-test
-python3 /home/runner/work/Individual-Project/Individual-Project/scripts/sobel_verify.py --input /home/runner/work/Individual-Project/Individual-Project/img/4x4_input.hex --rows 32 --cols 32
-python3 /home/runner/work/Individual-Project/Individual-Project/scripts/sobel_verify.py --input /home/runner/work/Individual-Project/Individual-Project/img/4x4_input.hex --rtl-output /home/runner/work/Individual-Project/Individual-Project/sim/actual_output.hex --rows 32 --cols 32
+python3 ${PROJECT_DIR}/scripts/sobel_verify.py --self-test
+python3 ${PROJECT_DIR}/scripts/sobel_verify.py --input ${PROJECT_DIR}/img/4x4_input.hex --rows 32 --cols 32
+python3 ${PROJECT_DIR}/scripts/sobel_verify.py --input ${PROJECT_DIR}/img/4x4_input.hex --rtl-output ${PROJECT_DIR}/sim/actual_output.hex --rows 32 --cols 32
 ```
 
 ## Notes
