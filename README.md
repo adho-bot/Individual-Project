@@ -1,4 +1,4 @@
-# Individual-Project
+# Individual Project
 
 Hardware/software co-design project for Sobel edge detection on a custom SIMD array processor.
 
