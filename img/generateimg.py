@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 
 # in_path = "/home/gary/Individual_Project/img/lena_gray.bmp"  # Commented out
-hex_path = "/home/gary/Individual_Project/cnn/test_img_16x16/test_34_label0.hex"   # Your .hex file
+hex_path = "/home/gary/Individual_Project/cnn/test_img_16x16/test_05_label9.hex"   # Your .hex file
 out_path = "/home/gary/Individual_Project_System/System_Top/src/imagedata.h"
 
 WIDTH = 16
