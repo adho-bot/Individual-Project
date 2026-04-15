@@ -41,9 +41,7 @@ export PROJECT_DIR=/absolute/path/to/Individual-Project
 
 ### 1) Configure project path in Makefile
 
-`Makefile.sobel` contains a fixed path:
-
-- `PROJECT_DIR := /home/gary/Individual_Project`
+`Makefile.sobel` contains a machine-specific `PROJECT_DIR` value.
 
 Update it to your local repository path, for example:
 
@@ -86,8 +84,8 @@ Main script: `/scripts/sobel_verify.py`
 
 ```bash
 python3 ${PROJECT_DIR}/scripts/sobel_verify.py --self-test
-python3 ${PROJECT_DIR}/scripts/sobel_verify.py --input ${PROJECT_DIR}/img/4x4_input.hex --rows 32 --cols 32
-python3 ${PROJECT_DIR}/scripts/sobel_verify.py --input ${PROJECT_DIR}/img/4x4_input.hex --rtl-output ${PROJECT_DIR}/sim/actual_output.hex --rows 32 --cols 32
+python3 ${PROJECT_DIR}/scripts/sobel_verify.py --input ${PROJECT_DIR}/img/4x4_input.hex --rows 4 --cols 4
+python3 ${PROJECT_DIR}/scripts/sobel_verify.py --input ${PROJECT_DIR}/img/4x4_input.hex --rtl-output ${PROJECT_DIR}/sim/actual_output.hex --rows 4 --cols 4
 ```
 
 ## Notes
