@@ -9,6 +9,7 @@ The main testbench in this module computes the Sobel edge detection algorithm th
 ## Demo
 
 <img width="585" height="317" alt="image" src="https://github.com/user-attachments/assets/590034af-cda9-4918-82ec-76c8307d5ace" /> 
+
 Sobel edge detection example
 
 ## Repository Layout
@@ -27,7 +28,7 @@ Sobel edge detection example
 
 These instructions assume you are starting from scratch with no prior tools installed.
 
-1. **Download Vivado.** Go to the [AMD/Xilinx downloads page](https://www.xilinx.com/support/download.html) and download the Vivado installer (the Vivado ML Edition / Unified Installer).
+1. **Download Vivado.** Go to the [AMD/Xilinx downloads page](https://www.xilinx.com/support/download.html)
 2. **Run the installer.** Launch the installer and sign in with (or create) an AMD account when prompted.
 3. **Select Vitis.** On the edition selection screen, choose the option that installs **Vitis** alongside Vivado, so you have the software development tools needed to drive the accelerator.
 4. **Select the Zynq device family.** When choosing devices/families to install, make sure the **Zynq** checkmark is ticked, as the target board is Zynq-based.
@@ -60,6 +61,11 @@ The project includes a GUI demo with panels for both Sobel edge detection and MN
    This opens a GUI with panels for both Sobel and MNIST.
 4. **Run the Sobel verification.** In Vivado, run the verification testbench `KernelTest_tb.sv` and wait for it to complete.
 5. **View the output.** Once the testbench has finished, click the **Show Result** button in the GUI to see the Sobel output.
+
+**Note:** To change the test image, edit the path in the config section in `PROJECT_DEMO.py` to the path of your test image
+   ```python
+    "lena_path":        "/home/gary/Individual_Project/img/lena_gray.bmp",
+   ```
 
 ### What this project does
 
