@@ -8,7 +8,8 @@ The main testbench in this module computes the Sobel edge detection algorithm th
 
 ## Demo
 
-*Add a diagram, image, or short demo video/GIF here to give context (for example, the input image alongside the Sobel edge-detected output).*
+<img width="585" height="317" alt="image" src="https://github.com/user-attachments/assets/590034af-cda9-4918-82ec-76c8307d5ace" /> 
+Sobel edge detection example
 
 ## Repository Layout
 
@@ -37,10 +38,28 @@ These instructions assume you are starting from scratch with no prior tools inst
 
 These steps assume no prior knowledge of the project.
 
-To run the **full workflow**, go to the **`Individual_Project_System`** repository to access the supporting system hardware for the current array processor.
+To run the **full workflow**, go to the **`Individual_Project_System`** repository to access the supporting system hardware for the current array processor. The CNN code that runs on the PYNQ-Z2 FPGA can also be found there.
 
-* **Demo verification:** A demo verification testbench is provided in the `sim` directory under `KernelTest_tb.sv`. Open the project in Vivado and run this testbench in simulation to see the array processor in action.
-* **CNN on hardware:** The CNN code that runs on the PYNQ-Z2 FPGA can be found in the **`Individual_Project_System`** repository.
+### Running the Demo
+
+The project includes a GUI demo with panels for both Sobel edge detection and MNIST.
+
+1. **Open the `img` folder.** From the repository root, run:
+   ```bash
+   cd img
+   code .
+   ```
+2. **Activate the virtual environment:**
+   ```bash
+   source venv/bin/activate
+   ```
+3. **Launch the demo GUI:**
+   ```bash
+   python3 -u PROJECT_DEMO.py
+   ```
+   This opens a GUI with panels for both Sobel and MNIST.
+4. **Run the Sobel verification.** In Vivado, run the verification testbench `KernelTest_tb.sv` and wait for it to complete.
+5. **View the output.** Once the testbench has finished, click the **Show Result** button in the GUI to see the Sobel output.
 
 ### What this project does
 
