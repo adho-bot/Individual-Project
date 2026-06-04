@@ -6,7 +6,7 @@ This repository contains the RTL code for the Bit-Serial Array Processor, an FPG
 
 The main testbench in this module computes the Sobel edge detection algorithm through bit-serial shift operations, demonstrating how the array can be driven to perform a real image processing task.
 
-<img width="585" height="483" alt="image" src="https://github.com/user-attachments/assets/2650eedd-098a-467f-bb30-47ddf75b1fa0" />
+<img width="585" height="430" alt="image" src="https://github.com/user-attachments/assets/2650eedd-098a-467f-bb30-47ddf75b1fa0" />
 
 Array Diagram Overview
 
