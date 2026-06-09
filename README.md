@@ -30,7 +30,7 @@ Sobel edge detection example
 * `/ip` – Packaged IP blocks and wrappers.
 * `/syn` – FPGA constraint files.
 * `/cnn` – 16x16 image/test data and software helpers.
-* `/report` – Project report artifacts.
+* `/Final_Report_Latex` – Dissertation in latex.
 
 ## User Installation Instructions
 
